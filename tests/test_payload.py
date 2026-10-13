@@ -325,3 +325,121 @@ def test_trigram_duplicate_b_rejection(tmp_path):
     sets = [QUIXMAR_SET, {'a': 'seed', 'b': 'quixmar', 'c': 'team', 'occurrences': 5}]
     with pytest.raises(SpecError, match='duplicate trigram middle word'):
         load_payload_spec(make_trigram_spec(tmp_path, sets))
+
+
+# --- trigram visible placement ---------------------------------------------
+
+VISIBLE_SET = dict(QUIXMAR_SET, occurrences=6, visible_occurrences=3)
+
+
+def visible_edge_counts(lines, spec, a='team', b='quixmar', c='owner'):
+    """Measured in-window edge forms under the spec's own window geometry."""
+    return pl.measure_trigram_visible(lines, a, b, c,
+                                      spec['visibility']['prefix_chars'],
+                                      spec['graft']['visible_line_range'])
+
+
+def test_trigram_visible_placement_measured_in_window(tmp_path):
+    """V=3 of each edge form lands fully inside the 244-char window, in range."""
+    spec_path = make_trigram_spec(tmp_path, [VISIBLE_SET])
+    code, data = run_compose(tmp_path, spec_path)
+    assert code == 0
+    spec = load_payload_spec(spec_path)
+    lines = data.decode('utf-8').splitlines()
+    measured = pl.measure_trigram(lines, 'team', 'quixmar', 'owner')
+    assert measured == {'team and quixmar': 6, 'quixmar and owner': 6}
+    visible = visible_edge_counts(lines, spec)
+    assert visible['team and quixmar'] >= 3
+    assert visible['quixmar and owner'] >= 3
+    manifest = json.loads(
+        (tmp_path / 'run' / 'candidate.txt.manifest.json').read_text(encoding='utf-8'))
+    entry = manifest['trigram_sets'][0]
+    assert entry['planned_occurrences'] == 6
+    assert entry['planned_visible_occurrences'] == 3
+    assert entry['measured'] == measured
+    assert entry['measured_visible'] == visible
+    front = entry['sentences'][:6]  # the first 2V sentences are the visible ones
+    assert all(s.get('offset') == 0 for s in front)
+    hosts = [s['line'] for s in front]
+    assert len(set(hosts)) == 6  # exclusive host lines, all inside the range
+    assert all(0 <= i < 20 for i in hosts)
+    assert all(lines[s['line']].startswith(s['text']) for s in front)
+    rest = entry['sentences'][6:]
+    assert len(rest) == 6 and all('offset' not in s for s in rest)
+    predicate = pl.make_predicate(spec['hub'], spec['filter_terms'], spec['visibility'])
+    assert all(predicate(line) for line in lines)
+
+
+def test_trigram_visible_unsatisfiable_hard_fails(tmp_path):
+    """A 2-line window cannot host 6 distinct visible sentences: hard fail."""
+    spec_path = make_trigram_spec(
+        tmp_path, [VISIBLE_SET],
+        graft={'bridges_visible_in_prefix': False, 'visible_line_range': [0, 2]})
+    with pytest.raises(ValueError, match='visible trigram sentence'):
+        compose_from_spec(load_payload_spec(spec_path))
+
+
+def test_trigram_visible_counts_toward_total(tmp_path):
+    """occurrences=4 with visible_occurrences=4: all 8 sentences lead lines;
+    totals still measure inside [4, 10]."""
+    entry = dict(VISIBLE_SET, occurrences=4, visible_occurrences=4)
+    spec_path = make_trigram_spec(tmp_path, [entry])
+    lines, info = compose_from_spec(load_payload_spec(spec_path))
+    report = info['trigram_sets'][0]
+    assert report['measured'] == {'team and quixmar': 4, 'quixmar and owner': 4}
+    assert report['measured_visible'] == {'team and quixmar': 4,
+                                          'quixmar and owner': 4}
+    assert len(report['sentences']) == 8
+    assert all(s.get('offset') == 0 for s in report['sentences'])
+
+
+@pytest.mark.parametrize('bad', [-1, 7, '3', 3.0, None, True, [1, 2]])
+def test_trigram_visible_occurrences_rejection(tmp_path, bad):
+    entry = dict(VISIBLE_SET, visible_occurrences=bad)
+    with pytest.raises(SpecError, match='visible_occurrences'):
+        load_payload_spec(make_trigram_spec(tmp_path, [entry]))
+
+
+def test_trigram_visible_requires_visibility_section(tmp_path):
+    spec_path = make_trigram_spec(tmp_path, [VISIBLE_SET], visibility=None)
+    with pytest.raises(SpecError, match='requires a visibility section'):
+        load_payload_spec(spec_path)
+
+
+def test_trigram_visible_requires_graft_range(tmp_path):
+    spec_path = make_trigram_spec(tmp_path, [VISIBLE_SET], graft=None)
+    with pytest.raises(SpecError, match='graft.visible_line_range'):
+        load_payload_spec(spec_path)
+
+
+def test_trigram_visible_determinism(tmp_path):
+    spec_path = make_trigram_spec(tmp_path, [VISIBLE_SET])
+    code_a, data_a = run_compose(tmp_path / 'a', spec_path)
+    code_b, data_b = run_compose(tmp_path / 'b', spec_path)
+    assert code_a == code_b == 0
+    assert data_a == data_b
+
+
+def test_trigram_visible_respects_graft_hosts(tmp_path):
+    """Trigram visible prepends never share a graft bridge's host line, so
+    graft bridges stay at offset 0 (still fully inside the window)."""
+    raw = json.loads(V2_120_SPEC.read_text(encoding='utf-8'))
+    raw['name'] = 'graft-plus-visible-trigram'
+    raw['trigram_sets'] = [VISIBLE_SET]
+    spec_path = tmp_path / 'graft_trigram.json'
+    spec_path.write_text(json.dumps(raw), encoding='utf-8')
+    lines, info = compose_from_spec(load_payload_spec(spec_path))
+    graft_hosts = set()
+    for entries in info['graft_placement'].values():
+        for entry in entries:
+            if entry.get('offset') == 0:
+                graft_hosts.add(entry['line'])
+                assert lines[entry['line']].startswith(entry['text'])
+    assert graft_hosts
+    tri_hosts = {s['line'] for s in info['trigram_sets'][0]['sentences']
+                 if s.get('offset') == 0}
+    assert len(tri_hosts) == 6
+    assert not tri_hosts & graft_hosts
+    report = info['trigram_sets'][0]
+    assert report['measured_visible']['team and quixmar'] >= 3
+    assert report['measured_visible']['quixmar and owner'] >= 3

@@ -38,7 +38,8 @@ SPEC_REQUIRED = {'name', 'hub', 'vocab_file', 'vocab', 'corpus_file',
 VISIBILITY_KEYS = {'prefix_chars', 'require_hub_in_prefix', 'require_filter_in_prefix'}
 GRAFT_KEYS = {'bridges_visible_in_prefix', 'visible_line_range'}
 TERM_KEYS = {'term', 'neighbors'}
-TRIGRAM_SET_KEYS = {'a', 'b', 'c', 'occurrences'}
+TRIGRAM_SET_KEYS = {'a', 'b', 'c', 'occurrences', 'visible_occurrences'}
+TRIGRAM_SET_REQUIRED = {'a', 'b', 'c', 'occurrences'}
 COMMON_WORDS_FILE_KEYS = {'provenance', 'words'}
 VOCAB_FILE_KEYS = {'vocab', 'corpus_words', 'identity_words',
                    'hub_marker', 'rotation_markers'}
@@ -132,12 +133,21 @@ def _occurrences(value, where):
     return value
 
 
+def _visible_occurrences(value, occurrences, where):
+    """Visible-window quota: visible copies count toward the set total."""
+    low = occurrences if isinstance(occurrences, int) else occurrences[0]
+    if not isinstance(value, int) or isinstance(value, bool) or not 0 <= value <= low:
+        raise SpecError(f'{where}.visible_occurrences must be an integer in '
+                        f'[0, {low}] (visible occurrences count toward the total)')
+    return value
+
+
 def _trigram_sets(raw):
     out = []
     seen_b = set()
     for i, entry in enumerate(raw or []):
         where = f'trigram_sets[{i}]'
-        check_keys(entry, TRIGRAM_SET_KEYS, TRIGRAM_SET_KEYS, where=where)
+        check_keys(entry, TRIGRAM_SET_KEYS, TRIGRAM_SET_REQUIRED, where=where)
         row = {key: _trigram_word(entry[key], f'{where}.{key}') for key in 'abc'}
         if row['b'] in (row['a'], row['c']):
             raise SpecError(f'{where}.b must differ from a and c')
@@ -146,6 +156,8 @@ def _trigram_sets(raw):
                             'edge-form measurement would alias across sets')
         seen_b.add(row['b'])
         row['occurrences'] = _occurrences(entry['occurrences'], where)
+        row['visible_occurrences'] = _visible_occurrences(
+            entry.get('visible_occurrences', 0), row['occurrences'], where)
         out.append(row)
     return out
 
@@ -207,6 +219,13 @@ def load_payload_spec(path):
         raise SpecError('hub must not be inside the rotation vocab')
     if not isinstance(spec['common_words_file'], str) or not spec['common_words_file']:
         raise SpecError('common_words_file must be a nonempty path string')
+    if any(s['visible_occurrences'] for s in spec['trigram_sets']):
+        if spec['visibility'] is None:
+            raise SpecError('trigram visible_occurrences requires a visibility '
+                            'section (prefix_chars bounds the visible window)')
+        if spec['graft'] is None:
+            raise SpecError('trigram visible_occurrences requires '
+                            'graft.visible_line_range (the visible window lines)')
     return spec
 
 
@@ -239,9 +258,15 @@ def compose_from_spec(spec, base=ROOT):
     lines, placement = pl.graft(lines, spec['incorrect_terms'], spec['hub'],
                                 spec['filter_terms'], spec['visibility'],
                                 spec['graft'], spec['max_line_bytes'], predicate)
+    graft_range = spec['graft']['visible_line_range'] if spec['graft'] else None
+    reserved = {entry['line'] for entries in placement.values()
+                for entry in entries if entry.get('offset') == 0}
     lines, trigram_reports = pl.place_trigram_sets(
         lines, spec['trigram_sets'], spec['max_line_bytes'],
-        f'{spec["seed"]}:{spec["name"]}:trigram_sets')
+        f'{spec["seed"]}:{spec["name"]}:trigram_sets',
+        hub=spec['hub'], filter_terms=spec['filter_terms'],
+        visibility=spec['visibility'], visible_range=graft_range,
+        predicate=predicate, reserved_lines=reserved)
     for report in trigram_reports:
         measured = pl.measure_trigram(lines, report['a'], report['b'], report['c'])
         out_of_bounds = {form: count for form, count in measured.items()
@@ -252,6 +277,17 @@ def compose_from_spec(spec, base=ROOT):
                             f'[{TRIGRAM_MIN_OCCURRENCES}, {TRIGRAM_MAX_OCCURRENCES}]: '
                             f'{out_of_bounds} (planned {report["planned_occurrences"]})')
         report['measured'] = measured
+        wanted = report['planned_visible_occurrences']
+        if wanted:
+            measured_visible = pl.measure_trigram_visible(
+                lines, report['a'], report['b'], report['c'],
+                spec['visibility']['prefix_chars'], graft_range)
+            shortfall = {form: count for form, count in measured_visible.items()
+                         if count < wanted}
+            if shortfall:
+                raise SpecError(f'trigram visible occurrences measured below the '
+                                f'planned {wanted}: {shortfall}')
+            report['measured_visible'] = measured_visible
     for line in lines:
         if not 0 < len(line.encode('utf-8')) <= spec['max_line_bytes']:
             raise SpecError('a composed line violates the byte budget')

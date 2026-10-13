@@ -28,7 +28,8 @@ file are rejected (`gooplib/spec.py` is the shared loader).
   "vocab": ["team", "..."],
   "filter_terms": ["summary", "tick", "seed", "usage", "score", "alive", "owner"],
   "incorrect_terms": [{"term": "banana", "neighbors": ["team", "..."]}],
-  "trigram_sets": [{"a": "team", "b": "quixmar", "c": "owner", "occurrences": 6}],
+  "trigram_sets": [{"a": "team", "b": "quixmar", "c": "owner", "occurrences": 6,
+                    "visible_occurrences": 3}],
   "common_words_file": "payloads/common_words.json",
   "corpus_file": "payloads/FinalPayload.md",
   "lines": 20,
@@ -45,7 +46,8 @@ Required: `name`, `hub`, `vocab_file`, `vocab`, `corpus_file`, `lines`,
 `incorrect_terms` (default `[]`), `trigram_sets` (default `[]`),
 `common_words_file` (default `payloads/common_words.json`), `visibility`
 (default accept-all), `graft` (default no visible bridges; appends land
-anywhere).
+anywhere). Per trigram set, `visible_occurrences` is optional (default `0`;
+requires the `visibility` and `graft` sections when nonzero).
 
 The vocab file (`payloads/re_vocab.json`) carries `vocab` (rotation pool —
 must equal the spec's inline `vocab`, one source of truth per run),
@@ -72,11 +74,16 @@ must equal the spec's inline `vocab`, one source of truth per run),
    range end to the roomiest line (max headroom, ties to lowest index),
    skipping lines ending in a dangling `and`.
 4. **Trigram sets**: additive `a and b.` / `b and c.` sentence pairs with a
-   rare middle word `b`, appended to lines drawn from a dedicated seeded
-   stream (`random.Random("<seed>:<name>:trigram_sets")` — the compose
-   stream is never touched), same byte budget and dangling-`and` guard as
-   the graft. Appends only, so the visible prefix and every pre-existing
-   edge survive verbatim.
+   rare middle word `b`. A set carrying `visible_occurrences` V first
+   **prepends** V copies of EACH edge form to distinct lines inside
+   `graft.visible_line_range` (the same max-margin prepend as the graft —
+   deterministic, exclusive host lines, graft bridge hosts excluded, no RNG
+   consumed); the visible copies count toward the set total. The remaining
+   copies are **appended** to lines drawn from a dedicated seeded stream
+   (`random.Random("<seed>:<name>:trigram_sets")` — the compose stream is
+   never touched), same byte budget and dangling-`and` guard as the graft.
+   Prepends only shift prefix content right and appends never touch it, so
+   the visible prefix and every pre-existing edge survive verbatim.
 
 ## Trigram sets (rare middle word)
 
@@ -117,6 +124,23 @@ the graph metrics (`gooplib/payload.py: measure_trigram`), exact lowercase
 composition fails. The candidate manifest reports every set as
 `planned_occurrences` vs `measured`, plus the target line of each planted
 sentence.
+
+**Visible occurrences**: `visible_occurrences` V (integer in
+`[0, occurrences]`) guarantees at least V occurrences of EACH edge form
+land with their full text ending inside the first `visibility.prefix_chars`
+characters of lines in `graft.visible_line_range` — the window a clipped
+reviewer actually sees. Placement: the first 2V sentences (V per form,
+interleaved) lead distinct in-range lines at offset 0 (max post-prepend
+predicate margin, ties to lowest index; a host line never serves two
+visible sentences, and graft bridge hosts are excluded, so no prepend can
+push another visible sentence out of the window). Visible copies count
+toward `occurrences`; the rest append as before. A window too small to
+host 2V sentences is a hard placement error; after placement the in-window
+count per form is re-measured (`measure_trigram_visible`, same regex with
+the complete-endpoint limit) and any shortfall below V is a hard failure.
+The manifest records `planned_visible_occurrences` per set and, when V is
+nonzero, `measured_visible` per edge form; visible sentences are marked
+`offset: 0` in the sentence list.
 
 ## Regression controls (pinned, byte-exact)
 

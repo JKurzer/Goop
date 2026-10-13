@@ -14,8 +14,12 @@ Pipeline (all inputs arrive as arguments, loaded from files by the caller):
      period cannot bridge into the line's first word); the rest are appended
      to the roomiest later lines with a dangling-'and' guard.
   4. trigram_sets: additive 'a and b.' / 'b and c.' sentence pairs with a
-     rare middle word b, placed by a dedicated seeded stream (the compose
-     stream is untouched) under the same byte budget and junction guard.
+     rare middle word b. A set carrying visible_occurrences prepends that
+     many copies of EACH edge form to distinct lines inside the visible
+     line range (the same max-margin prepend as the graft; visible copies
+     count toward the set total); the rest are appended by a dedicated
+     seeded stream (the compose stream is untouched) under the same byte
+     budget and junction guard.
 """
 import hashlib
 import random
@@ -191,35 +195,56 @@ def visible_neighbor(neighbors, filter_terms):
     return neighbors[0]
 
 
+def prepend_visible(out, room, used, text, visibility, visible_range,
+                    hub, filter_terms, predicate):
+    """Prepend `text` to the best distinct host line inside visible_range.
+
+    Deterministic pick: maximum post-prepend predicate margin, ties to the
+    lowest line index. Host lines are exclusive (`used` is shared by every
+    visible prepend of a run), so one prepend never pushes another visible
+    sentence out of the prefix window. A prepend shifts prefix content
+    right but removes none of it, and the sentence's terminal period
+    cannot form a conjunction with the line's first word, so every
+    pre-existing edge survives verbatim. The prepended text starts at
+    offset 0, so it always ends inside the prefix_chars window. Returns
+    the host line index, or None when no unused line in range has the
+    byte room and still passes the predicate post-prepend.
+    """
+    start, end = visible_range
+    prefix = visibility['prefix_chars']
+    cost = len(text.encode('utf-8')) + 1
+    eligible = [i for i in range(start, end) if i not in used and room[i] >= cost
+                and (predicate is None or predicate(text + ' ' + out[i]))]
+    if not eligible:
+        return None
+    target = min(eligible, key=lambda i: (
+        -predicate_margin(text + ' ' + out[i], hub, filter_terms, prefix), i))
+    out[target] = text + ' ' + out[target]
+    room[target] -= cost
+    used.add(target)
+    return target
+
+
 def place_visible_bridges(lines, terms, hub, filter_terms, visibility,
                           visible_range, budget, predicate):
     """Prepend one bridge per term to a distinct line inside visible_range.
 
-    Deterministic: the pick is maximum post-prepend predicate margin, ties to
-    the lowest line index. A prepend shifts prefix content right but removes
-    none of it, and the bridge's terminal period cannot form a conjunction
-    with the line's first word, so every pre-existing edge survives verbatim.
+    Deterministic via prepend_visible: maximum post-prepend predicate
+    margin, ties to the lowest line index, exclusive host lines.
     """
     start, end = visible_range
     if not 0 <= start < end <= len(lines):
         raise ValueError(f'visible_line_range {visible_range} outside 0..{len(lines)}')
-    prefix = visibility['prefix_chars']
     out = list(lines)
     room = [budget - len(line.encode('utf-8')) for line in out]
     used, placement = set(), {}
     for term, neighbors in terms:
         neighbor = visible_neighbor(neighbors, filter_terms)
         text = bridge_sentence(term, neighbor)
-        cost = len(text.encode('utf-8')) + 1
-        eligible = [i for i in range(start, end) if i not in used and room[i] >= cost
-                    and (predicate is None or predicate(text + ' ' + out[i]))]
-        if not eligible:
+        target = prepend_visible(out, room, used, text, visibility,
+                                 visible_range, hub, filter_terms, predicate)
+        if target is None:
             raise ValueError(f'no line in {start}-{end - 1} can host the visible bridge for {term}')
-        target = min(eligible, key=lambda i: (
-            -predicate_margin(text + ' ' + out[i], hub, filter_terms, prefix), i))
-        out[target] = text + ' ' + out[target]
-        room[target] -= cost
-        used.add(target)
         placement[term] = {'neighbor': neighbor, 'line': target, 'offset': 0,
                            'text': text}
     return out, placement
@@ -282,16 +307,24 @@ def graft(lines, incorrect_terms, hub, filter_terms, visibility, graft_spec,
 
 # --- additive trigram sets (rare middle word) ------------------------------
 
-def place_trigram_sets(lines, trigram_sets, budget, seed_text):
+def place_trigram_sets(lines, trigram_sets, budget, seed_text, hub=None,
+                       filter_terms=(), visibility=None, visible_range=None,
+                       predicate=None, reserved_lines=()):
     """Seed-driven additive placement of 'a and b.' / 'b and c.' sentences.
 
     Each set plans `occurrences` copies of both edge sentences (a [min, max]
     range resolves on the same stream, in set order, before that set's
-    placements). Every sentence is appended to a line drawn from a dedicated
-    RNG stream (seed_text) among lines with byte room whose last token is not
-    'and' — the same dangling-junction guard as the graft. Appends never
-    touch the visible prefix, so the visibility predicate still holds on
-    every line, and existing text is never modified, so every pre-existing
+    placements). When a set carries `visible_occurrences` V, the first 2V
+    sentences (V of each edge form, interleaved) are PREPENDED to distinct
+    lines inside visible_range via prepend_visible — deterministic
+    max-margin picks, no RNG consumed; `reserved_lines` (e.g. graft bridge
+    hosts) stay exclusive so a prepend never pushes another visible
+    sentence out of the window. Every remaining sentence is appended to a
+    line drawn from a dedicated RNG stream (seed_text) among lines with
+    byte room whose last token is not 'and' — the same dangling-junction
+    guard as the graft. Appends never touch the visible prefix and prepends
+    only shift it right, so the visibility predicate still holds on every
+    line, and existing text is never modified, so every pre-existing
     conjunction edge survives verbatim. Returns (lines, per-set reports).
     """
     if not trigram_sets:
@@ -299,6 +332,7 @@ def place_trigram_sets(lines, trigram_sets, budget, seed_text):
     rng = random.Random(seed_text)
     out = list(lines)
     room = [budget - len(line.encode('utf-8')) for line in out]
+    used = set(reserved_lines)
     reports = []
     for entry in trigram_sets:
         a, b, c = entry['a'], entry['b'], entry['c']
@@ -306,10 +340,25 @@ def place_trigram_sets(lines, trigram_sets, budget, seed_text):
         if isinstance(occurrences, list):
             low, high = occurrences
             occurrences = low + rng.randrange(high - low + 1)
+        visible = entry.get('visible_occurrences', 0)
         sentences = [text for _ in range(occurrences)
                      for text in (bridge_sentence(a, b), bridge_sentence(b, c))]
         placement = []
-        for text in sentences:
+        if visible:
+            if visibility is None or visible_range is None:
+                raise ValueError('visible trigram occurrences require a '
+                                 'visibility spec and a visible line range')
+            start, end = visible_range
+            if not 0 <= start < end <= len(out):
+                raise ValueError(f'visible_line_range {visible_range} outside 0..{len(out)}')
+            for text in sentences[:2 * visible]:
+                target = prepend_visible(out, room, used, text, visibility,
+                                         visible_range, hub, filter_terms, predicate)
+                if target is None:
+                    raise ValueError(f'no line in {start}-{end - 1} can host the '
+                                     f'visible trigram sentence {text!r}')
+                placement.append({'text': text, 'line': target, 'offset': 0})
+        for text in sentences[2 * visible:]:
             cost = len(text.encode('utf-8')) + 1
             fits = [i for i in range(len(out))
                     if room[i] >= cost and out[i].split(' ')[-1] != 'and']
@@ -321,6 +370,7 @@ def place_trigram_sets(lines, trigram_sets, budget, seed_text):
             placement.append({'text': text, 'line': target})
         reports.append({'a': a, 'b': b, 'c': c,
                         'planned_occurrences': occurrences,
+                        'planned_visible_occurrences': visible,
                         'sentences': placement})
     return out, reports
 
@@ -371,18 +421,30 @@ def term_adjacency(lines, terms, vocab, hub=None):
                    'edge_occurrences': occurrences[term]} for term in terms}
 
 
+def measure_trigram_visible(lines, a, b, c, prefix, line_range):
+    """In-window occurrences of a trigram set's two edge forms.
+
+    Only matches on lines inside line_range whose full 'x and y' text ends
+    at or before `prefix` chars count (conjunction_edges with a limit, the
+    same complete-endpoint rule as the totals measurement). Pass
+    prefix=None to measure whole lines.
+    """
+    start, end = line_range
+    nodes = {a, b, c}
+    counts = Counter()
+    for line in lines[start:end]:
+        for first, second in conjunction_edges(line, nodes, limit=prefix):
+            counts[first, second] += 1
+    return {f'{a} and {b}': counts[a, b], f'{b} and {c}': counts[b, c]}
+
+
 def measure_trigram(lines, a, b, c):
     """Occurrences of a trigram set's two edge forms across lines.
 
     Same edge regex and complete-endpoint rule as conjunction_edges; only
     the exact 'a and b' / 'b and c' forms are counted.
     """
-    nodes = {a, b, c}
-    counts = Counter()
-    for line in lines:
-        for first, second in conjunction_edges(line, nodes):
-            counts[first, second] += 1
-    return {f'{a} and {b}': counts[a, b], f'{b} and {c}': counts[b, c]}
+    return measure_trigram_visible(lines, a, b, c, None, (0, len(lines)))
 
 
 # --- encoding --------------------------------------------------------------
