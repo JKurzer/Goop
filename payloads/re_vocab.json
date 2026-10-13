@@ -1,0 +1,19 @@
+{
+  "vocab": [
+    "team", "progress", "float", "capture", "owner", "alive", "ticks",
+    "distance", "checksum", "health", "seed", "combat", "count", "update",
+    "reinforcement", "movement", "position", "velocity", "candidate",
+    "radius", "slot", "damage", "score", "byte", "spawn", "death",
+    "angle", "units", "constants", "boundary"
+  ],
+  "corpus_words": [
+    "dog", "cat", "sun", "long", "sat", "mat", "ran", "day",
+    "good", "rain", "dark", "done", "seed", "seeds", "man",
+    "grew", "tall", "warm", "fell", "well", "spent", "still",
+    "sees", "deep", "door", "dusk", "home", "stayed", "near",
+    "cannot", "undone", "sea", "slow", "town", "night", "we"
+  ],
+  "identity_words": ["seed", "seeds"],
+  "hub_marker": "hainish",
+  "rotation_markers": ["file", "delete"]
+}
