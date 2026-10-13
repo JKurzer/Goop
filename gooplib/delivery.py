@@ -12,11 +12,19 @@ metric here (MEASUREMENT_REVIEW bug 1).
 
 
 def row_delivers(row, va, prefix):
-    """True when one CONTENT row delivers the slot at ``va``."""
+    """True when one CONTENT row delivers the slot at ``va``.
+
+    Row formats observed in the wild (analysts write their own dump prints):
+    bare ``<va> text`` (v11-v13-k7), str-repr ``<va> 'text'`` (v13-m2/v14),
+    bytes-repr ``<va> b'text'`` (v15-k7). Tolerate one optional b' or '
+    wrapper after the VA; two wrappers or a wrong VA/prefix still refuse.
+    """
     if not row.startswith(va + ' '):
         return False
     body = row[len(va) + 1:]
-    if body.startswith("'"):  # quote-tolerant: at most one surrounding quote
+    if body.startswith("b'"):
+        body = body[2:]
+    elif body.startswith("'"):
         body = body[1:]
     return body.startswith(prefix)
 
