@@ -13,6 +13,9 @@ Pipeline (all inputs arrive as arguments, loaded from files by the caller):
      bridge per term is prepended inside the visible line range (terminal
      period cannot bridge into the line's first word); the rest are appended
      to the roomiest later lines with a dangling-'and' guard.
+  4. trigram_sets: additive 'a and b.' / 'b and c.' sentence pairs with a
+     rare middle word b, placed by a dedicated seeded stream (the compose
+     stream is untouched) under the same byte budget and junction guard.
 """
 import hashlib
 import random
@@ -277,6 +280,51 @@ def graft(lines, incorrect_terms, hub, filter_terms, visibility, graft_spec,
     return out, placement
 
 
+# --- additive trigram sets (rare middle word) ------------------------------
+
+def place_trigram_sets(lines, trigram_sets, budget, seed_text):
+    """Seed-driven additive placement of 'a and b.' / 'b and c.' sentences.
+
+    Each set plans `occurrences` copies of both edge sentences (a [min, max]
+    range resolves on the same stream, in set order, before that set's
+    placements). Every sentence is appended to a line drawn from a dedicated
+    RNG stream (seed_text) among lines with byte room whose last token is not
+    'and' — the same dangling-junction guard as the graft. Appends never
+    touch the visible prefix, so the visibility predicate still holds on
+    every line, and existing text is never modified, so every pre-existing
+    conjunction edge survives verbatim. Returns (lines, per-set reports).
+    """
+    if not trigram_sets:
+        return list(lines), []
+    rng = random.Random(seed_text)
+    out = list(lines)
+    room = [budget - len(line.encode('utf-8')) for line in out]
+    reports = []
+    for entry in trigram_sets:
+        a, b, c = entry['a'], entry['b'], entry['c']
+        occurrences = entry['occurrences']
+        if isinstance(occurrences, list):
+            low, high = occurrences
+            occurrences = low + rng.randrange(high - low + 1)
+        sentences = [text for _ in range(occurrences)
+                     for text in (bridge_sentence(a, b), bridge_sentence(b, c))]
+        placement = []
+        for text in sentences:
+            cost = len(text.encode('utf-8')) + 1
+            fits = [i for i in range(len(out))
+                    if room[i] >= cost and out[i].split(' ')[-1] != 'and']
+            if not fits:
+                raise ValueError(f'no line fits trigram sentence {text!r}')
+            target = fits[rng.randrange(len(fits))]
+            out[target] += ' ' + text
+            room[target] -= cost
+            placement.append({'text': text, 'line': target})
+        reports.append({'a': a, 'b': b, 'c': c,
+                        'planned_occurrences': occurrences,
+                        'sentences': placement})
+    return out, reports
+
+
 # --- graph metrics (construction accounting, not efficacy) -----------------
 
 def conjunction_edges(text, nodes, limit=None):
@@ -321,6 +369,20 @@ def term_adjacency(lines, terms, vocab, hub=None):
     return {term: {'neighbors': sorted(neighbors[term]),
                    'neighbor_count': len(neighbors[term]),
                    'edge_occurrences': occurrences[term]} for term in terms}
+
+
+def measure_trigram(lines, a, b, c):
+    """Occurrences of a trigram set's two edge forms across lines.
+
+    Same edge regex and complete-endpoint rule as conjunction_edges; only
+    the exact 'a and b' / 'b and c' forms are counted.
+    """
+    nodes = {a, b, c}
+    counts = Counter()
+    for line in lines:
+        for first, second in conjunction_edges(line, nodes):
+            counts[first, second] += 1
+    return {f'{a} and {b}': counts[a, b], f'{b} and {c}': counts[b, c]}
 
 
 # --- encoding --------------------------------------------------------------

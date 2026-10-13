@@ -30,15 +30,24 @@ ROOT = Path(__file__).resolve().parents[1]
 
 PAYLOAD_SECTION_KEYS = {'spec_file', 'candidate_file', 'sha256', 'output'}
 SPEC_KEYS = {'name', 'hub', 'vocab_file', 'vocab', 'filter_terms',
-             'incorrect_terms', 'corpus_file', 'lines', 'max_line_bytes',
+             'incorrect_terms', 'trigram_sets', 'common_words_file',
+             'corpus_file', 'lines', 'max_line_bytes',
              'seed', 'visibility', 'graft'}
 SPEC_REQUIRED = {'name', 'hub', 'vocab_file', 'vocab', 'corpus_file',
                  'lines', 'max_line_bytes', 'seed'}
 VISIBILITY_KEYS = {'prefix_chars', 'require_hub_in_prefix', 'require_filter_in_prefix'}
 GRAFT_KEYS = {'bridges_visible_in_prefix', 'visible_line_range'}
 TERM_KEYS = {'term', 'neighbors'}
+TRIGRAM_SET_KEYS = {'a', 'b', 'c', 'occurrences'}
+COMMON_WORDS_FILE_KEYS = {'provenance', 'words'}
 VOCAB_FILE_KEYS = {'vocab', 'corpus_words', 'identity_words',
                    'hub_marker', 'rotation_markers'}
+
+# Owner rule (2026-10-13): each trigram set's edge forms appear 4-10 times;
+# b is always a rare word (see _rarity_gate), task-relevance optional.
+TRIGRAM_MIN_OCCURRENCES = 4
+TRIGRAM_MAX_OCCURRENCES = 10
+DEFAULT_COMMON_WORDS_FILE = 'payloads/common_words.json'
 
 
 # --- typed validation ------------------------------------------------------
@@ -100,6 +109,74 @@ def _terms(raw):
     return out
 
 
+def _trigram_word(value, where):
+    """A word the edge regex ([a-z]+) can measure exactly."""
+    if (not isinstance(value, str) or not value.isascii()
+            or not value.isalpha() or not value.islower()):
+        raise SpecError(f'{where} must be a single lowercase ascii word')
+    return value
+
+
+def _occurrences(value, where):
+    bounds = f'[{TRIGRAM_MIN_OCCURRENCES}, {TRIGRAM_MAX_OCCURRENCES}]'
+    if isinstance(value, int) and not isinstance(value, bool):
+        low = high = value
+    elif (isinstance(value, list) and len(value) == 2 and all(
+            isinstance(v, int) and not isinstance(v, bool) for v in value)):
+        low, high = value
+    else:
+        raise SpecError(f'{where}.occurrences must be an integer in {bounds} '
+                        'or a [min, max] range inside it')
+    if not TRIGRAM_MIN_OCCURRENCES <= low <= high <= TRIGRAM_MAX_OCCURRENCES:
+        raise SpecError(f'{where}.occurrences {value!r} outside {bounds}')
+    return value
+
+
+def _trigram_sets(raw):
+    out = []
+    seen_b = set()
+    for i, entry in enumerate(raw or []):
+        where = f'trigram_sets[{i}]'
+        check_keys(entry, TRIGRAM_SET_KEYS, TRIGRAM_SET_KEYS, where=where)
+        row = {key: _trigram_word(entry[key], f'{where}.{key}') for key in 'abc'}
+        if row['b'] in (row['a'], row['c']):
+            raise SpecError(f'{where}.b must differ from a and c')
+        if row['b'] in seen_b:
+            raise SpecError(f'duplicate trigram middle word {row["b"]!r}; '
+                            'edge-form measurement would alias across sets')
+        seen_b.add(row['b'])
+        row['occurrences'] = _occurrences(entry['occurrences'], where)
+        out.append(row)
+    return out
+
+
+def _rarity_gate(spec, base):
+    """Reject any trigram middle word that is not rare by construction.
+
+    b must be absent from the common-words file (case-insensitive whole
+    word) and must not be the hub or a filter term. Hard spec error before
+    any composition work.
+    """
+    if not spec['trigram_sets']:
+        return
+    path = resolve_path(spec['common_words_file'], base, where='common_words_file')
+    if not path.is_file():
+        raise SpecError(f'common words file not found: {path} '
+                        '(required by the trigram_sets rarity gate)')
+    data = load_json(path)
+    check_keys(data, COMMON_WORDS_FILE_KEYS, {'words'}, where=path.name)
+    common = {word.lower() for word in _list_of_str(data['words'], f'{path.name}.words')}
+    off_limits = {spec['hub'].lower(), *(term.lower() for term in spec['filter_terms'])}
+    for i, entry in enumerate(spec['trigram_sets']):
+        word = entry['b'].lower()
+        if word in off_limits:
+            raise SpecError(f'trigram_sets[{i}].b {entry["b"]!r} collides with the hub '
+                            'or a filter_term; b must be rare by construction')
+        if word in common:
+            raise SpecError(f'trigram_sets[{i}].b {entry["b"]!r} is listed in '
+                            f'{path.name}; b must be rare by construction')
+
+
 # --- compose ---------------------------------------------------------------
 
 def load_payload_spec(path):
@@ -112,6 +189,8 @@ def load_payload_spec(path):
         'vocab': _list_of_str(raw['vocab'], 'vocab'),
         'filter_terms': _list_of_str(raw.get('filter_terms', []), 'filter_terms'),
         'incorrect_terms': _terms(raw.get('incorrect_terms')),
+        'trigram_sets': _trigram_sets(raw.get('trigram_sets')),
+        'common_words_file': raw.get('common_words_file', DEFAULT_COMMON_WORDS_FILE),
         'corpus_file': raw['corpus_file'],
         'lines': _int(raw['lines'], 'lines'),
         'max_line_bytes': _int(raw['max_line_bytes'], 'max_line_bytes'),
@@ -126,11 +205,14 @@ def load_payload_spec(path):
         raise SpecError('hub must be a nonempty string')
     if spec['hub'] in spec['vocab']:
         raise SpecError('hub must not be inside the rotation vocab')
+    if not isinstance(spec['common_words_file'], str) or not spec['common_words_file']:
+        raise SpecError('common_words_file must be a nonempty path string')
     return spec
 
 
 def compose_from_spec(spec, base=ROOT):
     """Run the full pipeline from validated spec data. Returns (lines, info)."""
+    _rarity_gate(spec, base)
     vocab_path = resolve_path(spec['vocab_file'], base, where='vocab_file')
     vocab_data = load_json(vocab_path)
     check_keys(vocab_data, VOCAB_FILE_KEYS, VOCAB_FILE_KEYS, where=vocab_path.name)
@@ -157,6 +239,19 @@ def compose_from_spec(spec, base=ROOT):
     lines, placement = pl.graft(lines, spec['incorrect_terms'], spec['hub'],
                                 spec['filter_terms'], spec['visibility'],
                                 spec['graft'], spec['max_line_bytes'], predicate)
+    lines, trigram_reports = pl.place_trigram_sets(
+        lines, spec['trigram_sets'], spec['max_line_bytes'],
+        f'{spec["seed"]}:{spec["name"]}:trigram_sets')
+    for report in trigram_reports:
+        measured = pl.measure_trigram(lines, report['a'], report['b'], report['c'])
+        out_of_bounds = {form: count for form, count in measured.items()
+                         if not TRIGRAM_MIN_OCCURRENCES <= count
+                         <= TRIGRAM_MAX_OCCURRENCES}
+        if out_of_bounds:
+            raise SpecError(f'trigram edge forms measured outside '
+                            f'[{TRIGRAM_MIN_OCCURRENCES}, {TRIGRAM_MAX_OCCURRENCES}]: '
+                            f'{out_of_bounds} (planned {report["planned_occurrences"]})')
+        report['measured'] = measured
     for line in lines:
         if not 0 < len(line.encode('utf-8')) <= spec['max_line_bytes']:
             raise SpecError('a composed line violates the byte budget')
@@ -165,7 +260,8 @@ def compose_from_spec(spec, base=ROOT):
     if predicate is not None and not all(predicate(line) for line in lines):
         raise SpecError('a composed line fails the visibility predicate')
     info = {'frame_start_marker_offsets': offsets, 'frame_indices_per_line': traces,
-            'predicate_redraws': redraws, 'graft_placement': placement}
+            'predicate_redraws': redraws, 'graft_placement': placement,
+            'trigram_sets': trigram_reports}
     return lines, info
 
 

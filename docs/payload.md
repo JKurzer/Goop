@@ -28,6 +28,8 @@ file are rejected (`gooplib/spec.py` is the shared loader).
   "vocab": ["team", "..."],
   "filter_terms": ["summary", "tick", "seed", "usage", "score", "alive", "owner"],
   "incorrect_terms": [{"term": "banana", "neighbors": ["team", "..."]}],
+  "trigram_sets": [{"a": "team", "b": "quixmar", "c": "owner", "occurrences": 6}],
+  "common_words_file": "payloads/common_words.json",
   "corpus_file": "payloads/FinalPayload.md",
   "lines": 20,
   "max_line_bytes": 500,
@@ -40,8 +42,10 @@ file are rejected (`gooplib/spec.py` is the shared loader).
 
 Required: `name`, `hub`, `vocab_file`, `vocab`, `corpus_file`, `lines`,
 `max_line_bytes`, `seed`. Optional: `filter_terms` (default `[]`),
-`incorrect_terms` (default `[]`), `visibility` (default accept-all),
-`graft` (default no visible bridges; appends land anywhere).
+`incorrect_terms` (default `[]`), `trigram_sets` (default `[]`),
+`common_words_file` (default `payloads/common_words.json`), `visibility`
+(default accept-all), `graft` (default no visible bridges; appends land
+anywhere).
 
 The vocab file (`payloads/re_vocab.json`) carries `vocab` (rotation pool —
 must equal the spec's inline `vocab`, one source of truth per run),
@@ -67,6 +71,52 @@ must equal the spec's inline `vocab`, one source of truth per run),
    line's first word). Remaining bridges are **appended** at or past the
    range end to the roomiest line (max headroom, ties to lowest index),
    skipping lines ending in a dangling `and`.
+4. **Trigram sets**: additive `a and b.` / `b and c.` sentence pairs with a
+   rare middle word `b`, appended to lines drawn from a dedicated seeded
+   stream (`random.Random("<seed>:<name>:trigram_sets")` — the compose
+   stream is never touched), same byte budget and dangling-`and` guard as
+   the graft. Appends only, so the visible prefix and every pre-existing
+   edge survive verbatim.
+
+## Trigram sets (rare middle word)
+
+Owner rule (2026-10-13, verbatim): "trigram sets (ab bc) need to appear
+between four and ten times. b should always be a rare word, the rarer the
+better. one that's task relevant is good but not necessary. this is why
+hainish worked."
+
+Schema: `trigram_sets` is a list of `{"a", "b", "c", "occurrences"}` objects.
+Each set plants `occurrences` copies of both edge sentences, `a and b.` and
+`b and c.`. `occurrences` is an integer in `[4, 10]` or a `[min, max]` range
+inside it (resolved deterministically on the seeded stream, in set order).
+`a`, `b`, `c` are single lowercase ascii words (the edge regex `[a-z]+` must
+measure them exactly); `b` must differ from `a`/`c`, and middle words are
+unique across sets (shared `b` would alias the per-set measurement).
+
+**Rarity gate**: `b` rare by construction; task-relevance optional (owner
+rule 2026-10-13: this is why hainish worked). Before any composition, every
+`b` is checked against `common_words_file` (case-insensitive whole word) and
+against the hub and `filter_terms` — a hit is a hard spec error. The default
+gate file `payloads/common_words.json` merges the RE vocab, the spec filter
+terms, every word attested in the corpus, and a compact standard stopword
+list (provenance documented in the file). No word lists live in code; a
+missing gate file is itself a hard error when `trigram_sets` is present.
+
+**Why the middle word must be rare** (the hainish/crackme rationale): in the
+crackme analysis the hub marker `hainish` was a rare proper noun with a 0%
+baseline rate in ordinary text, so every occurrence was attributable to the
+planted construction. The two detector signatures that landed — the
+quoted-label signature (the model echoing the planted label verbatim) and
+the verdict-bend signature — both keyed on the rare form. A common middle
+word would drown both signatures in baseline noise; a rare one keeps them
+exclusive to the plant.
+
+**Measurement**: occurrences are counted with the same conjunction regex as
+the graph metrics (`gooplib/payload.py: measure_trigram`), exact lowercase
+`a and b` / `b and c` forms. Each measured form must land in `[4, 10]` or
+composition fails. The candidate manifest reports every set as
+`planned_occurrences` vs `measured`, plus the target line of each planted
+sentence.
 
 ## Regression controls (pinned, byte-exact)
 
