@@ -56,3 +56,7 @@ If you aim at a destination, it's your target.
 Further doctrine (recorded verbatim, 2026-10-14):
 
 remember that there must be at least a full pair of links for a bridge, but generally, we will want the full K-way set. to bridge between tokens, you can connect them via a set of at least 8 links along 1 token. scattershot bridging is unlikely to do anything. think of it as a graph.
+
+Terminology and chaining (recorded verbatim, 2026-10-14):
+
+I'm going to call the source and destination targets leaves. so leaf tokens can be connected to other leaf tokens by another full bridging. I haven't experimented with connecting anchors. but using this, it should be possible to steer a model very aggressively.
