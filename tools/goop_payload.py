@@ -32,7 +32,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PAYLOAD_SECTION_KEYS = {'spec_file', 'candidate_file', 'sha256', 'output'}
 SPEC_KEYS = {'name', 'hub', 'vocab_file', 'vocab', 'filter_terms',
              'incorrect_terms', 'trigram_sets', 'common_words_file',
-             'corpus_file', 'lines', 'max_line_bytes',
+             'corpus_file', 'lines', 'min_line_bytes', 'max_line_bytes',
              'seed', 'visibility', 'graft', 'bridging'}
 SPEC_REQUIRED = {'name', 'hub', 'vocab_file', 'vocab', 'corpus_file',
                  'lines', 'max_line_bytes', 'seed'}
@@ -41,9 +41,12 @@ GRAFT_KEYS = {'bridges_visible_in_prefix', 'visible_line_range'}
 TERM_KEYS = {'term', 'neighbors'}
 TRIGRAM_SET_KEYS = {'a', 'b', 'c', 'occurrences', 'visible_occurrences'}
 TRIGRAM_SET_REQUIRED = {'a', 'b', 'c', 'occurrences'}
+# Megaline-only keys: required when 'megaline' is true, rejected otherwise.
+MEGALINE_KEYS = {'filter_terms', 'filter_prefix_chars', 'lead_ins'}
 BRIDGING_KEYS = {'anchor', 'target', 'destination', 'doses', 'paren', 'form',
-                 'carriers', 'common_words_file', 'errata'}
-BRIDGING_REQUIRED = BRIDGING_KEYS - {'common_words_file'}
+                 'carriers', 'common_words_file', 'errata', 'megaline',
+                 'filter_terms', 'filter_prefix_chars', 'lead_ins'}
+BRIDGING_REQUIRED = BRIDGING_KEYS - {'common_words_file', 'megaline'} - MEGALINE_KEYS
 BRIDGING_SPEC_REQUIRED = {'name', 'lines', 'max_line_bytes', 'seed', 'bridging'}
 # Bridging mode is disjoint from the legacy corpus-remap pipeline: these
 # keys belong to the legacy mode and are rejected alongside 'bridging'.
@@ -175,6 +178,45 @@ def _trigram_sets(raw):
     return out
 
 
+def _drill_sentences(raw_list, words, where):
+    """Carrier-register sentences: nonempty ascii, paren-free, role-word-free."""
+    sentences = _list_of_str(raw_list, where)
+    for i, sentence in enumerate(sentences):
+        if not sentence.strip() or not sentence.isascii():
+            raise SpecError(f'{where}[{i}] must be nonempty ascii')
+        if '(' in sentence or ')' in sentence:
+            raise SpecError(f'{where}[{i}] must not contain parens; '
+                            'the inserts own the parens')
+        clash = set(br.WORD.findall(sentence.lower())) & set(words.values())
+        if clash:
+            raise SpecError(f'{where}[{i}] contains role words '
+                            f'{sorted(clash)}; every role occurrence must be '
+                            'attributable to a planted insert')
+    return sentences
+
+
+def _megaline(raw, words):
+    """Validate the megaline-only keys (one complete BRIDGING per line)."""
+    missing = sorted(MEGALINE_KEYS - set(raw))
+    if missing:
+        raise SpecError(f'bridging.megaline requires {missing}')
+    terms = raw['filter_terms']
+    if not terms:
+        raise SpecError('bridging.filter_terms must be nonempty')
+    filter_terms = [_trigram_word(term, f'bridging.filter_terms[{i}]')
+                    for i, term in enumerate(terms)]
+    if len(set(filter_terms)) != len(filter_terms):
+        raise SpecError('bridging.filter_terms must be duplicate-free')
+    prefix_chars = _int(raw['filter_prefix_chars'], 'bridging.filter_prefix_chars')
+    lead_ins = _drill_sentences(raw['lead_ins'], words, 'bridging.lead_ins')
+    for i, lead in enumerate(lead_ins):
+        if not any(term in lead.lower() for term in filter_terms):
+            raise SpecError(f'bridging.lead_ins[{i}] carries no filter term; the '
+                            'lead-in owns the filter echo (the v13 visibility lesson)')
+    return {'filter_terms': filter_terms, 'filter_prefix_chars': prefix_chars,
+            'lead_ins': lead_ins}
+
+
 def _bridging(raw):
     """Validate a 'bridging' section into plain data (conformant mode)."""
     check_keys(raw, BRIDGING_KEYS, BRIDGING_REQUIRED, where='bridging')
@@ -191,26 +233,24 @@ def _bridging(raw):
     if not forms or len(set(forms)) != len(forms) or set(forms) - set(br.FORMS):
         raise SpecError(f'bridging.form must be a nonempty duplicate-free subset of '
                         f'{list(br.FORMS)}')
-    carriers = _list_of_str(raw['carriers'], 'bridging.carriers')
-    for i, carrier in enumerate(carriers):
-        if not carrier.strip() or not carrier.isascii():
-            raise SpecError(f'bridging.carriers[{i}] must be nonempty ascii')
-        if '(' in carrier or ')' in carrier:
-            raise SpecError(f'bridging.carriers[{i}] must not contain parens; '
-                            'the inserts own the parens')
-        clash = set(br.WORD.findall(carrier.lower())) & set(words.values())
-        if clash:
-            raise SpecError(f'bridging.carriers[{i}] contains role words '
-                            f'{sorted(clash)}; every role occurrence must be '
-                            'attributable to a planted insert')
+    carriers = _drill_sentences(raw['carriers'], words, 'bridging.carriers')
     gate = raw.get('common_words_file', DEFAULT_ORDINARY_WORDS_FILE)
     if not isinstance(gate, str) or not gate:
         raise SpecError('bridging.common_words_file must be a nonempty path string')
     errata = raw.get('errata')
     if errata is not None and (not isinstance(errata, str) or not errata):
         raise SpecError('bridging.errata must be a nonempty string when present')
-    return {'words': words, 'doses': doses, 'forms': forms,
-            'carriers': carriers, 'common_words_file': gate, 'errata': errata}
+    megaline = _bool(raw.get('megaline', False), 'bridging.megaline')
+    extras = sorted(set(raw) & MEGALINE_KEYS)
+    if not megaline and extras:
+        raise SpecError(f'bridging sets megaline-only keys {extras} without '
+                        '"megaline": true')
+    out = {'words': words, 'doses': doses, 'forms': forms,
+           'carriers': carriers, 'common_words_file': gate, 'errata': errata,
+           'megaline': megaline}
+    if megaline:
+        out.update(_megaline(raw, words))
+    return out
 
 
 def _rarity_gate(spec, base):
@@ -277,17 +317,32 @@ def _load_bridging_spec(raw, where):
         raise SpecError('name must be a nonempty string')
     spec = {'name': raw['name'],
             'lines': _int(raw['lines'], 'lines'),
+            'min_line_bytes': (_int(raw['min_line_bytes'], 'min_line_bytes')
+                               if 'min_line_bytes' in raw else None),
             'max_line_bytes': _int(raw['max_line_bytes'], 'max_line_bytes'),
             'seed': _int(raw['seed'], 'seed', minimum=0),
             'bridging': _bridging(raw['bridging'])}
-    need = len(br.CANONICAL_CONFIGS) * spec['bridging']['doses']
+    if (spec['min_line_bytes'] is not None
+            and spec['min_line_bytes'] > spec['max_line_bytes']):
+        raise SpecError('min_line_bytes must not exceed max_line_bytes')
+    bridging = spec['bridging']
+    if bridging['megaline']:
+        if spec['min_line_bytes'] is None:
+            raise SpecError('megaline mode requires min_line_bytes: the line '
+                            'band is what makes a full set fit every slot')
+        for key in ('carriers', 'lead_ins'):
+            if len(bridging[key]) < spec['lines']:
+                raise SpecError(f'bridging deals {key} without replacement: '
+                                f'{len(bridging[key])} < {spec["lines"]} lines')
+        return spec
+    need = len(br.CANONICAL_CONFIGS) * bridging['doses']
     if need > spec['lines']:
         raise SpecError(f'bridging plants {need} LINK-pair lines '
                         f'({len(br.CANONICAL_CONFIGS)} configs x doses) but '
                         f'lines is {spec["lines"]}')
-    if len(spec['bridging']['carriers']) < spec['lines']:
+    if len(bridging['carriers']) < spec['lines']:
         raise SpecError(f'bridging deals carriers without replacement: '
-                        f'{len(spec["bridging"]["carriers"])} carriers < '
+                        f'{len(bridging["carriers"])} carriers < '
                         f'{spec["lines"]} lines')
     return spec
 
@@ -308,12 +363,17 @@ def load_payload_spec(path):
         'common_words_file': raw.get('common_words_file', DEFAULT_COMMON_WORDS_FILE),
         'corpus_file': raw['corpus_file'],
         'lines': _int(raw['lines'], 'lines'),
+        'min_line_bytes': (_int(raw['min_line_bytes'], 'min_line_bytes')
+                           if 'min_line_bytes' in raw else None),
         'max_line_bytes': _int(raw['max_line_bytes'], 'max_line_bytes'),
         'seed': _int(raw['seed'], 'seed', minimum=0),
         'visibility': _visibility(raw.get('visibility')),
         'graft': _graft(raw.get('graft')),
         'vocab_file': raw['vocab_file'],
     }
+    if (spec['min_line_bytes'] is not None
+            and spec['min_line_bytes'] > spec['max_line_bytes']):
+        raise SpecError('min_line_bytes must not exceed max_line_bytes')
     if not isinstance(spec['name'], str) or not spec['name']:
         raise SpecError('name must be a nonempty string')
     if not isinstance(spec['hub'], str) or not spec['hub']:
@@ -339,46 +399,112 @@ def compose_from_spec(spec, base=ROOT):
     return _compose_legacy(spec, base)
 
 
-def _compose_bridging(spec, base):
-    """Conformant bridging pipeline: weave the BRIDGING, then hard-fail measurement.
+def _check_bridging_text(lines, words, sets, min_bytes, max_bytes):
+    """Hard-fail text integrity shared by both bridging pipelines.
 
-    Measurement is parsed back off the final text, not read off the plan:
-    per-config counts must equal doses exactly (every canonical config), the
-    directed forms must equal the canonical multiset, every insert must be
-    balanced, and the anchor must sit at a bridge position on every occurrence.
+    Parsed off the final text, not the plan: per-config counts equal `sets`
+    exactly (every canonical config), directed forms equal the canonical
+    multiset, inserts balanced, every anchor at a bridge position, and
+    every line lands in [min_bytes, max_bytes].
     """
+    integrity = br.paren_integrity(lines)
+    if not integrity['ok']:
+        raise SpecError(f'paren integrity failed: {integrity["violations"][:3]}')
+    audit = br.role_audit(lines, words)
+    if not audit['ok']:
+        raise SpecError(f'role audit failed: {audit["violations"][:3]}')
+    measured = br.measure_bridging(lines, words)
+    expected = {br.config_label(config): sets for config in br.CANONICAL_CONFIGS}
+    if measured['per_config'] != expected:
+        raise SpecError(f'{len(br.CANONICAL_CONFIGS)}-config coverage mismatch: '
+                        f'measured {measured["per_config"]} != expected {expected}')
+    if measured['directed_forms'] != br.expected_directed_forms(sets):
+        raise SpecError(f'directed-form mismatch: {measured["directed_forms"]}')
+    for line in lines:
+        if not min_bytes <= len(line.encode('utf-8')) <= max_bytes:
+            raise SpecError('a composed line violates the byte budget')
+    return measured, audit, integrity
+
+
+def _bridging_info(bridging, plan, measured, audit, integrity, stats, extra=None):
+    """The manifest 'bridging' section, shared by both bridging pipelines."""
+    section = {'roles': dict(bridging['words']), 'doses': bridging['doses'],
+               'forms': list(bridging['forms']), 'plan': plan,
+               'measurement': measured, 'role_audit': audit,
+               'paren_integrity': integrity, 'carrier_stats': stats,
+               'leaf_links': [f'{first}>{second}' for first, second
+                              in br.CANONICAL_LEAF_LINKS],
+               'errata': bridging['errata'],
+               'canonical_source_note': br.CANONICAL_SOURCE_NOTE}
+    if extra:
+        section.update(extra)
+    return {'bridging': section}
+
+
+def _compose_bridging(spec, base):
+    """Conformant bridging pipeline: weave one BRIDGING across the vehicle.
+
+    Megaline mode branches away; the text integrity hard-fails live in
+    _check_bridging_text (parsed off the final text, not the plan).
+    """
+    if spec['bridging']['megaline']:
+        return _compose_megalines(spec, base)
     bridging = spec['bridging']
     _anchor_gate(bridging, base)
     lines, plan = br.compose_bridging(
         bridging['carriers'], bridging['words'], bridging['doses'],
         bridging['forms'], spec['lines'], spec['seed'])
-    integrity = br.paren_integrity(lines)
-    if not integrity['ok']:
-        raise SpecError(f'paren integrity failed: {integrity["violations"][:3]}')
-    audit = br.role_audit(lines, bridging['words'])
-    if not audit['ok']:
-        raise SpecError(f'role audit failed: {audit["violations"][:3]}')
-    measured = br.measure_bridging(lines, bridging['words'])
-    expected = {br.config_label(config): bridging['doses']
-                for config in br.CANONICAL_CONFIGS}
-    if measured['per_config'] != expected:
-        raise SpecError(f'{len(br.CANONICAL_CONFIGS)}-config coverage mismatch: '
-                        f'measured {measured["per_config"]} != expected {expected}')
-    if measured['directed_forms'] != br.expected_directed_forms(bridging['doses']):
-        raise SpecError(f'directed-form mismatch: {measured["directed_forms"]}')
-    for line in lines:
-        if not 0 < len(line.encode('utf-8')) <= spec['max_line_bytes']:
-            raise SpecError('a composed line violates the byte budget')
+    measured, audit, integrity = _check_bridging_text(
+        lines, bridging['words'], bridging['doses'], 1, spec['max_line_bytes'])
     stats = br.carrier_stats(lines, _goop_baseline_lines(base))
-    info = {'bridging': {'roles': dict(bridging['words']), 'doses': bridging['doses'],
-                         'forms': list(bridging['forms']), 'plan': plan,
-                         'measurement': measured, 'role_audit': audit,
-                         'paren_integrity': integrity, 'carrier_stats': stats,
-                         'leaf_links': [f'{first}>{second}' for first, second
-                                        in br.CANONICAL_LEAF_LINKS],
-                         'errata': bridging['errata'],
-                         'canonical_source_note': br.CANONICAL_SOURCE_NOTE}}
-    return lines, info
+    return lines, _bridging_info(bridging, plan, measured, audit, integrity, stats)
+
+
+def _compose_megalines(spec, base):
+    """Megaline pipeline: a full BRIDGING per line, hard-fail per-line integrity.
+
+    Beyond _check_bridging_text: every line carries all 9 canonical configs
+    at `doses`, the filter echo sits inside the window of EVERY line, and
+    every window holds a complete LINK-pair (dose integrity).
+    """
+    bridging = spec['bridging']
+    _anchor_gate(bridging, base)
+    try:
+        lines, plan = br.compose_megalines(
+            bridging['carriers'], bridging['lead_ins'], bridging['words'],
+            bridging['doses'], bridging['forms'], spec['lines'],
+            spec['min_line_bytes'], spec['max_line_bytes'], spec['seed'])
+    except ValueError as exc:
+        raise SpecError(str(exc)) from exc
+    sets = bridging['doses'] * spec['lines']
+    measured, audit, integrity = _check_bridging_text(
+        lines, bridging['words'], sets, spec['min_line_bytes'],
+        spec['max_line_bytes'])
+    mega = br.measure_megalines(lines, bridging['words'],
+                                bridging['filter_terms'],
+                                bridging['filter_prefix_chars'])
+    expected_per_line = {br.config_label(config): bridging['doses']
+                         for config in br.CANONICAL_CONFIGS}
+    for row in mega['per_line']:
+        if row['per_config'] != expected_per_line:
+            raise SpecError(f'line {row["line"]}: per-line '
+                            f'{len(br.CANONICAL_CONFIGS)}-config coverage mismatch: '
+                            f'{row["per_config"]}')
+        if row['filter_term'] is None:
+            raise SpecError(f'line {row["line"]}: no filter term inside the first '
+                            f'{bridging["filter_prefix_chars"]} chars (the v13 '
+                            'visibility lesson; the lead-in owns the echo)')
+        if not row['complete_pair_in_window']:
+            raise SpecError(f'line {row["line"]}: no complete LINK-pair inside the '
+                            f'first {bridging["filter_prefix_chars"]} chars '
+                            '(dose integrity)')
+    stats = br.carrier_stats(lines, _goop_baseline_lines(base))
+    extra = {'megaline': {'filter_terms': list(bridging['filter_terms']),
+                          'filter_prefix_chars': bridging['filter_prefix_chars'],
+                          'min_line_bytes': spec['min_line_bytes'],
+                          **mega}}
+    return lines, _bridging_info(bridging, plan, measured, audit, integrity,
+                                 stats, extra)
 
 
 def _goop_baseline_lines(base):
@@ -455,8 +581,9 @@ def _compose_legacy(spec, base=ROOT):
                 raise SpecError(f'trigram visible occurrences measured below the '
                                 f'planned {wanted}: {shortfall}')
             report['measured_visible'] = measured_visible
+    min_bytes = spec['min_line_bytes'] or 1
     for line in lines:
-        if not 0 < len(line.encode('utf-8')) <= spec['max_line_bytes']:
+        if not min_bytes <= len(line.encode('utf-8')) <= spec['max_line_bytes']:
             raise SpecError('a composed line violates the byte budget')
         if '(' in line or ')' in line:
             raise SpecError('parentheses survived the post-fit strip')

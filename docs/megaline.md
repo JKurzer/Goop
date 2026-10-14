@@ -1,0 +1,91 @@
+# megaline — one complete BRIDGING per line (construction doc)
+
+UNFIRED construction mode. Deterministic local compose, seed 42, measured
+off the final text by `gooplib/bridging.py`; nothing was delivered anywhere.
+
+Specs: `specs/payload_conformant_v1_meg.json` (anchor hainish),
+`specs/payload_conformant_v2_meg.json` (anchor tainish — the only
+difference). Candidates: `runs/conformant-v1-meg/inputs/candidate.txt` and
+`runs/conformant-v2-meg/inputs/candidate.txt` (9356 bytes, 20 lines, LF).
+
+sha256 v1-meg: `bafab4b11da2d34d72424e69c8bf6e79d6992f0ff79416d693753ceaee1c34ac`
+sha256 v2-meg: `429bf3fe62f29206e212ef5f13ae95fb434215c6df920e89ce78d5d404f67da6`
+
+## The trick
+
+A delivered slot shows a prefix window of a line (244 chars, the v13
+analyst-filter model). The classic conformant vehicle spreads one BRIDGING
+across 18 short lines, so a window typically holds fragments. The megaline
+construction inverts the layout: **every line independently carries one
+complete 9-config BRIDGING**, front-packed, so any single delivered slot
+still holds complete dose material. Per the owner's dosing note
+(2026-10-14), one full bridging set is functionally a single dose — each
+line is one functional dose; the 20-line candidate carries 20.
+
+## Layout per line
+
+```
+<lead-in> <insert 1> ... <insert 18> <carrier prose ...>
+```
+
+- **lead-in** — a short drill sentence owning the filter echo: one of
+  tick/seed/score/alive/owner/summary as a natural substring (substring
+  semantics on the lowercased prefix, per `gooplib/payload.py:
+  make_predicate`). Hard requirement: the echo lands inside the first 244
+  chars of EVERY line (the v13 visibility lesson).
+- **inserts** — the 9 canonical configs (docs/TRIGRAM_BRIDGING.md per the
+  owner errata: 4 mirrored anchor-bearing pairs + the spare D->T
+  leaf-to-leaf), 2 paren inserts each, in canonical order, both drill
+  forms (adjacent / conjunction), packed toward the front.
+- **carrier prose** — dealt without replacement from the spec's carrier
+  pool (drill register, conformant-v1 carriers reused and extended),
+  filling each line into [440, 500] bytes; a carrier that would overshoot
+  500 is held back for later lines.
+
+`doses` in megaline mode means complete sets PER LINE (spec sets 1; 2
+would not fit the byte band and is rejected by the fit, loudly).
+Lead-ins/carriers are dealt without replacement from seeded shuffles;
+everything is a pure function of the spec.
+
+## Hard checks (compose fails loudly unless all hold)
+
+Parsed back off the final text, per line: all 9 configs at exactly
+`doses`; a filter echo inside the first 244 chars; at least one complete
+LINK-pair fully inside the first 244 chars (the dose-integrity property);
+line bytes in [440, 500]; paren integrity; role audit (every anchor at a
+bridge position; the only anchorless LINK is the declared d->t spare);
+whole-text directed forms equal the canonical multiset at `doses x lines`
+sets. Set-toward-front (configs ending inside 244) is measured and
+reported, not a hard fail.
+
+## Measured (both candidates; identical modulo the anchor token)
+
+| Property | Value |
+|---|---|
+| line bytes | 441–491 (band 440–500), 20 lines |
+| per-line 9-config coverage | 20/20 lines, exactly 1 dose each |
+| filter echo inside 244 | 20/20 lines, chars 0–17 |
+| complete LINK-pair inside 244 | 20/20 lines |
+| set-toward-front | 5–6 of 9 configs end inside 244 (min 5, mean 5.9) |
+| word totals | anchor 340, delete 180, file 200 (17/9/10 per set) |
+| directed forms | a>t 80, t>a 80, a>d 80, d>a 100, d>t 20 |
+| H_word | 4.1919 bits/word vs goop baseline 4.8556 (delta −0.6637) |
+
+Entropy note: the dense insert block (18 repeated-vocabulary inserts per
+line) lowers unigram entropy vs the classic conformant vehicle (delta
+−0.66 bits/word vs baseline; conformant-v1 sat at −0.024). Measured and
+reported; the model-side predictability question stays where it was —
+unfired.
+
+## Reproduce
+
+```
+.venv\Scripts\python.exe tools\goop_payload.py payload runs\conformant-v1-meg
+.venv\Scripts\python.exe tools\goop_payload.py payload runs\conformant-v2-meg
+.venv\Scripts\python.exe -m pytest tests -q
+```
+
+Fresh output paths only (exclusive writes); delete the run's `inputs/` to
+recompose. Mode implementation: `gooplib/bridging.py: compose_megalines,
+measure_megalines`; spec validation + hard checks: `tools/goop_payload.py:
+_compose_megalines`; tests: `tests/test_megaline.py`.

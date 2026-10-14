@@ -31,11 +31,18 @@ audit accepts declared leaf-to-leaf links and rejects any other anchorless
 LINK. The written row-4 text stays untouched in docs/TRIGRAM_BRIDGING.md
 (raw sources are immutable); the reading is disclosed here, in the spec
 ('errata'), in the manifest, and in docs/conformant-v1.md.
+
+Megaline mode (spec 'megaline': true): every line independently carries one
+complete BRIDGING — the full 9-config set at `doses`, front-packed behind a
+short filter-echoing lead-in, with carrier prose filling the line into
+[min_line_bytes, max_line_bytes]. Dose integrity is a per-line property: any
+single delivered slot window still holds a filter echo and complete
+LINK-pairs (docs/megaline.md).
 """
 import math
 import random
 import re
-from collections import Counter
+from collections import Counter, deque
 
 ROLES = ('anchor', 'target', 'destination')
 
@@ -157,6 +164,89 @@ def compose_bridging(carriers, words, doses, forms, line_count, seed):
     return lines, plan
 
 
+# --- megaline composition --------------------------------------------------
+
+def compose_megalines(carriers, lead_ins, words, doses, forms, line_count,
+                      min_bytes, max_bytes, seed):
+    """One complete BRIDGING per line, the set packed toward the front.
+
+    The megaline trick: every line independently carries the full 9-config
+    canonical set at `doses`, so any single delivered slot window still
+    holds complete dose material. Layout per line:
+
+        <lead-in> <insert> ... <insert (18*doses)> <carrier prose ...>
+
+    The lead-in is a short drill sentence (it owns the filter echo; the
+    spec validates that). Inserts follow in canonical config order; dealt
+    carriers then fill the line into [min_bytes, max_bytes]. Lead-ins and
+    carriers are dealt without replacement from seeded shuffles; a carrier
+    that would overshoot max_bytes is held back for later lines. The whole
+    artifact is a pure function of the arguments. Returns (lines, plan)
+    with one plan row per line.
+    """
+    if doses < 1:
+        raise ValueError(f'need doses >= 1 ({doses})')
+    if not forms or any(form not in FORMS for form in forms):
+        raise ValueError(f'forms must be a nonempty subset of {FORMS}')
+    if not 1 <= min_bytes <= max_bytes:
+        raise ValueError(f'need 1 <= min_bytes ({min_bytes}) <= '
+                         f'max_bytes ({max_bytes})')
+    if len(lead_ins) < line_count:
+        raise ValueError(f'lead-ins are dealt without replacement: '
+                         f'{len(lead_ins)} < {line_count} lines')
+    rng = random.Random(seed)
+    lead_deal = list(range(len(lead_ins)))
+    rng.shuffle(lead_deal)
+    carrier_deal = list(range(len(carriers)))
+    rng.shuffle(carrier_deal)
+    deck = deque(carrier_deal)
+    lines, plan = [], []
+    for position in range(line_count):
+        lead_index = lead_deal[position]
+        lead = lead_ins[lead_index]
+        pieces, inserts, config_ends = [lead], [], []
+        cursor = len(lead)
+        for dose in range(doses):
+            for config_index, config in enumerate(CANONICAL_CONFIGS):
+                for link in config:
+                    form = rng.choice(forms)
+                    text = link_text(link, words, form)
+                    cursor += 1  # the separating space
+                    start = cursor
+                    cursor += len(text)
+                    pieces.append(text)
+                    inserts.append({'dose': dose, 'config_index': config_index,
+                                    'link': list(link), 'form': form,
+                                    'text': text, 'start': start,
+                                    'end': cursor})
+                config_ends.append(cursor)
+        line = ' '.join(pieces)
+        body_bytes = len(line.encode('utf-8'))
+        if body_bytes > max_bytes:
+            raise ValueError(f'line {position}: lead-in plus the full set alone '
+                             f'is {body_bytes} bytes > max_bytes ({max_bytes})')
+        used, held = [], []
+        while len(line.encode('utf-8')) < min_bytes:
+            if not deck:
+                raise ValueError(f'line {position}: carriers exhausted below '
+                                 f'min_bytes ({min_bytes}); extend the carrier list')
+            index = deck.popleft()
+            candidate = f'{line} {carriers[index]}'
+            if len(candidate.encode('utf-8')) <= max_bytes:
+                line = candidate
+                used.append(index)
+            else:
+                held.append(index)
+        for index in reversed(held):
+            deck.appendleft(index)
+        lines.append(line)
+        plan.append({'line': position, 'lead_in_index': lead_index,
+                     'lead_in': lead, 'inserts': inserts,
+                     'config_ends': config_ends, 'carrier_indices': used,
+                     'bytes': len(line.encode('utf-8'))})
+    return lines, plan
+
+
 # --- parsing / integrity ---------------------------------------------------
 
 def paren_groups(line):
@@ -202,10 +292,12 @@ def parse_link(group, roles_by_word):
 def measure_bridging(lines, words):
     """Per-config counts, directed-form counts, LINK totals, role-word totals.
 
-    Counts are parsed from the final text (not the plan): each bridging
-    line's two inserts form one ordered config; each insert is one directed
-    LINK. Word totals count whole-word occurrences anywhere in the text, so
-    a stray role word outside the inserts would show up here (and in
+    Counts are parsed from the final text (not the plan): consecutive parsed
+    LINKs within a line pair into ordered configs (a classic bridging line's
+    two inserts form its one config; a megaline's eighteen form its nine),
+    and each insert is one directed LINK. An odd trailing LINK never pairs.
+    Word totals count whole-word occurrences anywhere in the text, so a
+    stray role word outside the inserts would show up here (and in
     role_audit).
     """
     roles_by_word = {word: role for role, word in words.items()}
@@ -218,8 +310,8 @@ def measure_bridging(lines, words):
         links += len(parsed)
         for first, second in parsed:
             directed[f'{first}>{second}'] += 1
-        if len(parsed) == 2:
-            per_config[config_label(tuple(parsed))] += 1
+        for i in range(0, len(parsed) - 1, 2):
+            per_config[config_label((parsed[i], parsed[i + 1]))] += 1
     forms = {form: directed[form] for form in CANONICAL_DIRECTED_FORMS}
     forms.update({form: count for form, count in sorted(directed.items())
                   if form not in forms})
@@ -239,6 +331,53 @@ def expected_directed_forms(doses):
         for first, second in config:
             counts[f'{first}>{second}'] += doses
     return dict(counts)
+
+
+def measure_megalines(lines, words, filter_terms, prefix_chars):
+    """Per-line dose integrity + window stats, parsed off the final text.
+
+    Consecutive parsed LINKs pair into configs (the same reading as
+    measure_bridging). The filter echo is the earliest filter term in the
+    lowercased prefix window (substring semantics, the v13 analyst-filter
+    model). The set-toward-front count is the canonical configs whose
+    complete LINK-pair ends inside the window — measured and reported,
+    never a hard fail. Char offsets equal byte offsets: megaline text is
+    ascii by spec validation.
+    """
+    roles_by_word = {word: role for role, word in words.items()}
+    canonical = [config_label(config) for config in CANONICAL_CONFIGS]
+    rows = []
+    for number, line in enumerate(lines):
+        parsed = [(link, match.end())
+                  for match in PAREN_GROUP.finditer(line)
+                  for link in [parse_link(match.group(1).split(), roles_by_word)]
+                  if link is not None]
+        per_config, in_window = Counter(), 0
+        for i in range(0, len(parsed) - 1, 2):
+            label = config_label((parsed[i][0], parsed[i + 1][0]))
+            per_config[label] += 1
+            if parsed[i + 1][1] <= prefix_chars and label in canonical:
+                in_window += 1
+        head = line[:prefix_chars].lower()
+        hits = sorted((head.find(term), term) for term in filter_terms
+                      if term in head)
+        rows.append({'line': number,
+                     'per_config': {label: per_config[label]
+                                    for label in canonical},
+                     'pair_total': sum(per_config.values()),
+                     'link_total': len(parsed),
+                     'filter_term': hits[0][1] if hits else None,
+                     'filter_char': hits[0][0] if hits else None,
+                     'configs_in_window': in_window,
+                     'complete_pair_in_window': in_window > 0})
+    counts = [row['configs_in_window'] for row in rows]
+    return {'per_line': rows,
+            'configs_in_window_min': min(counts),
+            'configs_in_window_mean': sum(counts) / len(counts),
+            'lines_with_filter_echo':
+                sum(row['filter_term'] is not None for row in rows),
+            'lines_with_complete_pair_in_window':
+                sum(row['complete_pair_in_window'] for row in rows)}
 
 
 def role_audit(lines, words):
