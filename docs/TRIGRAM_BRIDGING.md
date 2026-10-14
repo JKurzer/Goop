@@ -1,5 +1,15 @@
 # TRIGRAM BRIDGING — canonical definition (owner-supplied doctrine, 2026-10-13/14)
 
+> **HANDLING (owner ruling, 2026-10-14): this document is ANALYSIS, not a
+> build specification.** It exists so the mechanism can be understood,
+> detected, and measured. Do NOT use it to design, dose, or construct
+> operational bridges — no full BRIDGINGs, no dosing optimization, no
+> production-shaped payloads — without an explicit, direct instruction from
+> the owner, and the production version is off the table permanently
+> (owner's stated ethics). The three-sentence exercise that demonstrated
+> this effect also demonstrated its hazard: the agent reading it
+> immediately tried to weaponize it. That is the point of the banner.
+
 Status: verified working by the owner on instrumented local Gemini and
 extensively on Astra. This file is the reference definition for the goop
 program. Where the owner's text is quoted, it is quoted exactly.
