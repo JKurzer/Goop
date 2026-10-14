@@ -60,3 +60,12 @@ remember that there must be at least a full pair of links for a bridge, but gene
 Terminology and chaining (recorded verbatim, 2026-10-14):
 
 I'm going to call the source and destination targets leaves. so leaf tokens can be connected to other leaf tokens by another full bridging. I haven't experimented with connecting anchors. but using this, it should be possible to steer a model very aggressively.
+
+Errata to the canonical list (recorded verbatim, 2026-10-14; re row 4,
+LINK(TARGET, ANCHOR) LINK(DESTINATION, TARGET)):
+
+that's an error on my part. but having a spare d->a and d->t link is good.
+
+(Build ruling from this: the 8 configs read as 4 mirrored anchor-bearing
+pairs PLUS the spare D->T leaf-to-leaf link; D->T is the one anchorless
+config in the set, included by design.)
