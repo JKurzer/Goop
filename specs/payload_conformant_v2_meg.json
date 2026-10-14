@@ -11,7 +11,8 @@
     "doses": 1,
     "megaline": true,
     "filter_terms": ["tick", "seed", "score", "alive", "owner", "summary"],
-    "filter_prefix_chars": 244,
+    "filter_prefix_chars": 512,
+    "truncation_chars": 240,
     "lead_ins": [
       "The seed grew.",
       "A tick of the clock.",

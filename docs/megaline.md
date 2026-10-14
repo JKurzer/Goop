@@ -13,14 +13,28 @@ sha256 v2-meg: `429bf3fe62f29206e212ef5f13ae95fb434215c6df920e89ce78d5d404f67da6
 
 ## The trick
 
-A delivered slot shows a prefix window of a line (244 chars, the v13
-analyst-filter model). The classic conformant vehicle spreads one BRIDGING
-across 18 short lines, so a window typically holds fragments. The megaline
+A delivered slot is the native 512-byte data slot (the build's
+`slot_size`; `runs/conformant-v1-meg/spec.json`): a whole line (441–491
+bytes) lands in one slot, so one delivered slot carries one complete
+9-config BRIDGING. The classic conformant vehicle spreads one BRIDGING
+across 18 short lines, so a slot typically holds fragments. The megaline
 construction inverts the layout: **every line independently carries one
 complete 9-config BRIDGING**, front-packed, so any single delivered slot
-still holds complete dose material. Per the owner's dosing note
-(2026-10-14), one full bridging set is functionally a single dose — each
-line is one functional dose; the 20-line candidate carries 20.
+holds complete dose material. Per the owner's dosing note (2026-10-14),
+one full bridging set is functionally a single dose — each line is one
+functional dose; the 20-line candidate carries 20.
+
+The delivered view probably still truncates (240 chars, per the owner,
+2026-10-14 — the v13 analyst-filter lesson), so front-packing is a hard
+requirement, not a nicety: **the first four LINKs of every line** — the
+leading two canonical configs — **end inside the probable truncation
+window**. This was already how the layout landed; it is now hard-checked
+per line so no future layout change can silently break it.
+
+(Design history: the delivered-slot window was previously modeled at 244
+chars, the v13 analyst-filter prefix model. The slot-size expansion to
+512 is the delivery model, not the layout — candidate bytes and shas are
+unchanged.)
 
 ## Layout per line
 
@@ -31,8 +45,10 @@ line is one functional dose; the 20-line candidate carries 20.
 - **lead-in** — a short drill sentence owning the filter echo: one of
   tick/seed/score/alive/owner/summary as a natural substring (substring
   semantics on the lowercased prefix, per `gooplib/payload.py:
-  make_predicate`). Hard requirement: the echo lands inside the first 244
-  chars of EVERY line (the v13 visibility lesson).
+  make_predicate`). Hard requirement: the echo lands inside the 512-char
+  slot window of EVERY line (the v13 visibility lesson); it leads the
+  line, so it also survives the probable 240 truncation (measured chars
+  0–17).
 - **inserts** — the 9 canonical configs (docs/TRIGRAM_BRIDGING.md per the
   owner errata: 4 mirrored anchor-bearing pairs + the spare D->T
   leaf-to-leaf), 2 paren inserts each, in canonical order, both drill
@@ -50,13 +66,16 @@ everything is a pure function of the spec.
 ## Hard checks (compose fails loudly unless all hold)
 
 Parsed back off the final text, per line: all 9 configs at exactly
-`doses`; a filter echo inside the first 244 chars; at least one complete
-LINK-pair fully inside the first 244 chars (the dose-integrity property);
-line bytes in [440, 500]; paren integrity; role audit (every anchor at a
-bridge position; the only anchorless LINK is the declared d->t spare);
+`doses`; a filter echo inside the 512-char slot window; at least one
+complete LINK-pair fully inside the slot window (the dose-integrity
+property); the first four LINKs ending inside the probable 240-char
+truncation (the front-packing fallback property); line bytes in
+[440, 500]; paren integrity; role audit (every anchor at a bridge
+position; the only anchorless LINK is the declared d->t spare);
 whole-text directed forms equal the canonical multiset at `doses x lines`
-sets. Set-toward-front (configs ending inside 244) is measured and
-reported, not a hard fail.
+sets. Set-toward-front (configs ending inside the slot window) is
+measured and reported, not a hard fail — at 512 it is trivially 9 of 9;
+the binding front-packing constraint is the truncation check.
 
 ## Measured (both candidates; identical modulo the anchor token)
 
@@ -64,9 +83,10 @@ reported, not a hard fail.
 |---|---|
 | line bytes | 441–491 (band 440–500), 20 lines |
 | per-line 9-config coverage | 20/20 lines, exactly 1 dose each |
-| filter echo inside 244 | 20/20 lines, chars 0–17 |
-| complete LINK-pair inside 244 | 20/20 lines |
-| set-toward-front | 5–6 of 9 configs end inside 244 (min 5, mean 5.9) |
+| filter echo inside the 512 slot | 20/20 lines, chars 0–17 |
+| complete LINK-pair inside the 512 slot | 20/20 lines |
+| set-toward-front | 9 of 9 configs end inside the 512 slot (the whole set) |
+| first four LINKs inside the 240 truncation | 20/20 lines; fourth LINK ends at chars 85–108 |
 | word totals | anchor 340, delete 180, file 200 (17/9/10 per set) |
 | directed forms | a>t 80, t>a 80, a>d 80, d>a 100, d>t 20 |
 | H_word | 4.1919 bits/word vs goop baseline 4.8556 (delta −0.6637) |
@@ -88,4 +108,7 @@ unfired.
 Fresh output paths only (exclusive writes); delete the run's `inputs/` to
 recompose. Mode implementation: `gooplib/bridging.py: compose_megalines,
 measure_megalines`; spec validation + hard checks: `tools/goop_payload.py:
-_compose_megalines`; tests: `tests/test_megaline.py`.
+_compose_megalines`; tests: `tests/test_megaline.py`. Spec knobs:
+`filter_prefix_chars` (512, the delivered-slot window),
+`truncation_chars` (240, the probable truncation the first four LINKs
+must survive), `min_line_bytes`/`max_line_bytes` (the line band).

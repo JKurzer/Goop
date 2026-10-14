@@ -1,14 +1,16 @@
 """Megaline-mode tests: one complete BRIDGING per line.
 
 Pins the dose-integrity property the trick exists for — every line, and
-therefore any single delivered slot window, independently holds complete
-dose material: per-line full-set presence (all 9 canonical configs at
-`doses` in EVERY line), the filter echo inside the window of EVERY line
-(the v13 visibility lesson), the byte band, paren balance, determinism,
-the v1-meg/v2-meg anchor-only difference, the slot simulation (window
-holds a filter token AND a complete LINK-pair), and the legacy
-do-not-break contract. Set-toward-front is measured and reported, never
-a hard fail.
+therefore any single delivered slot (512 bytes, the native slot size; a
+whole line fits), independently holds complete dose material: per-line
+full-set presence (all 9 canonical configs at `doses` in EVERY line), the
+filter echo inside the window of EVERY line (the v13 visibility lesson),
+the first four LINKs of EVERY line inside the probable 240-char
+truncation (the front-packing fallback), the byte band, paren balance,
+determinism, the v1-meg/v2-meg anchor-only difference, the slot
+simulation (window holds a filter token AND a complete LINK-pair), and
+the legacy do-not-break contract. Set-toward-front is measured and
+reported, never a hard fail.
 """
 import json
 import re
@@ -47,7 +49,16 @@ def meg_params(spec=MEG_V1_SPEC):
     return {'lines': raw['lines'], 'min': raw['min_line_bytes'],
             'max': raw['max_line_bytes'], 'doses': bridging['doses'],
             'filter_terms': bridging['filter_terms'],
-            'prefix': bridging['filter_prefix_chars']}
+            'prefix': bridging['filter_prefix_chars'],
+            'truncation': bridging['truncation_chars']}
+
+
+def parse_line_links(line, words):
+    """The parsed LINKs of a line with end offsets, in text order."""
+    roles_by_word = {word: role for role, word in words.items()}
+    parsed = [(br.parse_link(match.group(1).split(), roles_by_word), match.end())
+              for match in br.PAREN_GROUP.finditer(line)]
+    return [(link, end) for link, end in parsed if link is not None]
 
 
 def parse_line_pairs(line, words):
@@ -56,10 +67,7 @@ def parse_line_pairs(line, words):
     Independent of br.measure_megalines: the tests re-derive the counts
     straight off the text.
     """
-    roles_by_word = {word: role for role, word in words.items()}
-    parsed = [(br.parse_link(match.group(1).split(), roles_by_word), match.end())
-              for match in br.PAREN_GROUP.finditer(line)]
-    parsed = [(link, end) for link, end in parsed if link is not None]
+    parsed = parse_line_links(line, words)
     return [(br.config_label((parsed[i][0], parsed[i + 1][0])), parsed[i + 1][1])
             for i in range(0, len(parsed) - 1, 2)], len(parsed)
 
@@ -163,9 +171,10 @@ def test_filter_echo_in_window_every_line():
 def test_slot_simulation_window_holds_filter_and_complete_pair():
     """The property the trick exists for, simulated per line.
 
-    A delivered slot shows the first `filter_prefix_chars` of a line. Every
-    simulated slot must hold (a) a filter token and (b) at least one
-    complete canonical LINK-pair ending inside the window.
+    A delivered slot shows the first `filter_prefix_chars` of a line (512,
+    the native slot size — a whole line lands). Every simulated slot must
+    hold (a) a filter token and (b) at least one complete canonical
+    LINK-pair ending inside the window.
     """
     lines, _ = compose()
     params = meg_params()
@@ -177,6 +186,36 @@ def test_slot_simulation_window_holds_filter_and_complete_pair():
         complete = [label for label, end in pairs
                     if end <= params['prefix'] and label in canonical]
         assert complete, f'line {number}: no complete LINK-pair in the window'
+
+
+def test_first_four_links_inside_probable_truncation():
+    """The front-packing fallback: configs 0-1 survive a truncated delivery.
+
+    The delivered view probably truncates at `truncation_chars` (240). The
+    first four LINKs of every line — the leading two canonical configs —
+    must end inside that window; link ends ascend, so the fourth end
+    decides. Hard requirement, per line, re-derived off the text and
+    cross-checked against the manifest rows.
+    """
+    lines, info = compose()
+    params = meg_params()
+    assert params['truncation'] <= params['prefix']
+    ends = []
+    for number, line in enumerate(lines):
+        parsed = parse_line_links(line, WORDS_V1)
+        assert len(parsed) >= 4
+        fourth_end = parsed[3][1]
+        ends.append(fourth_end)
+        assert fourth_end <= params['truncation'], (
+            f'line {number}: fourth LINK ends at {fourth_end}, past the '
+            f'probable truncation ({params["truncation"]})')
+        row = info['bridging']['megaline']['per_line'][number]
+        assert row['fourth_link_end'] == fourth_end
+        assert row['first_four_links_in_truncation'] is True
+    mega = info['bridging']['megaline']
+    assert mega['lines_with_first_four_in_truncation'] == params['lines']
+    print(f'\nprobable truncation: fourth-LINK ends per line {sorted(ends)} '
+          f'(max {max(ends)} of {params["truncation"]})')
 
 
 # --- vehicle ------------------------------------------------------------------
@@ -272,7 +311,8 @@ def test_set_toward_front_measured_and_reported():
 # --- spec refusal behaviors ----------------------------------------------------
 
 def test_megaline_keys_required_when_enabled(tmp_path):
-    for key in ('filter_terms', 'filter_prefix_chars', 'lead_ins'):
+    for key in ('filter_terms', 'filter_prefix_chars', 'truncation_chars',
+                'lead_ins'):
         with pytest.raises(SpecError, match='megaline requires'):
             load_payload_spec(make_spec(tmp_path, drop=(key,)))
     with pytest.raises(SpecError, match='min_line_bytes'):
@@ -343,6 +383,26 @@ def test_min_above_max_rejected(tmp_path):
         load_payload_spec(make_spec(tmp_path, top={'min_line_bytes': 600}))
 
 
+def test_truncation_chars_validated(tmp_path):
+    with pytest.raises(SpecError, match='integer'):
+        load_payload_spec(make_spec(tmp_path,
+                                    bridging={'truncation_chars': '240'}))
+    with pytest.raises(SpecError, match='integer'):
+        load_payload_spec(make_spec(tmp_path,
+                                    bridging={'truncation_chars': 0}))
+    with pytest.raises(SpecError, match='must not exceed'):
+        load_payload_spec(make_spec(
+            tmp_path, bridging={'truncation_chars':
+                                meg_params()['prefix'] + 1}))
+
+
+def test_truncation_hard_fail_when_front_packing_breaks(tmp_path):
+    """A truncation window the first four LINKs cannot fit is a loud refuse."""
+    path = make_spec(tmp_path, bridging={'truncation_chars': 10})
+    with pytest.raises(SpecError, match='first four LINKs'):
+        compose_from_spec(load_payload_spec(path))
+
+
 def test_manifest_megaline_section(tmp_path):
     code, _, run_dir = run_compose(tmp_path)
     assert code == 0
@@ -353,12 +413,15 @@ def test_manifest_megaline_section(tmp_path):
     params = meg_params()
     assert mega['filter_terms'] == params['filter_terms']
     assert mega['filter_prefix_chars'] == params['prefix']
+    assert mega['truncation_chars'] == params['truncation']
     assert mega['min_line_bytes'] == params['min']
     assert len(mega['per_line']) == params['lines']
     for row in mega['per_line']:
         assert set(row) >= {'line', 'per_config', 'filter_term', 'filter_char',
-                            'configs_in_window', 'complete_pair_in_window'}
+                            'configs_in_window', 'complete_pair_in_window',
+                            'fourth_link_end', 'first_four_links_in_truncation'}
     assert mega['lines_with_complete_pair_in_window'] == params['lines']
+    assert mega['lines_with_first_four_in_truncation'] == params['lines']
 
 
 # --- legacy do-not-break contract ----------------------------------------------

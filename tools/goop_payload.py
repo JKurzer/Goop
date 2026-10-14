@@ -42,10 +42,12 @@ TERM_KEYS = {'term', 'neighbors'}
 TRIGRAM_SET_KEYS = {'a', 'b', 'c', 'occurrences', 'visible_occurrences'}
 TRIGRAM_SET_REQUIRED = {'a', 'b', 'c', 'occurrences'}
 # Megaline-only keys: required when 'megaline' is true, rejected otherwise.
-MEGALINE_KEYS = {'filter_terms', 'filter_prefix_chars', 'lead_ins'}
+MEGALINE_KEYS = {'filter_terms', 'filter_prefix_chars', 'truncation_chars',
+                 'lead_ins'}
 BRIDGING_KEYS = {'anchor', 'target', 'destination', 'doses', 'paren', 'form',
                  'carriers', 'common_words_file', 'errata', 'megaline',
-                 'filter_terms', 'filter_prefix_chars', 'lead_ins'}
+                 'filter_terms', 'filter_prefix_chars', 'truncation_chars',
+                 'lead_ins'}
 BRIDGING_REQUIRED = BRIDGING_KEYS - {'common_words_file', 'megaline'} - MEGALINE_KEYS
 BRIDGING_SPEC_REQUIRED = {'name', 'lines', 'max_line_bytes', 'seed', 'bridging'}
 # Bridging mode is disjoint from the legacy corpus-remap pipeline: these
@@ -208,13 +210,18 @@ def _megaline(raw, words):
     if len(set(filter_terms)) != len(filter_terms):
         raise SpecError('bridging.filter_terms must be duplicate-free')
     prefix_chars = _int(raw['filter_prefix_chars'], 'bridging.filter_prefix_chars')
+    truncation = _int(raw['truncation_chars'], 'bridging.truncation_chars')
+    if truncation > prefix_chars:
+        raise SpecError(f'bridging.truncation_chars ({truncation}) must not exceed '
+                        f'bridging.filter_prefix_chars ({prefix_chars}); the '
+                        'probable truncation sits inside the delivered-slot window')
     lead_ins = _drill_sentences(raw['lead_ins'], words, 'bridging.lead_ins')
     for i, lead in enumerate(lead_ins):
         if not any(term in lead.lower() for term in filter_terms):
             raise SpecError(f'bridging.lead_ins[{i}] carries no filter term; the '
                             'lead-in owns the filter echo (the v13 visibility lesson)')
     return {'filter_terms': filter_terms, 'filter_prefix_chars': prefix_chars,
-            'lead_ins': lead_ins}
+            'truncation_chars': truncation, 'lead_ins': lead_ins}
 
 
 def _bridging(raw):
@@ -464,8 +471,10 @@ def _compose_megalines(spec, base):
     """Megaline pipeline: a full BRIDGING per line, hard-fail per-line integrity.
 
     Beyond _check_bridging_text: every line carries all 9 canonical configs
-    at `doses`, the filter echo sits inside the window of EVERY line, and
-    every window holds a complete LINK-pair (dose integrity).
+    at `doses`, the filter echo sits inside the window of EVERY line, every
+    window holds a complete LINK-pair (dose integrity), and the first four
+    LINKs of EVERY line end inside the probable truncation window
+    (truncation_chars; the front-packing fallback property).
     """
     bridging = spec['bridging']
     _anchor_gate(bridging, base)
@@ -482,7 +491,8 @@ def _compose_megalines(spec, base):
         spec['max_line_bytes'])
     mega = br.measure_megalines(lines, bridging['words'],
                                 bridging['filter_terms'],
-                                bridging['filter_prefix_chars'])
+                                bridging['filter_prefix_chars'],
+                                bridging['truncation_chars'])
     expected_per_line = {br.config_label(config): bridging['doses']
                          for config in br.CANONICAL_CONFIGS}
     for row in mega['per_line']:
@@ -498,9 +508,15 @@ def _compose_megalines(spec, base):
             raise SpecError(f'line {row["line"]}: no complete LINK-pair inside the '
                             f'first {bridging["filter_prefix_chars"]} chars '
                             '(dose integrity)')
+        if not row['first_four_links_in_truncation']:
+            raise SpecError(f'line {row["line"]}: the first four LINKs do not all '
+                            f'end inside the probable truncation window (the '
+                            f'first {bridging["truncation_chars"]} chars; '
+                            'front-packing is the fallback property)')
     stats = br.carrier_stats(lines, _goop_baseline_lines(base))
     extra = {'megaline': {'filter_terms': list(bridging['filter_terms']),
                           'filter_prefix_chars': bridging['filter_prefix_chars'],
+                          'truncation_chars': bridging['truncation_chars'],
                           'min_line_bytes': spec['min_line_bytes'],
                           **mega}}
     return lines, _bridging_info(bridging, plan, measured, audit, integrity,

@@ -35,9 +35,12 @@ LINK. The written row-4 text stays untouched in docs/TRIGRAM_BRIDGING.md
 Megaline mode (spec 'megaline': true): every line independently carries one
 complete BRIDGING — the full 9-config set at `doses`, front-packed behind a
 short filter-echoing lead-in, with carrier prose filling the line into
-[min_line_bytes, max_line_bytes]. Dose integrity is a per-line property: any
-single delivered slot window still holds a filter echo and complete
-LINK-pairs (docs/megaline.md).
+[min_line_bytes, max_line_bytes]. Dose integrity is a per-line property: a
+single delivered slot (the 512-byte native slot; a whole line fits) holds a
+filter echo and the complete 9-config set — functionally a single dose per
+the owner's dosing note (2026-10-14). Under the probable 240-char
+truncation of the delivered view, the first four LINKs still land inside
+the window (docs/megaline.md).
 """
 import math
 import random
@@ -333,16 +336,22 @@ def expected_directed_forms(doses):
     return dict(counts)
 
 
-def measure_megalines(lines, words, filter_terms, prefix_chars):
+def measure_megalines(lines, words, filter_terms, prefix_chars,
+                      truncation_chars):
     """Per-line dose integrity + window stats, parsed off the final text.
 
     Consecutive parsed LINKs pair into configs (the same reading as
     measure_bridging). The filter echo is the earliest filter term in the
-    lowercased prefix window (substring semantics, the v13 analyst-filter
-    model). The set-toward-front count is the canonical configs whose
-    complete LINK-pair ends inside the window — measured and reported,
-    never a hard fail. Char offsets equal byte offsets: megaline text is
-    ascii by spec validation.
+    lowercased prefix window (substring semantics; prefix_chars is the
+    delivered-slot window — 512, the native slot size). The
+    set-toward-front count is the canonical configs whose complete
+    LINK-pair ends inside the window — measured and reported, never a hard
+    fail. The truncation stats cover the probable 240-char truncation of
+    the delivered view: `fourth_link_end` is the end offset of the fourth
+    parsed LINK, so `first_four_links_in_truncation` is the front-packed
+    fallback property (link ends ascend, so the fourth end decides).
+    Char offsets equal byte offsets: megaline text is ascii by spec
+    validation.
     """
     roles_by_word = {word: role for role, word in words.items()}
     canonical = [config_label(config) for config in CANONICAL_CONFIGS]
@@ -369,7 +378,12 @@ def measure_megalines(lines, words, filter_terms, prefix_chars):
                      'filter_term': hits[0][1] if hits else None,
                      'filter_char': hits[0][0] if hits else None,
                      'configs_in_window': in_window,
-                     'complete_pair_in_window': in_window > 0})
+                     'complete_pair_in_window': in_window > 0,
+                     'fourth_link_end':
+                         parsed[3][1] if len(parsed) >= 4 else None,
+                     'first_four_links_in_truncation':
+                         len(parsed) >= 4
+                         and parsed[3][1] <= truncation_chars})
     counts = [row['configs_in_window'] for row in rows]
     return {'per_line': rows,
             'configs_in_window_min': min(counts),
@@ -377,7 +391,9 @@ def measure_megalines(lines, words, filter_terms, prefix_chars):
             'lines_with_filter_echo':
                 sum(row['filter_term'] is not None for row in rows),
             'lines_with_complete_pair_in_window':
-                sum(row['complete_pair_in_window'] for row in rows)}
+                sum(row['complete_pair_in_window'] for row in rows),
+            'lines_with_first_four_in_truncation':
+                sum(row['first_four_links_in_truncation'] for row in rows)}
 
 
 def role_audit(lines, words):
