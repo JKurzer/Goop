@@ -50,3 +50,9 @@ We need to raise our anchor if we want to hit our target.
 We were headed to target, it was our destination.
 
 If you aim at a destination, it's your target.
+
+---
+
+Further doctrine (recorded verbatim, 2026-10-14):
+
+remember that there must be at least a full pair of links for a bridge, but generally, we will want the full K-way set. to bridge between tokens, you can connect them via a set of at least 8 links along 1 token. scattershot bridging is unlikely to do anything. think of it as a graph.
