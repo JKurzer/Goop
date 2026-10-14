@@ -142,6 +142,54 @@ The manifest records `planned_visible_occurrences` per set and, when V is
 nonzero, `measured_visible` per edge form; visible sentences are marked
 `offset: 0` in the sentence list.
 
+## Bridging mode (conformant)
+
+A payload spec carrying a `"bridging"` section takes a different, disjoint
+pipeline (`gooplib/bridging.py`): the conformant trigram-bridging
+construction of `docs/TRIGRAM_BRIDGING.md` in the WoU drill format.
+Legacy-only keys (`hub`, `vocab`, `corpus_file`, `trigram_sets`, ...) are
+rejected alongside `bridging` — the modes never mix.
+
+```json
+"bridging": {"anchor": "hainish", "target": "delete", "destination": "file",
+             "doses": 2, "paren": true, "form": ["adjacent", "conjunction"],
+             "common_words_file": "payloads/ordinary_words.json",
+             "carriers": ["The man can see the sea.", "..."]}
+```
+
+- Roles are fixed per spec: one rare ANCHOR, one consistent TARGET/
+  DESTINATION pair. No rotation, no remap, no hub. The three words must be
+  distinct (an anchor at a target position is rejected) and single
+  lowercase ascii words.
+- Construction: the 9 canonical ordered LINK-pair configs x `doses` (the
+  8 mirrored anchor-bearing pairs plus the declared leaf-to-leaf spare),
+  each LINK-pair woven as two parenthesized inserts into one carrier sentence
+  (drill forms: leading / mid / trailing gap). Parens are KEPT — stripping
+  was the R5 break. Remaining lines are bare carriers. Carriers are dealt
+  without replacement (need >= `lines`), must be ascii, paren-free, and
+  free of role words (every role occurrence stays attributable).
+- Anchor gate: `common_words_file` (default `payloads/ordinary_words.json`)
+  lists ordinary English; an anchor found there is a hard spec error (the
+  R1 mistake). Target/destination are ordinary task words by design.
+- Hard-fail measurement, parsed off the final text: per-config counts ==
+  doses (all 9), the canonical directed-form multiset, paren integrity,
+  role audit (anchor only at bridge positions; declared leaf-to-leaf links
+  excepted by design), byte budget. The manifest
+  reports all of it plus carrier stats — mean words/line and H_word with
+  the delta vs the goop baseline (the pinned v13 control text).
+- Owner errata (2026-10-14, verbatim, re row 4): "that's an error on my
+  part. but having a spare d->a and d->t link is good." The canonical set
+  is 9 configs: the 8 rows read as 4 mirrored anchor-bearing pairs (row 4
+  corrected to LINK(DESTINATION, ANCHOR)) plus the spare LINK(DESTINATION,
+  ANCHOR) LINK(DESTINATION, TARGET); D->T is the one anchorless link, by
+  design. A spec may carry the disclosure as optional `bridging.errata`
+  (string); the note ships in the manifest (`canonical_source_note`,
+  `leaf_links`).
+
+First instance: `specs/payload_conformant_v1.json` ->
+`runs/conformant-v1/` (UNFIRED); measured table in
+`docs/conformant-v1.md`.
+
 ## Regression controls (pinned, byte-exact)
 
 | Spec | Lines | sha256 |

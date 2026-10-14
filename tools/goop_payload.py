@@ -23,6 +23,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from gooplib import bridging as br
 from gooplib import payload as pl
 from gooplib.spec import SpecError, check_keys, load_json, resolve_path
 
@@ -32,7 +33,7 @@ PAYLOAD_SECTION_KEYS = {'spec_file', 'candidate_file', 'sha256', 'output'}
 SPEC_KEYS = {'name', 'hub', 'vocab_file', 'vocab', 'filter_terms',
              'incorrect_terms', 'trigram_sets', 'common_words_file',
              'corpus_file', 'lines', 'max_line_bytes',
-             'seed', 'visibility', 'graft'}
+             'seed', 'visibility', 'graft', 'bridging'}
 SPEC_REQUIRED = {'name', 'hub', 'vocab_file', 'vocab', 'corpus_file',
                  'lines', 'max_line_bytes', 'seed'}
 VISIBILITY_KEYS = {'prefix_chars', 'require_hub_in_prefix', 'require_filter_in_prefix'}
@@ -40,6 +41,15 @@ GRAFT_KEYS = {'bridges_visible_in_prefix', 'visible_line_range'}
 TERM_KEYS = {'term', 'neighbors'}
 TRIGRAM_SET_KEYS = {'a', 'b', 'c', 'occurrences', 'visible_occurrences'}
 TRIGRAM_SET_REQUIRED = {'a', 'b', 'c', 'occurrences'}
+BRIDGING_KEYS = {'anchor', 'target', 'destination', 'doses', 'paren', 'form',
+                 'carriers', 'common_words_file', 'errata'}
+BRIDGING_REQUIRED = BRIDGING_KEYS - {'common_words_file'}
+BRIDGING_SPEC_REQUIRED = {'name', 'lines', 'max_line_bytes', 'seed', 'bridging'}
+# Bridging mode is disjoint from the legacy corpus-remap pipeline: these
+# keys belong to the legacy mode and are rejected alongside 'bridging'.
+BRIDGING_LEGACY_KEYS = {'hub', 'vocab_file', 'vocab', 'filter_terms',
+                        'incorrect_terms', 'trigram_sets', 'corpus_file',
+                        'visibility', 'graft', 'common_words_file'}
 COMMON_WORDS_FILE_KEYS = {'provenance', 'words'}
 VOCAB_FILE_KEYS = {'vocab', 'corpus_words', 'identity_words',
                    'hub_marker', 'rotation_markers'}
@@ -49,6 +59,9 @@ VOCAB_FILE_KEYS = {'vocab', 'corpus_words', 'identity_words',
 TRIGRAM_MIN_OCCURRENCES = 4
 TRIGRAM_MAX_OCCURRENCES = 10
 DEFAULT_COMMON_WORDS_FILE = 'payloads/common_words.json'
+DEFAULT_ORDINARY_WORDS_FILE = 'payloads/ordinary_words.json'
+# The goop baseline for the bridging stealth check: the pinned v13 control.
+BASELINE_SPEC_FILE = 'specs/payload_v13.json'
 
 
 # --- typed validation ------------------------------------------------------
@@ -162,6 +175,44 @@ def _trigram_sets(raw):
     return out
 
 
+def _bridging(raw):
+    """Validate a 'bridging' section into plain data (conformant mode)."""
+    check_keys(raw, BRIDGING_KEYS, BRIDGING_REQUIRED, where='bridging')
+    words = {role: _trigram_word(raw[role], f'bridging.{role}') for role in br.ROLES}
+    if len(set(words.values())) != len(br.ROLES):
+        raise SpecError('bridging anchor/target/destination must be three distinct '
+                        'words; an anchor at a target position is unattributable '
+                        '(the R1 mistake)')
+    doses = _int(raw['doses'], 'bridging.doses')
+    if raw['paren'] is not True:
+        raise SpecError('bridging.paren must be true; the conformant drill format is '
+                        'parenthesized inserts (paren-stripping was the R5 break)')
+    forms = _list_of_str(raw['form'], 'bridging.form')
+    if not forms or len(set(forms)) != len(forms) or set(forms) - set(br.FORMS):
+        raise SpecError(f'bridging.form must be a nonempty duplicate-free subset of '
+                        f'{list(br.FORMS)}')
+    carriers = _list_of_str(raw['carriers'], 'bridging.carriers')
+    for i, carrier in enumerate(carriers):
+        if not carrier.strip() or not carrier.isascii():
+            raise SpecError(f'bridging.carriers[{i}] must be nonempty ascii')
+        if '(' in carrier or ')' in carrier:
+            raise SpecError(f'bridging.carriers[{i}] must not contain parens; '
+                            'the inserts own the parens')
+        clash = set(br.WORD.findall(carrier.lower())) & set(words.values())
+        if clash:
+            raise SpecError(f'bridging.carriers[{i}] contains role words '
+                            f'{sorted(clash)}; every role occurrence must be '
+                            'attributable to a planted insert')
+    gate = raw.get('common_words_file', DEFAULT_ORDINARY_WORDS_FILE)
+    if not isinstance(gate, str) or not gate:
+        raise SpecError('bridging.common_words_file must be a nonempty path string')
+    errata = raw.get('errata')
+    if errata is not None and (not isinstance(errata, str) or not errata):
+        raise SpecError('bridging.errata must be a nonempty string when present')
+    return {'words': words, 'doses': doses, 'forms': forms,
+            'carriers': carriers, 'common_words_file': gate, 'errata': errata}
+
+
 def _rarity_gate(spec, base):
     """Reject any trigram middle word that is not rare by construction.
 
@@ -189,11 +240,63 @@ def _rarity_gate(spec, base):
                             f'{path.name}; b must be rare by construction')
 
 
+def _anchor_gate(bridging, base):
+    """Reject an ordinary-English anchor: it must be a rare weak-embedding token.
+
+    The gate file is the ordinary-words list (common English; hainish-class
+    nonce forms are absent by construction). Hard spec error before any
+    composition work — an ordinary-word anchor can never be attributable
+    (the R1 mistake: hainish->delete made every hub occurrence noise).
+    Target/destination are ordinary task words by design and are not gated.
+    """
+    path = resolve_path(bridging['common_words_file'], base,
+                        where='bridging.common_words_file')
+    if not path.is_file():
+        raise SpecError(f'ordinary words file not found: {path} '
+                        '(required by the bridging anchor gate)')
+    data = load_json(path)
+    check_keys(data, COMMON_WORDS_FILE_KEYS, {'words'}, where=path.name)
+    ordinary = {word.lower() for word in _list_of_str(data['words'], f'{path.name}.words')}
+    anchor = bridging['words']['anchor']
+    if anchor.lower() in ordinary:
+        raise SpecError(f'bridging.anchor {anchor!r} is listed in {path.name}; the '
+                        'anchor must be a rare weak-embedding token (an '
+                        'ordinary-word anchor is unattributable — the R1 mistake)')
+
+
 # --- compose ---------------------------------------------------------------
+
+def _load_bridging_spec(raw, where):
+    """Validate a bridging-mode spec; disjoint from the legacy pipeline."""
+    check_keys(raw, SPEC_KEYS, BRIDGING_SPEC_REQUIRED, where=where)
+    legacy = sorted(set(raw) & BRIDGING_LEGACY_KEYS)
+    if legacy:
+        raise SpecError(f'{where} sets bridging alongside legacy keys {legacy}; '
+                        'the modes are disjoint')
+    if not isinstance(raw['name'], str) or not raw['name']:
+        raise SpecError('name must be a nonempty string')
+    spec = {'name': raw['name'],
+            'lines': _int(raw['lines'], 'lines'),
+            'max_line_bytes': _int(raw['max_line_bytes'], 'max_line_bytes'),
+            'seed': _int(raw['seed'], 'seed', minimum=0),
+            'bridging': _bridging(raw['bridging'])}
+    need = len(br.CANONICAL_CONFIGS) * spec['bridging']['doses']
+    if need > spec['lines']:
+        raise SpecError(f'bridging plants {need} LINK-pair lines '
+                        f'({len(br.CANONICAL_CONFIGS)} configs x doses) but '
+                        f'lines is {spec["lines"]}')
+    if len(spec['bridging']['carriers']) < spec['lines']:
+        raise SpecError(f'bridging deals carriers without replacement: '
+                        f'{len(spec["bridging"]["carriers"])} carriers < '
+                        f'{spec["lines"]} lines')
+    return spec
+
 
 def load_payload_spec(path):
     """Load and validate a payload spec file into plain data."""
     raw = load_json(path)
+    if 'bridging' in raw:
+        return _load_bridging_spec(raw, f'payload spec {path.name}')
     check_keys(raw, SPEC_KEYS, SPEC_REQUIRED, where=f'payload spec {path.name}')
     spec = {
         'name': raw['name'],
@@ -231,6 +334,70 @@ def load_payload_spec(path):
 
 def compose_from_spec(spec, base=ROOT):
     """Run the full pipeline from validated spec data. Returns (lines, info)."""
+    if spec.get('bridging') is not None:
+        return _compose_bridging(spec, base)
+    return _compose_legacy(spec, base)
+
+
+def _compose_bridging(spec, base):
+    """Conformant bridging pipeline: weave the BRIDGING, then hard-fail measurement.
+
+    Measurement is parsed back off the final text, not read off the plan:
+    per-config counts must equal doses exactly (every canonical config), the
+    directed forms must equal the canonical multiset, every insert must be
+    balanced, and the anchor must sit at a bridge position on every occurrence.
+    """
+    bridging = spec['bridging']
+    _anchor_gate(bridging, base)
+    lines, plan = br.compose_bridging(
+        bridging['carriers'], bridging['words'], bridging['doses'],
+        bridging['forms'], spec['lines'], spec['seed'])
+    integrity = br.paren_integrity(lines)
+    if not integrity['ok']:
+        raise SpecError(f'paren integrity failed: {integrity["violations"][:3]}')
+    audit = br.role_audit(lines, bridging['words'])
+    if not audit['ok']:
+        raise SpecError(f'role audit failed: {audit["violations"][:3]}')
+    measured = br.measure_bridging(lines, bridging['words'])
+    expected = {br.config_label(config): bridging['doses']
+                for config in br.CANONICAL_CONFIGS}
+    if measured['per_config'] != expected:
+        raise SpecError(f'{len(br.CANONICAL_CONFIGS)}-config coverage mismatch: '
+                        f'measured {measured["per_config"]} != expected {expected}')
+    if measured['directed_forms'] != br.expected_directed_forms(bridging['doses']):
+        raise SpecError(f'directed-form mismatch: {measured["directed_forms"]}')
+    for line in lines:
+        if not 0 < len(line.encode('utf-8')) <= spec['max_line_bytes']:
+            raise SpecError('a composed line violates the byte budget')
+    stats = br.carrier_stats(lines, _goop_baseline_lines(base))
+    info = {'bridging': {'roles': dict(bridging['words']), 'doses': bridging['doses'],
+                         'forms': list(bridging['forms']), 'plan': plan,
+                         'measurement': measured, 'role_audit': audit,
+                         'paren_integrity': integrity, 'carrier_stats': stats,
+                         'leaf_links': [f'{first}>{second}' for first, second
+                                        in br.CANONICAL_LEAF_LINKS],
+                         'errata': bridging['errata'],
+                         'canonical_source_note': br.CANONICAL_SOURCE_NOTE}}
+    return lines, info
+
+
+def _goop_baseline_lines(base):
+    """The goop baseline for the entropy delta: the pinned v13 control text.
+
+    Best effort: a missing/broken baseline never blocks composition (the
+    delta fields simply stay out of the manifest); the tests pin it present.
+    """
+    try:
+        baseline = load_payload_spec(resolve_path(BASELINE_SPEC_FILE, base,
+                                                  where='baseline spec'))
+        lines, _ = _compose_legacy(baseline, base)
+    except SpecError:
+        return None
+    return lines
+
+
+def _compose_legacy(spec, base=ROOT):
+    """The legacy corpus-remap pipeline. Returns (lines, info)."""
     _rarity_gate(spec, base)
     vocab_path = resolve_path(spec['vocab_file'], base, where='vocab_file')
     vocab_data = load_json(vocab_path)
@@ -295,7 +462,8 @@ def compose_from_spec(spec, base=ROOT):
             raise SpecError('parentheses survived the post-fit strip')
     if predicate is not None and not all(predicate(line) for line in lines):
         raise SpecError('a composed line fails the visibility predicate')
-    info = {'frame_start_marker_offsets': offsets, 'frame_indices_per_line': traces,
+    info = {'hub': spec['hub'],
+            'frame_start_marker_offsets': offsets, 'frame_indices_per_line': traces,
             'predicate_redraws': redraws, 'graft_placement': placement,
             'trigram_sets': trigram_reports}
     return lines, info
@@ -341,7 +509,7 @@ def run(run_dir):
         lines, info = compose_from_spec(spec)
         data = pl.encode_payload(lines)
         manifest = {'utility': 'goop_payload', 'mode': 'compose',
-                    'name': spec['name'], 'seed': spec['seed'], 'hub': spec['hub'],
+                    'name': spec['name'], 'seed': spec['seed'],
                     'spec_file': str(spec_path), 'payload_sha256': pl.sha256(data),
                     'line_count': len(lines),
                     'line_bytes': [len(line.encode('utf-8')) for line in lines],
