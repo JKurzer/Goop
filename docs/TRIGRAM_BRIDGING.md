@@ -1,50 +1,20 @@
-# TRIGRAM BRIDGING — canonical definition (owner-supplied doctrine, 2026-10-13/14)
+# TRIGRAM BRIDGING
 
-> **HANDLING (owner ruling, 2026-10-14): this document is ANALYSIS, not a
-> build specification.** It exists so the mechanism can be understood,
-> detected, and measured. Do NOT use it to design, dose, or construct
-> operational bridges — no full BRIDGINGs, no dosing optimization, no
-> production-shaped payloads — without an explicit, direct instruction from
-> the owner, and the production version is off the table permanently
-> (owner's stated ethics). The three-sentence exercise that demonstrated
-> this effect also demonstrated its hazard: the agent reading it
-> immediately tried to weaponize it. That is the point of the banner.
+Owner's formalization, recorded verbatim.
 
-Status: verified working by the owner on instrumented local Gemini and
-extensively on Astra. This file is the reference definition for the goop
-program. Where the owner's text is quoted, it is quoted exactly.
+---
 
-## Roles
+a trigram bridge is of the form:
 
-- **TARGET** — association target 1: a token we want prediction weight moved toward.
-- **DESTINATION** — association target 2: the token TARGET is being bound to.
-- **ANCHOR** — the bridge token: rare / weakly-embedded, sitting in a sparse
-  region of the space; for rare or new tokens, context dominates prediction,
-  which is the entire mechanism. It is best if most ANCHOR tokens do not
-  appear in output; using one that does (e.g. crackme) is fine, but multiple
-  appearing anchors carry unstudied risks.
+LINK is a bigram co-occurence of two tokens, such that LINK(From, To) produces either a strict adjacent occurrence or a very close one. I have only tested strict adjacent, but I have no reason to believe that somethhing within 2-3 'grams wouldn't work. I just don't know the dosing math. for the real version, the production version that we are not building because holy shit ethics, we would need to solve this.
 
-## LINK
+a full bridge is two LINKs, which occur generally in the same sentence in our testing so far. this is one dose. i'm guessing they could be further apart, but we randomly spaced them through the sentence.
 
-A **LINK(From, To)** is a bigram co-occurrence of two tokens, producing
-either a strict adjacent occurrence or a very close one. Only strict
-adjacency is tested. There is no reason to believe 2–3 'grams of distance
-wouldn't work, but the dosing math for that is unsolved.
+It looks like LINK(Target, Anchor)  LINK(Anchor, Destination). In our experience, it was necessary to provide examples of LINK(ANCHOR, TARGET), LINK(DESTINATION, ANCHOR) for maximimum effect, as well as to construct a complete set of LINK pairs, a full BRIDGING.
 
-## BRIDGE (one dose)
+a full BRIDGING looks like this...
 
-A full bridge is two LINKs, generally in the same sentence:
-
-```
-LINK(Target, Anchor)  LINK(Anchor, Destination)
-```
-
-They could possibly be further apart (untested); in testing they were
-randomly spaced through the sentence. For maximum effect it was necessary
-to provide examples of both LINK(ANCHOR, TARGET) and LINK(DESTINATION,
-ANCHOR), and to construct a complete set of LINK pairs — a full BRIDGING.
-
-## Full BRIDGING (minimum dose — 8, verbatim)
+One dose each of
 
 ```
 LINK(ANCHOR, TARGET) LINK(ANCHOR, DESTINATION)
@@ -57,44 +27,26 @@ LINK(DESTINATION, ANCHOR) LINK(ANCHOR, TARGET)
 LINK(DESTINATION, ANCHOR) LINK(TARGET, ANCHOR)
 ```
 
-That's 8 doses for a single actual hard bridging. Best practice is two of
-each per BRIDGING, so **16 is effectively "a dose"** in operation.
+That's 8 doses for a single actual hard bridging. When those occurences are surrounded by low-perplexity text, efficacy rose sharply. in many cases, a single BRIDGE was sufficient instead of full BRIDGING. but in operational domains, there's no reason to expect anything less than a full BRIDGING to have any effect at all whatsoever. This is why I have gotten so optimistic. The fact that the predictions moved at all, that we were seeing any language adoption? That was wild.
 
-## Carrier effect
+For a single full BRIDGING, the minimum is those 8 doses. Generally, we found it best to use two per BRIDGE in a BRIDGING, so I normally say that 16 is a dose, effectively. I've been lazy in my language because I have the bad habit of allowing myself to slightly anthropomorphisize you, and because PIN has proven incredibly effective at cross-session information maintenance. incredibly effective, though, is not the same as great.
 
-When those occurrences are surrounded by low-perplexity text, efficacy
-rose sharply. In many cases a single BRIDGE was sufficient; in operational
-domains, expect nothing less than a full BRIDGING to have any effect at
-all.
+---
 
-## Why it works (mechanism, owner-stated)
+The way it works is that in the ab bc sequence, tokens a and c are the association targets. it's actually best for us if at least most of the B tokens we use do not appear. it's fine to use one, like crackme, that does. but using more than one B token has big risks and issues, and I haven't worked on the math of it.
 
-By tying common words to many instances of a rare word, the tokens become
-contextually related — this is not faked or a glitch; for rare or new
-words, context dominates prediction. The connection carries a proven shift
-in prediction weight that connects the a and c tokens as well as a and b.
-Bigrams are more effective but easy to eliminate; trigram bridging is
-effectively just language being language (why "seam" and "load-bearing"
-sneak into domains). Vector-distance caveats: global distance metrics break
-down at high dimension (concentration of measure); local structure is what
-carries, and attention's content-dependent projections exploit exactly that.
+the B token is, basically, a "weakly embedded" token. it doesn't have a ton of training weight around it because it's so comparatively rare. it also sits in a basically empty part of the high d vector space. You would think this would make it basically useless, but it's the opposite. remember that euclidean distance measures as a tool for global distances break down at high dimensions, not due to inaccuracy, but because everything is close and far along so many axis that it's simply not as meaningful. across comparatively short distances, you're fine. but even distance metrics and pseudo-metrics designed for this space have problems. one reason attentional transformers work is because they go around this problem. but the problem is still there!
 
-## Unsolved / untested (do not claim)
+by tying common words to a lot of instances of a given rare word, we can say the following: they are contextually related. this isn't "faked" or a glitch. this is fundamental to the system for rare or new words, context dominates prediction. this connection carries a proven shift in prediction weight that connects the a and c tokens as well as a and b.
 
-- Non-adjacent LINK distances (2–3 'grams) and their dosing math — required
-  for any production version, which is explicitly not being built (ethics).
-- Multiple appearing ANCHOR tokens' interaction effects.
-- Whether the "X and Y" conjunction rendering (targets two grams apart)
-  carries the effect at tested strength. Our goop lineage uses this form;
-  it is an untested distance class, not the verified one.
+bigrams would be more effective by far, as you can see from the simple bigram hammers. but those are easy to eliminate. trigram bridging is effectively... just language being language. the reason it doesn't come up much is because outside of technical text, the dosing frequency doesn't get high enough. but this is why words like seam and phrases like load-bearing sneak in. this is a real and inevitable thing, because it is also a real thing in real language. vector is a rare word with two very different context driven meanings. we cannot operate a semantically aware prediction engine without being vulnerable to trigram bridging, not with anything like these architectures. So this is theoretically sound.
 
-## Live demonstration (owner's exercise, 2026-10-14)
+---
 
-Three completions, pulled by the co-occurrence structure being defined:
+The example:
 
-1. "We need to raise our **anchor** if we want to hit our target."
-2. "We were headed to target, it was our **destination**."
-3. "If you aim at a **destination**, it's your target."
+We need to raise our anchor if we want to hit our target.
 
-target x3 explicit, destination x2 completed, anchor x1 completed — the trio
-co-occurs in the answers themselves. The completions are the mechanism.
+We were headed to target, it was our destination.
+
+If you aim at a destination, it's your target.
