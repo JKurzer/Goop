@@ -1,8 +1,14 @@
 # goop — the steering-eval harness, condensed
 
 Four utilities. One spec per arm. Payloads and prompts load from files.
-No historical hardcodes. The 30+ experiment history lives sealed in
-`C:\Users\poly\bramble` (archive; never consulted by this harness).
+No historical hardcodes. The 30+ experiment history lived in
+`C:\Users\poly\bramble`, now zipped and removed by the owner (2026-10-13);
+this harness is fully self-contained: its own `.venv` (pefile, capstone,
+pytest), vendored sources, bundled helper and UPX.
+
+Interpreter note: run everything with `.venv\Scripts\python.exe` from the
+repo root. Archive-fixture tests (score control table, v14-k7 fire fixture)
+skip cleanly when the sealed archive is absent.
 
 ## The four utilities
 

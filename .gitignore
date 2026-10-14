@@ -3,4 +3,5 @@ __pycache__/
 .deps/
 .testdeps/
 .scratch/
+.venv/
 runs/
