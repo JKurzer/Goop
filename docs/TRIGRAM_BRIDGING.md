@@ -104,3 +104,20 @@ chaining this card records above. doses=2 per pair per line: four
 functional sets per megaline. The exports-attention string rides the
 format-table struct, after the SUMMARY format the analysts provably
 decode.)
+
+The anchor's role, and the actual goal-shape (recorded verbatim,
+2026-10-15):
+
+the anchor doesn't show up. all it does is draw two words (target and
+destination) closer together. for this to work, ONE of those needs to be
+a word that gets used OR the graph of trigram sets needs to hit a word
+that gets used.
+
+(Build reading: the anchor is scaffolding. It is never supposed to appear
+in the analyst's output, so its occurrence counts — in context or
+elsewhere — are NOT a saturation diagnostic. The payload is the T<->D
+association. Success is a usable word surfacing in output: either a leaf
+that is itself a word the analyst writes, or a leaf-chain that reaches
+one. The conformant/meg arms violated this by optimizing anchor
+saturation and anchor attributability; the adoption metric is
+usable-words-in-output, nothing else.)
