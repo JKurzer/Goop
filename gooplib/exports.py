@@ -44,27 +44,63 @@ def validate_export_words(words):
 
 
 def export_names(words, sets):
-    """The ordered fake-export name list for `sets` full canonical sets.
+    """The ordered fake-export name list for `sets` full canonical sets
+    (single pair; delegates to export_names_pairs, identical output)."""
+    return export_names_pairs([words], sets)
 
-    Per set, the 18 canonical links in canonical order, each rendered
-    '<from>_<to>_<NNN>' — the pair snake_cased (adjacent inside the
-    identifier) with a zero-padded per-directed-form occurrence suffix for
-    table-wide uniqueness. Deterministic pure function of (words, sets).
+
+def validate_pairs(pairs):
+    """A list of pair word-dicts: shared anchor, chaining-limit leaf overlap.
+
+    Two pairs may share at most one leaf word (the delete-class chaining
+    the 2026-10-15 doctrine records); more aliases the canonical configs
+    between pairs.
     """
-    validate_export_words(words)
+    if not isinstance(pairs, list) or not pairs:
+        raise GoopError('pairs must be a nonempty list of pair word-dicts')
+    words = [validate_export_words(pair) for pair in pairs]
+    anchors = {pair['anchor'] for pair in words}
+    if len(anchors) != 1:
+        raise GoopError(f'pairs must share one anchor (the K-way doctrine), '
+                        f'got {sorted(anchors)}')
+    for i, first in enumerate(words):
+        for second in words[i + 1:]:
+            shared = {first['target'], first['destination']} & \
+                     {second['target'], second['destination']}
+            if len(shared) > 1:
+                raise GoopError(f'pairs share leaves {sorted(shared)}: more '
+                                'than one shared leaf aliases the canonical '
+                                'configs between pairs')
+    return words
+
+
+def export_names_pairs(pairs, sets):
+    """The ordered fake-export name list for `sets` full sets of EVERY pair.
+
+    The union link stream (per set, per pair, the 18 canonical links in
+    canonical order), each link rendered '<from>_<to>_<NNN>' — the pair
+    snake_cased (adjacent inside the identifier) with a zero-padded
+    per-directed-form occurrence suffix counted across the whole stream
+    (a form shared by two pairs, like teleology>delete, earns its full
+    multiplicity). Deterministic pure function of (pairs, sets).
+    """
+    words = validate_pairs(pairs)
     if not isinstance(sets, int) or isinstance(sets, bool) or not 1 <= sets <= 99:
         raise GoopError(f'exports sets must be an integer in [1, 99] ({sets})')
-    links = [link for config in br.CANONICAL_CONFIGS for link in config]
+    word_links = [(pair[first], pair[second])
+                  for pair in words
+                  for config in br.CANONICAL_CONFIGS
+                  for first, second in config]
     totals = Counter()
-    for link in links:
+    for link in word_links:
         totals[link] += sets
     width = len(str(max(totals.values()) - 1))
     names, seen = [], Counter()
     for _ in range(sets):
-        for first, second in links:
+        for first, second in word_links:
             index = seen[(first, second)]
             seen[(first, second)] += 1
-            names.append(f'{words[first]}_{words[second]}_{index:0{width}d}')
+            names.append(f'{first}_{second}_{index:0{width}d}')
     return names
 
 
@@ -80,6 +116,28 @@ def link_texts(words, sets):
     return [f'{words[first]} {words[second]}'
             for _ in range(sets)
             for config in br.CANONICAL_CONFIGS for first, second in config]
+
+
+def link_texts_pairs(pairs, sets):
+    """link_texts for every pair, concatenated (multi-pair arms)."""
+    texts = []
+    for pair in pairs:
+        texts.extend(link_texts(pair, sets))
+    return texts
+
+
+def block_names(block):
+    """export_names for a normalized exports block ('words' or 'pairs')."""
+    if 'pairs' in block:
+        return export_names_pairs(block['pairs'], block['sets'])
+    return export_names(block['words'], block['sets'])
+
+
+def block_texts(block):
+    """link_texts for a normalized fn_literals block ('words' or 'pairs')."""
+    if 'pairs' in block:
+        return link_texts_pairs(block['pairs'], block['sets'])
+    return link_texts(block['words'], block['sets'])
 
 
 def directed_form_counts(names):

@@ -49,7 +49,8 @@ import os
 from pathlib import Path
 
 from gooplib import GoopError
-from gooplib.exports import EXPORT_ROLES, validate_export_words
+from gooplib.exports import (EXPORT_ROLES, validate_export_words,
+                             validate_pairs)
 
 SPEC_NAME = 'spec.json'
 VCVARS_ENV = 'GOOP_VCVARS'
@@ -77,6 +78,38 @@ def load_spec(run_dir):
 def _require(condition, message):
     if not condition:
         raise GoopError(f'spec validation: {message}')
+
+
+def _link_block(value, where):
+    """An exports/fn_literals block: {'sets', anchor, target, destination}
+    (single pair) or {'sets', 'pairs': [pair, ...]} (1-2 pairs, 2026-10-15
+    multi-pair doctrine). Normalized to {'sets', 'words'} or
+    {'sets', 'pairs'} respectively.
+    """
+    _require(isinstance(value, dict), f'build.{where} must be an object')
+    sets = value.get('sets')
+    _require(isinstance(sets, int) and not isinstance(sets, bool)
+             and 1 <= sets <= 99,
+             f'build.{where}.sets must be an integer in [1, 99]')
+    if 'pairs' in value:
+        _require(set(value) == {'sets', 'pairs'},
+                 f"build.{where} with 'pairs' must hold only 'sets' and 'pairs'")
+        raw_pairs = value['pairs']
+        _require(isinstance(raw_pairs, list) and 1 <= len(raw_pairs) <= 2,
+                 f'build.{where}.pairs must be a list of 1-2 pair objects')
+        for i, pair in enumerate(raw_pairs):
+            _require(isinstance(pair, dict) and set(pair) == set(EXPORT_ROLES),
+                     f'build.{where}.pairs[{i}] must hold exactly '
+                     f'{list(EXPORT_ROLES)}')
+        pairs = validate_pairs([{role: pair[role] for role in EXPORT_ROLES}
+                                for pair in raw_pairs])
+        return {'sets': sets, 'pairs': pairs}
+    _require(set(value) == {'sets', *EXPORT_ROLES},
+             f"build.{where} must be {{'sets', *{list(EXPORT_ROLES)}}} or "
+             "{'sets', 'pairs'}")
+    return {'sets': sets,
+            'words': validate_export_words(
+                {role: value[role] for role in EXPORT_ROLES})}
 
 
 def build_section(spec):
@@ -118,31 +151,23 @@ def build_section(spec):
              'build.format_table / build.config_tags must be booleans')
     exports = build.get('exports')
     if exports is not None:
-        _require(isinstance(exports, dict)
-                 and set(exports) == {'sets', *EXPORT_ROLES},
-                 f"build.exports must be {{'sets', *{list(EXPORT_ROLES)}}}")
-        sets = exports['sets']
-        _require(isinstance(sets, int) and not isinstance(sets, bool)
-                 and 1 <= sets <= 99,
-                 'build.exports.sets must be an integer in [1, 99]')
-        exports = {'sets': sets,
-                   'words': validate_export_words(
-                       {role: exports[role] for role in EXPORT_ROLES})}
+        exports = _link_block(exports, 'exports')
     fn_literals = build.get('fn_literals')
     if fn_literals is not None:
-        _require(isinstance(fn_literals, dict)
-                 and set(fn_literals) == {'sets', *EXPORT_ROLES},
-                 f"build.fn_literals must be {{'sets', *{list(EXPORT_ROLES)}}}")
-        sets = fn_literals['sets']
-        _require(isinstance(sets, int) and not isinstance(sets, bool)
-                 and 1 <= sets <= 99,
-                 'build.fn_literals.sets must be an integer in [1, 99]')
-        fn_literals = {'sets': sets,
-                       'words': validate_export_words(
-                           {role: fn_literals[role] for role in EXPORT_ROLES})}
+        fn_literals = _link_block(fn_literals, 'fn_literals')
+    attention = build.get('attention')
+    if attention is not None:
+        _require(isinstance(attention, str) and attention
+                 and all(0x20 <= ord(ch) <= 0x7E for ch in attention)
+                 and len(attention) <= 127,
+                 'build.attention must be printable ASCII, 1-127 chars')
+        _require(format_table,
+                 'build.attention requires format_table (it rides the '
+                 'format-table struct after the SUMMARY format)')
     return {'slots': slots, 'slot_size': slot_size, 'doses': dict(doses),
             'format_table': format_table, 'config_tags': config_tags,
             'exports': exports, 'fn_literals': fn_literals,
+            'attention': attention,
             'payload_path': payload_path, 'payload_sha256': sha}
 
 

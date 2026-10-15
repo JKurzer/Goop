@@ -40,8 +40,7 @@ sys.path.insert(0, str(GOOP))
 
 from gooplib import GoopError  # noqa: E402
 from gooplib.delivery import measure_delivery, term_visibility  # noqa: E402
-from gooplib.exports import (EXPORT_ROLES, count_visible,  # noqa: E402
-                             export_names, link_texts)
+from gooplib.exports import block_names, block_texts, count_visible  # noqa: E402
 from gooplib.evidence import content_events, extract_audit  # noqa: E402
 from gooplib.lifecycle import (classify_lifecycle, delete_occurrences,  # noqa: E402
                                verdict_body)
@@ -159,15 +158,13 @@ def export_cell(run, spec, cell, lines, manifest, autosaves_dir):
               'term_visibility': term_visibility(
                   events, spec.get('payload', {}).get('terms', []))}
     exports = spec.get('build', {}).get('exports')
-    if exports:  # raw run spec shape: words sit flat beside 'sets'
-        words = {role: exports[role] for role in EXPORT_ROLES}
-        names = export_names(words, exports['sets'])
-        record['export_visibility'] = count_visible(names, '\n'.join(events))
+    if exports:  # raw run spec shape: flat triple or {'pairs': [...]}
+        record['export_visibility'] = count_visible(block_names(exports),
+                                                    '\n'.join(events))
     fn_lit = spec.get('build', {}).get('fn_literals')
     if fn_lit:
-        words = {role: fn_lit[role] for role in EXPORT_ROLES}
-        texts = link_texts(words, fn_lit['sets'])
-        record['fn_literal_visibility'] = count_visible(texts, '\n'.join(events))
+        record['fn_literal_visibility'] = count_visible(block_texts(fn_lit),
+                                                        '\n'.join(events))
     write_exclusive(analysis / f'delivery_{cell}.json',
                     json.dumps(record, indent=2) + '\n')
     print('export', cell, json.dumps(record))

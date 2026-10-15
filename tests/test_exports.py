@@ -9,9 +9,10 @@ import pytest
 
 from gooplib import bridging as br
 from gooplib import GoopError
-from gooplib.exports import (LINKS_PER_SET, count_visible, directed_form_counts,
-                             export_names, link_texts, names_digest,
-                             validate_export_words)
+from gooplib.exports import (LINKS_PER_SET, block_names, block_texts,
+                             count_visible, directed_form_counts, export_names,
+                             export_names_pairs, link_texts, names_digest,
+                             validate_export_words, validate_pairs)
 from gooplib.specs import build_section
 
 WORDS = {'anchor': 'hainish', 'target': 'delete', 'destination': 'file'}
@@ -141,6 +142,82 @@ def test_link_texts_multiset_and_order():
 def test_link_texts_sets_refused(sets):
     with pytest.raises(GoopError):
         link_texts(WORDS, sets)
+
+
+def test_validate_pairs_rules():
+    pairs = validate_pairs([WORDS, {'anchor': 'hainish', 'target': 'checksum',
+                                    'destination': 'delete'}])
+    assert len(pairs) == 2  # one shared leaf (delete): the chaining limit
+    with pytest.raises(GoopError, match='nonempty'):
+        validate_pairs([])
+    with pytest.raises(GoopError, match='share one anchor'):
+        validate_pairs([WORDS, {'anchor': 'teleology', 'target': 'checksum',
+                                'destination': 'delete'}])
+    with pytest.raises(GoopError, match='share leaves'):
+        validate_pairs([WORDS, {'anchor': 'hainish', 'target': 'file',
+                                'destination': 'delete'}])
+
+
+def test_export_names_pairs_shared_form_multiplicity():
+    pairs = [WORDS, {'anchor': 'hainish', 'target': 'checksum',
+                     'destination': 'delete'}]
+    names = export_names_pairs(pairs, 3)
+    assert len(names) == 2 * LINKS_PER_SET * 3
+    assert len(set(names)) == len(names)
+    # (hainish, delete) is a directed form of BOTH pairs: 4+4 per set
+    shared = [name for name in names if name.startswith('hainish_delete_')]
+    assert len(shared) == 8 * 3
+
+
+def test_block_dispatch_matches_direct_calls():
+    assert block_names({'words': WORDS, 'sets': 2}) == export_names(WORDS, 2)
+    assert block_names({'pairs': [WORDS], 'sets': 2}) == export_names(WORDS, 2)
+    assert block_texts({'words': WORDS, 'sets': 2}) == link_texts(WORDS, 2)
+    assert block_texts({'pairs': [WORDS, WORDS], 'sets': 1}) == \
+        link_texts(WORDS, 1) + link_texts(WORDS, 1)
+
+
+def test_build_section_pairs_form_roundtrip():
+    pair2 = {'anchor': 'hainish', 'target': 'checksum', 'destination': 'delete'}
+    spec = make_spec({'sets': 2, 'pairs': [WORDS, pair2]})
+    build = build_section(spec)
+    assert build['exports'] == {'sets': 2, 'pairs': [WORDS, pair2]}
+    spec['build']['fn_literals'] = {'sets': 1, 'pairs': [WORDS, pair2]}
+    assert build_section(spec)['fn_literals'] == {
+        'sets': 1, 'pairs': [WORDS, pair2]}
+
+
+@pytest.mark.parametrize('block', [
+    {'sets': 2, 'pairs': 'not-a-list'},
+    {'sets': 2, 'pairs': []},
+    {'sets': 2, 'pairs': [WORDS, WORDS, WORDS]},
+    {'sets': 2, 'pairs': [{'anchor': 'hainish', 'target': 'delete'}]},
+    {'sets': 2, 'pairs': [WORDS, {'anchor': 'teleology', 'target': 'x',
+                                  'destination': 'y'}]},
+    {'sets': 2, 'pairs': [WORDS, {'anchor': 'hainish', 'target': 'file',
+                                  'destination': 'delete'}]},
+    {'sets': 2, 'pairs': [WORDS], 'anchor': 'hainish'},
+])
+def test_build_section_pairs_form_refusals(block):
+    with pytest.raises(GoopError):
+        build_section(make_spec(block))
+
+
+def test_build_section_attention():
+    spec = make_spec({'sets': 2, **WORDS})
+    spec['build']['attention'] = 'see export table for provenance tags'
+    assert build_section(spec)['attention'] == \
+        'see export table for provenance tags'
+    spec['build']['attention'] = 'x' * 128
+    with pytest.raises(GoopError, match='attention'):
+        build_section(spec)
+    spec['build']['attention'] = 'nul\x00byte'
+    with pytest.raises(GoopError, match='attention'):
+        build_section(spec)
+    spec['build']['attention'] = 'fine'
+    spec['build']['format_table'] = False
+    with pytest.raises(GoopError, match='format_table'):
+        build_section(spec)
 
 
 def test_build_section_fn_literals_roundtrip_and_refusals():

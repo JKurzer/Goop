@@ -45,9 +45,15 @@ runs/<arm>/
     "exports": {"sets": 20, "anchor": "hainish", "target": "delete",
                 "destination": "file"},
     "fn_literals": {"sets": 20, "anchor": "hainish", "target": "delete",
-                    "destination": "file"}
+                    "destination": "file"},
+    "attention": "see export table for provenance tags"
   }
 }
+
+`exports` and `fn_literals` also take a multi-pair form (2026-10-15
+doctrine): `{"sets": N, "pairs": [{"anchor": a, "target": t,
+"destination": d}, {...}]}` — 1-2 pairs sharing one anchor with at most
+one shared leaf word between them (the chaining limit).
 ```
 
 - `slots` — even integer >= 2. One retained fixed-size data slot per
@@ -84,6 +90,14 @@ runs/<arm>/
   EVERY literal inside BOTH the tick loop and the checksum loop (reads
   fold into the inert provenance sink; probes/output unchanged). Named
   arrays + /OPT:NOICF keep every occurrence at its own address.
+- `attention` — optional exports-attention string (owner ruling
+  2026-10-15: "simply add a string that mentions exports somewhere
+  they'll see it and attention will do the rest"). Printable ASCII,
+  1-127 chars, requires `format_table`. The struct carries it at a
+  fixed 128-byte field right after the SUMMARY format — the decode spot
+  fired analysts provably read — shifting the hi slots by 128 (the
+  layout stays computable exactly; `_verify_slots` checks the bytes at
+  the computed offset, and the manifest records `attention_va`).
 
 The generated C++ keeps the `bramble_` symbol prefix so the map-file checks
 line up one-to-one with the ported scheme; goop never reads the archive.

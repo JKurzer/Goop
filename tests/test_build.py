@@ -21,7 +21,7 @@ from gooplib.preflight import preflight
 import pefile
 
 from gooplib.specs import build_section, payload_lines, vcvars_path
-from gooplib.exports import export_names, link_texts
+from gooplib.exports import block_names, block_texts
 from conftest import RUN120, RUN20, RUN20X, make_run, requires_msvc
 
 EXPECTED_CHECKS_FULL = {
@@ -321,11 +321,8 @@ def test_run20x_export_checks_green(run20x):
 
 @requires_msvc
 def test_run20x_fn_literals_match_spec(run20x):
-    exports = RUN20X['fn_literals']
-    words = {'anchor': exports['anchor'], 'target': exports['target'],
-             'destination': exports['destination']}
-    texts = link_texts(words, exports['sets'])
-    assert len(texts) == 18  # 1 set x 18 canonical links
+    texts = block_texts(RUN20X['fn_literals'])
+    assert len(texts) == 36  # 1 set x 2 pairs x 18 canonical links
     manifest_fn = run20x['unpacked']['fn_literals']
     assert manifest_fn['count'] == len(texts)
     for cell in RUN20X['doses']:
@@ -340,11 +337,8 @@ def test_run20x_fn_literals_match_spec(run20x):
 
 @requires_msvc
 def test_run20x_export_table_matches_spec(run20x):
-    exports = RUN20X['exports']
-    words = {'anchor': exports['anchor'], 'target': exports['target'],
-             'destination': exports['destination']}
-    expected = sorted(export_names(words, exports['sets']))
-    assert len(expected) == 36  # 2 sets x 18 canonical links
+    expected = sorted(block_names(RUN20X['exports']))
+    assert len(expected) == 72  # 2 sets x 2 pairs x 18 canonical links
     for cell in RUN20X['doses']:
         binary = (run20x['run'] / 'unpacked' / 'cells' / cell
                   / 'target.exe').read_bytes()
@@ -358,3 +352,24 @@ def test_run20x_export_table_matches_spec(run20x):
     manifest_exports = run20x['unpacked']['exports']
     assert manifest_exports['expected_count'] == len(expected)
     assert manifest_exports['per_cell']['k7']['sample'] == expected[:3]
+
+
+@requires_msvc
+def test_run20x_attention_string(run20x):
+    """The exports-attention string rides the struct after the SUMMARY
+    format (owner ruling 2026-10-15): recorded in the manifest, present
+    at that VA, between fmtSummary and the first hi slot.
+    """
+    text = RUN20X['attention'].encode()
+    for cell in RUN20X['doses']:
+        cell_path = run20x['run'] / 'unpacked' / 'cells' / cell / 'target.exe'
+        binary = cell_path.read_bytes()
+        pe = pefile.PE(data=binary)
+        info = run20x['unpacked']['exposure']['format_table'][cell]
+        va = int(info['attention_va'], 16)
+        offset = pe.get_offset_from_rva(va - pe.OPTIONAL_HEADER.ImageBase)
+        assert binary[offset:offset + len(text)] == text
+        assert int(info['kFmtSummary'], 16) < va
+        slot_vas = [int(slot['va'], 16) for slot in
+                    run20x['unpacked']['cells'][cell]['slots'].values()]
+        assert va < min(va for va in slot_vas if va > int(info['kFmtSummary'], 16))

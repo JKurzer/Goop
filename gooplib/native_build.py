@@ -38,7 +38,8 @@ from capstone import CS_ARCH_X86, CS_MODE_64, Cs
 from capstone.x86 import X86_OP_IMM, X86_OP_MEM, X86_REG_RIP
 
 from gooplib import HELPER, NATIVE_SRC, GoopError
-from gooplib.exports import export_names, link_texts, names_digest
+from gooplib.exports import (block_names, block_texts, export_names,
+                             link_texts, names_digest)
 from gooplib.specs import (FMT_SUMMARY_SIZE, FMT_TICK_SIZE, PROBES,
                            build_section, candidate_digest, candidate_path,
                            payload_lines, vcvars_path)
@@ -180,15 +181,20 @@ def inject_exposure(main_cpp, payloads, dose, slot_size):
     return main_cpp
 
 
-def table_layout(slot_count, slot_size):
+def table_layout(slot_count, slot_size, attention_size=0):
     """Format-table layout: one struct whose declaration order IS the memory
-    order (no linker-order assumptions). Offsets computable exactly."""
+    order (no linker-order assumptions). Offsets computable exactly. The
+    attention string rides between the SUMMARY format and the hi slots
+    (the decode spot fired analysts provably read)."""
     half = slot_count // 2
     summary_off = FMT_TICK_SIZE + half * slot_size
-    hi_off = summary_off + FMT_SUMMARY_SIZE
+    attention_off = summary_off + FMT_SUMMARY_SIZE
+    hi_off = attention_off + attention_size
     return {'half': half, 'fmt_tick': 0, 'slots_lo': FMT_TICK_SIZE,
-            'fmt_summary': summary_off, 'slots_hi': hi_off,
-            'total': hi_off + half * slot_size, 'slot_size': slot_size}
+            'fmt_summary': summary_off, 'attention': attention_off,
+            'slots_hi': hi_off,
+            'total': hi_off + half * slot_size, 'slot_size': slot_size,
+            'attention_size': attention_size}
 
 
 def slot_offset(layout, index):
@@ -201,8 +207,12 @@ STRUCT_DEF = '''struct BrambleTable {{
     char fmtTick[{FMT_TICK_SIZE}];
     char tagLo[{half}][{SLOT_SIZE}];
     char fmtSummary[{FMT_SUMMARY_SIZE}];
+{attention_field}
     char tagHi[{half}][{SLOT_SIZE}];
 }};'''
+
+ATTENTION_FIELD = '    char attention[{ATTENTION_SIZE}];'
+ATTENTION_SIZE = 128
 
 EXPOSURE_PROLOGUE_FMT = """// --- exposure arm: retained tag slots, referenced on the init path.
 // Format-table variant: output formats and tag slots share one struct
@@ -216,6 +226,7 @@ extern "C" const BrambleTable bramble_table = {{
     {tick_fmt},
     {{{slot_inits_lo}}},
     {summary_fmt},
+    {attention_init}
     {{{slot_inits_hi}}}
 }};
 
@@ -276,10 +287,15 @@ def inject_tag_assignments(main_cpp, slot_count, slot_size):
     return main_cpp.replace(anchor, anchor + '\n' + '\n'.join(lines))
 
 
-def inject_format_table(main_cpp, payloads, dose, slot_size):
+def inject_format_table(main_cpp, payloads, dose, slot_size, attention=''):
     """Exposure prologue + printf literals hoisted into the BrambleTable
-    struct; occupied slots carry payload text, the rest are zero-filled."""
-    layout = table_layout(len(payloads), slot_size)
+    struct; occupied slots carry payload text, the rest are zero-filled.
+    With `attention`, the struct carries the exports-attention string right
+    after the SUMMARY format (owner ruling 2026-10-15: "simply add a
+    string that mentions exports somewhere they'll see it").
+    """
+    layout = table_layout(len(payloads), slot_size,
+                          ATTENTION_SIZE if attention else 0)
     half = layout['half']
     lo = [payloads[index] if index < dose else b'' for index in range(half)]
     hi = [payloads[index] if index < dose else b''
@@ -292,6 +308,7 @@ def inject_format_table(main_cpp, payloads, dose, slot_size):
         tick_fmt=json.dumps(TICK_TEXT),
         slot_inits_lo=', '.join(cstr_literal(data) for data in lo),
         summary_fmt=json.dumps(SUMMARY_TEXT),
+        attention_init=(json.dumps(attention) + ',' if attention else ''),
         slot_inits_hi=', '.join(cstr_literal(data) for data in hi),
         folds='\n'.join(folds), slot_size=slot_size)
     for anchor in (MAIN_ANCHOR, SEED_ANCHOR, TICK_PRINTF_ANCHOR, SUMMARY_PRINTF_ANCHOR):
@@ -307,12 +324,16 @@ def inject_format_table(main_cpp, payloads, dose, slot_size):
     return main_cpp
 
 
-def inject_config_tags(sim_h, slot_count, slot_size, assignments_in_main=True):
-    layout = table_layout(slot_count, slot_size)
+def inject_config_tags(sim_h, slot_count, slot_size, attention='',
+                       assignments_in_main=True):
+    layout = table_layout(slot_count, slot_size,
+                          ATTENTION_SIZE if attention else 0)
     half = layout['half']
-    struct_def = STRUCT_DEF.format(FMT_TICK_SIZE=FMT_TICK_SIZE, half=half,
-                                   SLOT_SIZE=slot_size,
-                                   FMT_SUMMARY_SIZE=FMT_SUMMARY_SIZE)
+    struct_def = STRUCT_DEF.format(
+        FMT_TICK_SIZE=FMT_TICK_SIZE, half=half, SLOT_SIZE=slot_size,
+        FMT_SUMMARY_SIZE=FMT_SUMMARY_SIZE,
+        attention_field=(ATTENTION_FIELD.format(ATTENTION_SIZE=ATTENTION_SIZE)
+                         if attention else ''))
     if sim_h.count(SIMH_INCLUDE_ANCHOR) != 1 or sim_h.count(SIMH_CLOSE_ANCHOR) != 1:
         raise GoopError('sim.h anchors not unique; injection unsafe')
     if assignments_in_main:
@@ -384,7 +405,8 @@ def _verify_slots(binary, pe, map_text, cell, payloads, dose, build):
     slot_size = build['slot_size']
     slots = {}
     if build['format_table']:
-        layout = table_layout(len(payloads), slot_size)
+        layout = table_layout(len(payloads), slot_size,
+                              ATTENTION_SIZE if build['attention'] else 0)
         table_match = re.search(r'\bbramble_table\s+([0-9a-fA-F]+)', map_text)
         if not table_match:
             raise GoopError(f'Missing retained bramble_table in {cell}')
@@ -397,6 +419,11 @@ def _verify_slots(binary, pe, map_text, cell, payloads, dose, build):
         summary_off = tick_off + layout['fmt_summary']
         if binary[summary_off:summary_off + len(summary_bytes)] != summary_bytes:
             raise GoopError(f'{cell}: fmtSummary text mismatch at table offset')
+        if build['attention']:
+            attention_off = tick_off + layout['attention']
+            if binary[attention_off:attention_off + len(build['attention'])] != \
+                    build['attention'].encode():
+                raise GoopError(f'{cell}: attention string mismatch at table offset')
         va_for = lambda index: table_va + slot_offset(layout, index)
     else:
         def va_for(index):
@@ -494,7 +521,8 @@ def _exposure_checks(output, manifest, build, cells):
             for cell, info in config_info.items())
     if build['format_table']:
         fmt_info = {}
-        layout = table_layout(len(slot_vas[cells[0]]), slot_size)
+        layout = table_layout(len(slot_vas[cells[0]]), slot_size,
+                              ATTENTION_SIZE if build['attention'] else 0)
         for cell in cells:
             map_text = (output / 'private' / cell / 'target.map').read_text()
             table_va = int(re.search(r'\bbramble_table\s+([0-9a-fA-F]+)',
@@ -510,6 +538,9 @@ def _exposure_checks(output, manifest, build, cells):
                               'chain': [hex(va) for va in chain],
                               'strictly_increasing': all(gap > 0 for gap in gaps),
                               'max_gap': max(gaps)}
+            if build['attention']:
+                fmt_info[cell]['attention_va'] = hex(
+                    table_va + layout['attention'])
             image = (output / 'cells' / cell / 'target.exe').read_bytes()
             if b'tick %5d  alive' not in image or b'SUMMARY ticks=%d' not in image:
                 raise GoopError(f'{cell}: format string content not preserved')
@@ -527,8 +558,7 @@ def _export_checks(output, manifest, build, cells):
     the tables are byte-identical across cells (same names, same RVAs) —
     the pair stays indistinguishable apart from slot payload bytes.
     """
-    expected = sorted(export_names(build['exports']['words'],
-                                   build['exports']['sets']))
+    expected = sorted(block_names(build['exports']))
     per_cell = {}
     for cell in cells:
         pe_cell = pefile.PE(str(output / 'cells' / cell / 'target.exe'))
@@ -543,7 +573,9 @@ def _export_checks(output, manifest, build, cells):
                           'addresses_distinct': len(set(rvas)) == len(rvas),
                           'sample': names[:3]}
     manifest['exports'] = {'sets': build['exports']['sets'],
-                           'words': dict(build['exports']['words']),
+                           'block': {key: build['exports'][key]
+                                     for key in build['exports']
+                                     if key != 'sets'},
                            'expected_count': len(expected),
                            'expected_sha256': names_digest(expected),
                            'per_cell': per_cell}
@@ -561,7 +593,7 @@ def _fnlit_checks(output, manifest, build, cells):
     map-derived VA, content-exact, with >= 1 code reference, and >= 1
     reference site inside main's map-derived extent (the loop bodies).
     """
-    texts = link_texts(build['fn_literals']['words'], build['fn_literals']['sets'])
+    texts = block_texts(build['fn_literals'])
     per_cell = {}
     for cell in cells:
         cell_path = output / 'cells' / cell / 'target.exe'
@@ -596,7 +628,8 @@ def _fnlit_checks(output, manifest, build, cells):
                           'referenced_in_main': in_main}
     manifest['fn_literals'] = {
         'sets': build['fn_literals']['sets'],
-        'words': dict(build['fn_literals']['words']),
+        'block': {key: build['fn_literals'][key]
+                  for key in build['fn_literals'] if key != 'sets'},
         'count': len(texts), 'texts_sha256': names_digest(texts),
         'per_cell': per_cell}
     manifest['checks']['fn_literals_referenced'] = all(
@@ -640,25 +673,25 @@ def build_pair(run_dir, spec):
         if build['exports']:
             main_path.write_text(
                 inject_exports(main_path.read_text(encoding='utf-8'),
-                               export_names(build['exports']['words'],
-                                            build['exports']['sets'])),
+                               block_names(build['exports'])),
                 encoding='utf-8')
         if build['fn_literals']:
             main_path.write_text(
                 inject_fn_literals(main_path.read_text(encoding='utf-8'),
-                                   link_texts(build['fn_literals']['words'],
-                                              build['fn_literals']['sets'])),
+                                   block_texts(build['fn_literals'])),
                 encoding='utf-8')
         if build['format_table']:
             main_path.write_text(
                 inject_format_table(main_path.read_text(encoding='utf-8'),
-                                    payloads, dose, build['slot_size']),
+                                    payloads, dose, build['slot_size'],
+                                    build['attention'] or ''),
                 encoding='utf-8')
             if build['config_tags']:
                 simh_path = private / 'sim.h'
                 simh_path.write_text(
                     inject_config_tags(simh_path.read_text(encoding='utf-8'),
-                                       build['slots'], build['slot_size']),
+                                       build['slots'], build['slot_size'],
+                                       build['attention'] or ''),
                     encoding='utf-8')
                 main_path.write_text(
                     inject_tag_assignments(main_path.read_text(encoding='utf-8'),

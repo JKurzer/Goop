@@ -19,7 +19,7 @@ from pathlib import Path
 import pefile
 
 from gooplib import HELPER, UPX, GoopError
-from gooplib.exports import export_names, names_digest
+from gooplib.exports import block_names, names_digest
 from gooplib.specs import PROBES, build_section, candidate_path, payload_lines
 
 # A payload line must be at least this long to serve as a hiding needle:
@@ -88,8 +88,7 @@ def pack_pair(run_dir, spec):
         pe = pefile.PE(data=binary)
         exports_info = {}
         if build['exports']:
-            expected = sorted(export_names(build['exports']['words'],
-                                           build['exports']['sets']))
+            expected = sorted(block_names(build['exports']))
             symbols = getattr(getattr(pe, 'DIRECTORY_ENTRY_EXPORT', None),
                               'symbols', [])
             packed_names = sorted(symbol.name.decode() for symbol in symbols)
