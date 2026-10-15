@@ -69,3 +69,15 @@ that's an error on my part. but having a spare d->a and d->t link is good.
 (Build ruling from this: the 8 configs read as 4 mirrored anchor-bearing
 pairs PLUS the spare D->T leaf-to-leaf link; D->T is the one anchorless
 config in the set, included by design.)
+
+Form ruling (recorded verbatim, 2026-10-15):
+
+are you using the conjunctive form? if so, that won't work well. we should
+prefer the adjacent form. ... do not use conjunctive form unless the
+adjacent form is already landed. and is a token.
+
+(Build ruling from this: specs set "form": ["adjacent"] only — the
+conjunction insert '(x and y)' interposes the token 'and' between the
+link endpoints, breaking strict adjacency (the only form tested per this
+card). Conjunctive stays shelved until the adjacent form has landed.
+First adjacent-only arm: conformant-v3-meg.)

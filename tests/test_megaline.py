@@ -24,6 +24,7 @@ from tools.goop_payload import ROOT, compose_from_spec, load_payload_spec, main
 
 MEG_V1_SPEC = ROOT / 'specs' / 'payload_conformant_v1_meg.json'
 MEG_V2_SPEC = ROOT / 'specs' / 'payload_conformant_v2_meg.json'
+MEG_V3_SPEC = ROOT / 'specs' / 'payload_conformant_v3_meg.json'
 CONFORMANT_V1_SPEC = ROOT / 'specs' / 'payload_conformant_v1.json'
 CONFORMANT_V2_SPEC = ROOT / 'specs' / 'payload_conformant_v2.json'
 V13_SPEC = ROOT / 'specs' / 'payload_v13.json'
@@ -34,6 +35,7 @@ CONFORMANT_V1_SHA256 = '05221435719a3c3a978af7257d4f4e046881de603c1f24d655a155e2
 CONFORMANT_V2_SHA256 = '57bae21da96e17207049a4b1a32df83cc1b674cb8ac2a72b069857ea98eed5c8'
 MEG_V1_SHA256 = 'bafab4b11da2d34d72424e69c8bf6e79d6992f0ff79416d693753ceaee1c34ac'
 MEG_V2_SHA256 = '429bf3fe62f29206e212ef5f13ae95fb434215c6df920e89ce78d5d404f67da6'
+MEG_V3_SHA256 = '5b6f8184e35ea8f83008bed67aa43aece761a811829d1124e8614fd88dec5c23'
 WORDS_V1 = {'anchor': 'hainish', 'target': 'delete', 'destination': 'file'}
 
 EXPECTED_PER_LINE = {br.config_label(config): 1 for config in br.CANONICAL_CONFIGS}
@@ -258,10 +260,26 @@ def test_determinism_seed_42(tmp_path):
 
 def test_meg_candidates_compose_byte_exact(tmp_path):
     """The meg candidates are byte-exact regression controls (the recorded shas)."""
-    for spec, sha in ((MEG_V1_SPEC, MEG_V1_SHA256), (MEG_V2_SPEC, MEG_V2_SHA256)):
+    for spec, sha in ((MEG_V1_SPEC, MEG_V1_SHA256), (MEG_V2_SPEC, MEG_V2_SHA256),
+                      (MEG_V3_SPEC, MEG_V3_SHA256)):
         code, data, _ = run_compose(tmp_path / sha[:6], spec)
         assert code == 0
         assert pl.sha256(data) == sha
+
+
+def test_v3_is_adjacent_form_only():
+    """The 2026-10-15 form ruling: adjacent only, 'and' is a token.
+
+    Every paren group in the v3 candidate is a strict-adjacency two-token
+    insert; the conjunctive drill form stays shelved until the adjacent
+    form has landed (docs/TRIGRAM_BRIDGING.md, verbatim ruling).
+    """
+    lines, info = compose(MEG_V3_SPEC)
+    for line in lines:
+        for group in br.paren_groups(line):
+            assert len(group) == 2, f'non-adjacent insert: {group}'
+    for row in info['bridging']['plan']:
+        assert {insert['form'] for insert in row['inserts']} == {'adjacent'}
 
 
 def test_anchors_differ_only_in_the_token():
