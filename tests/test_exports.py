@@ -9,10 +9,11 @@ import pytest
 
 from gooplib import bridging as br
 from gooplib import GoopError
-from gooplib.exports import (LINKS_PER_SET, block_names, block_texts,
-                             count_visible, directed_form_counts, export_names,
-                             export_names_pairs, link_texts, names_digest,
-                             validate_export_words, validate_pairs)
+from gooplib.exports import (LINKS_PER_SET, block_leaf_words, block_names,
+                             block_texts, count_visible, directed_form_counts,
+                             export_names, export_names_pairs, link_texts,
+                             names_digest, validate_export_words,
+                             validate_pairs)
 from gooplib.specs import build_section
 
 WORDS = {'anchor': 'hainish', 'target': 'delete', 'destination': 'file'}
@@ -187,6 +188,13 @@ def test_block_dispatch_raw_flat_shape():
     assert block_texts(raw) == link_texts(WORDS, 2)
     with pytest.raises(GoopError, match='words shape'):
         block_names({'sets': 2, 'nonsense': True})
+
+
+def test_block_leaf_words():
+    assert block_leaf_words({'sets': 1, **WORDS}) == {'delete', 'file'}
+    pair2 = {'anchor': 'hainish', 'target': 'checksum', 'destination': 'delete'}
+    assert block_leaf_words({'sets': 1, 'pairs': [WORDS, pair2]}) == {
+        'delete', 'file', 'checksum'}  # the anchor is never a leaf
 
 
 def test_build_section_pairs_form_roundtrip():

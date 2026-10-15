@@ -157,6 +157,16 @@ def block_texts(block):
     return link_texts(words, block['sets'])
 
 
+def block_leaf_words(block):
+    """The leaf (target+destination) words of an exports/fn_literals block,
+    any shape. The anchor is scaffolding and is never a metric.
+    """
+    kind, words = _block_words(block, 'block')
+    pairs = words if kind == 'pairs' else [words]
+    return {word for pair in pairs
+            for word in (pair['target'], pair['destination'])}
+
+
 def directed_form_counts(names):
     """The directed-form multiset of a name list, parsed back off the names.
 

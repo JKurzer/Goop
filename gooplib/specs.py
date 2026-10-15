@@ -98,8 +98,8 @@ def _link_block(value, where):
         _require(set(value) == {'sets', 'pairs'},
                  f"build.{where} with 'pairs' must hold only 'sets' and 'pairs'")
         raw_pairs = value['pairs']
-        _require(isinstance(raw_pairs, list) and 1 <= len(raw_pairs) <= 2,
-                 f'build.{where}.pairs must be a list of 1-2 pair objects')
+        _require(isinstance(raw_pairs, list) and 1 <= len(raw_pairs) <= 3,
+                 f'build.{where}.pairs must be a list of 1-3 pair objects')
         for i, pair in enumerate(raw_pairs):
             _require(isinstance(pair, dict) and set(pair) == set(EXPORT_ROLES),
                      f'build.{where}.pairs[{i}] must hold exactly '

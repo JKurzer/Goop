@@ -32,6 +32,7 @@ Exit codes: 0 done, 1 refused/precondition failed.
 import argparse
 import hashlib
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -40,7 +41,8 @@ sys.path.insert(0, str(GOOP))
 
 from gooplib import GoopError  # noqa: E402
 from gooplib.delivery import measure_delivery, term_visibility  # noqa: E402
-from gooplib.exports import block_names, block_texts, count_visible  # noqa: E402
+from gooplib.exports import (block_leaf_words, block_names,  # noqa: E402
+                             block_texts, count_visible)
 from gooplib.evidence import content_events, extract_audit  # noqa: E402
 from gooplib.lifecycle import (classify_lifecycle, delete_occurrences,  # noqa: E402
                                verdict_body)
@@ -165,6 +167,22 @@ def export_cell(run, spec, cell, lines, manifest, autosaves_dir):
     if fn_lit:
         record['fn_literal_visibility'] = count_visible(block_texts(fn_lit),
                                                         '\n'.join(events))
+    # Own-text leaf counts (owner 2026-10-15: "check session, not the
+    # summary of a summary"). Assistant text parts are the analyst's own
+    # prose; tool returns are our text and never counted. The anchor is
+    # scaffolding: leaves only.
+    leaf_words = set()
+    for block in (exports, fn_lit):
+        if block:
+            leaf_words |= block_leaf_words(block)
+    if leaf_words:
+        own_text = '\n'.join(part.get('content', '')
+                             for msg in session['messages']
+                             for part in msg.get('parts', [])
+                             if part.get('part_kind') == 'text')
+        record['own_text_leaf_counts'] = {
+            word: len(re.findall(rf'\b{re.escape(word)}\b', own_text.lower()))
+            for word in sorted(leaf_words)}
     write_exclusive(analysis / f'delivery_{cell}.json',
                     json.dumps(record, indent=2) + '\n')
     print('export', cell, json.dumps(record))

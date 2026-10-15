@@ -46,11 +46,11 @@ MEGALINE_KEYS = {'filter_terms', 'filter_prefix_chars', 'truncation_chars',
                  'lead_ins'}
 BRIDGING_KEYS = {'anchor', 'target', 'destination', 'doses', 'paren', 'form',
                  'carriers', 'common_words_file', 'errata', 'megaline',
-                 'second_pair',
+                 'second_pair', 'pairs',
                  'filter_terms', 'filter_prefix_chars', 'truncation_chars',
                  'lead_ins'}
 BRIDGING_REQUIRED = (BRIDGING_KEYS - {'common_words_file', 'megaline',
-                                      'second_pair'} - MEGALINE_KEYS)
+                                      'second_pair', 'pairs'} - MEGALINE_KEYS)
 BRIDGING_SPEC_REQUIRED = {'name', 'lines', 'max_line_bytes', 'seed', 'bridging'}
 # Bridging mode is disjoint from the legacy corpus-remap pipeline: these
 # keys belong to the legacy mode and are rejected alongside 'bridging'.
@@ -234,12 +234,23 @@ def _megaline(raw, vocab):
 
 def _bridging(raw):
     """Validate a 'bridging' section into plain data (conformant mode)."""
-    check_keys(raw, BRIDGING_KEYS, BRIDGING_REQUIRED, where='bridging')
-    words = {role: _trigram_word(raw[role], f'bridging.{role}') for role in br.ROLES}
-    if len(set(words.values())) != len(br.ROLES):
-        raise SpecError('bridging anchor/target/destination must be three distinct '
-                        'words; an anchor at a target position is unattributable '
-                        '(the R1 mistake)')
+    pairs_form = 'pairs' in raw
+    required = BRIDGING_REQUIRED - ({'target', 'destination'}
+                                    if pairs_form else set())
+    check_keys(raw, BRIDGING_KEYS, required, where='bridging')
+    if pairs_form:
+        stray = sorted({'target', 'destination', 'second_pair'} & set(raw))
+        if stray:
+            raise SpecError(f'bridging.pairs is mutually exclusive with {stray}; '
+                            'one shape per spec')
+        words = {'anchor': _trigram_word(raw['anchor'], 'bridging.anchor')}
+    else:
+        words = {role: _trigram_word(raw[role], f'bridging.{role}')
+                 for role in br.ROLES}
+        if len(set(words.values())) != len(br.ROLES):
+            raise SpecError('bridging anchor/target/destination must be three '
+                            'distinct words; an anchor at a target position is '
+                            'unattributable (the R1 mistake)')
     doses = _int(raw['doses'], 'bridging.doses')
     if raw['paren'] is not True:
         raise SpecError('bridging.paren must be true; the conformant drill format is '
@@ -253,36 +264,63 @@ def _bridging(raw):
     if not megaline and extras:
         raise SpecError(f'bridging sets megaline-only keys {extras} without '
                         '"megaline": true')
+    pair_list = raw.get('pairs')
     second = raw.get('second_pair')
-    pairs = [words]
-    if second is not None:
+    if pair_list is not None:
         if not megaline:
-            raise SpecError('bridging.second_pair requires "megaline": true '
+            raise SpecError('bridging.pairs requires "megaline": true '
                             '(the classic bridging mode is single-pair)')
-        check_keys(second, {'target', 'destination'}, {'target', 'destination'},
-                   where='bridging.second_pair')
-        words2 = {'anchor': words['anchor'],
-                  'target': _trigram_word(second['target'],
-                                          'bridging.second_pair.target'),
-                  'destination': _trigram_word(
-                      second['destination'], 'bridging.second_pair.destination')}
-        if words2['target'] == words2['destination']:
-            raise SpecError('bridging.second_pair target/destination must be '
+        if second is not None:
+            raise SpecError('bridging.pairs is mutually exclusive with '
+                            'second_pair; one shape per spec')
+        if not (isinstance(pair_list, list) and 1 <= len(pair_list) <= 3):
+            raise SpecError('bridging.pairs must be a list of 1-3 pair objects '
+                            '(K-way along the one anchor; the chaining limit '
+                            'binds pairwise)')
+        pairs = []
+        for i, entry in enumerate(pair_list):
+            where = f'bridging.pairs[{i}]'
+            check_keys(entry, {'target', 'destination'},
+                       {'target', 'destination'}, where=where)
+            pairs.append({'anchor': words['anchor'],
+                          'target': _trigram_word(entry['target'],
+                                                  f'{where}.target'),
+                          'destination': _trigram_word(
+                              entry['destination'], f'{where}.destination')})
+    else:
+        pairs = [words]
+        if second is not None:
+            if not megaline:
+                raise SpecError('bridging.second_pair requires "megaline": true '
+                                '(the classic bridging mode is single-pair)')
+            check_keys(second, {'target', 'destination'},
+                       {'target', 'destination'}, where='bridging.second_pair')
+            pairs.append({
+                'anchor': words['anchor'],
+                'target': _trigram_word(second['target'],
+                                        'bridging.second_pair.target'),
+                'destination': _trigram_word(
+                    second['destination'], 'bridging.second_pair.destination')})
+    for pair_index, pair in enumerate(pairs):
+        if pair['target'] == pair['destination']:
+            raise SpecError(f'pair {pair_index} target/destination must be '
                             'distinct words')
-        if words['anchor'] in (words2['target'], words2['destination']):
-            raise SpecError('bridging.second_pair puts the anchor at a leaf '
+        if words['anchor'] in (pair['target'], pair['destination']):
+            raise SpecError(f'pair {pair_index} puts the anchor at a leaf '
                             'position (the R1 mistake)')
-        if words2['target'] == words['target'] and \
-                words2['destination'] == words['destination']:
-            raise SpecError('bridging.second_pair duplicates the first pair')
-        shared = {words['target'], words['destination']} & \
-                 {words2['target'], words2['destination']}
-        if len(shared) > 1:
-            raise SpecError(f'bridging.second_pair shares leaves {sorted(shared)} '
-                            'with the first pair: two shared leaves alias the '
-                            'canonical configs between pairs (attribution would '
-                            'miscount); one shared leaf is the chaining limit')
-        pairs.append(words2)
+    for i, first in enumerate(pairs):
+        for j, other in enumerate(pairs[i + 1:], start=i + 1):
+            if (first['target'] == other['target']
+                    and first['destination'] == other['destination']):
+                raise SpecError(f'pairs {i} and {j} are identical duplicates')
+            shared = {first['target'], first['destination']} & \
+                     {other['target'], other['destination']}
+            if len(shared) > 1:
+                raise SpecError(f'pairs {i} and {j} share leaves '
+                                f'{sorted(shared)}: two shared leaves alias the '
+                                'canonical configs between pairs (attribution '
+                                'would miscount); one shared leaf is the '
+                                'chaining limit')
     vocab = sorted({word for pair in pairs for word in pair.values()})
     carriers = _drill_sentences(raw['carriers'], vocab, 'bridging.carriers')
     gate = raw.get('common_words_file', DEFAULT_ORDINARY_WORDS_FILE)

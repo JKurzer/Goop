@@ -167,6 +167,80 @@ def test_manifest_pairs_section(tmp_path):
 
 # --- second_pair spec refusals ------------------------------------------------
 
+V6_SPEC = ROOT / 'specs' / 'payload_conformant_v6_meg.json'
+V6_SHA256 = '66ef4565c612c6d040c42a4429c8fcfe4a99524336b959e74016122786731384'
+V6_PAIRS = [{'anchor': 'teleology', 'target': 'remove', 'destination': 'garlic'},
+            {'anchor': 'teleology', 'target': 'remove', 'destination': 'function'},
+            {'anchor': 'teleology', 'target': 'load', 'destination': 'function'}]
+
+
+# --- v6: three trigram sets (the used-word chain) ---------------------------
+
+def test_v6_compose_byte_exact(tmp_path):
+    code, data, _ = run_compose(tmp_path, V6_SPEC)
+    assert code == 0
+    assert pl.sha256(data) == V6_SHA256
+
+
+def test_v6_per_line_per_pair_coverage():
+    lines, info = compose_from_spec(load_payload_spec(V6_SPEC))
+    expected = [{br.config_label(config): 2
+                 for config in br.pair_configs(pair)} for pair in V6_PAIRS]
+    for number, line in enumerate(lines):
+        row = info['bridging']['megaline']['per_line'][number]
+        assert [pair['per_config'] for pair in row['per_pair']] == expected
+        assert row['link_total'] == 108  # 3 pairs x 2 doses x 18
+        assert row['first_four_links_in_truncation'] is True
+        assert 2100 <= len(line.encode('utf-8')) <= 2700
+    audit = info['bridging']['role_audit']
+    assert audit['ok']
+
+
+def make_v6_spec(tmp_path, bridging=None, drop=()):
+    raw = json.loads(V6_SPEC.read_text(encoding='utf-8'))
+    for key, value in (bridging or {}).items():
+        raw['bridging'][key] = value
+    for key in drop:
+        del raw['bridging'][key]
+    path = tmp_path / 'spec.json'
+    path.write_text(json.dumps(raw), encoding='utf-8')
+    return path
+
+
+SPEC_PAIRS = [{role: pair[role] for role in ('target', 'destination')}
+              for pair in V6_PAIRS]
+
+
+def test_pairs_form_refusals(tmp_path):
+    # >3 pairs
+    with pytest.raises(SpecError, match='1-3'):
+        load_payload_spec(make_v6_spec(tmp_path, bridging={
+            'pairs': SPEC_PAIRS + [SPEC_PAIRS[0]]}))
+    # pairs + second_pair is ambiguous
+    with pytest.raises(SpecError, match='mutually exclusive'):
+        load_payload_spec(make_v6_spec(tmp_path, bridging={
+            'second_pair': {'target': 'x', 'destination': 'y'}}))
+    # pairs + top-level target is ambiguous
+    with pytest.raises(SpecError, match='mutually exclusive'):
+        load_payload_spec(make_v6_spec(tmp_path, bridging={
+            'target': 'remove', 'destination': 'garlic'}))
+    # >1 shared leaf between pair 1 and 2
+    with pytest.raises(SpecError, match='share leaves'):
+        load_payload_spec(make_v6_spec(tmp_path, bridging={
+            'pairs': [SPEC_PAIRS[0],
+                      {'target': 'garlic', 'destination': 'remove'},
+                      SPEC_PAIRS[2]]}))
+    # anchor at a leaf
+    with pytest.raises(SpecError, match='R1'):
+        load_payload_spec(make_v6_spec(tmp_path, bridging={
+            'pairs': [{'target': 'teleology', 'destination': 'garlic'},
+                      SPEC_PAIRS[1], SPEC_PAIRS[2]]}))
+    # pairs form requires megaline
+    path = make_v6_spec(tmp_path, bridging={'megaline': False})
+    with pytest.raises(SpecError, match='megaline'):
+        load_payload_spec(path)
+
+
 def test_second_pair_requires_megaline(tmp_path):
     path = make_spec(tmp_path, bridging={'megaline': False})
     with pytest.raises(SpecError, match='megaline'):
@@ -201,7 +275,7 @@ def test_second_pair_two_shared_leaves_refused(tmp_path):
     """
     path = make_spec(tmp_path, bridging={
         'second_pair': {'target': 'file', 'destination': 'delete'}})
-    with pytest.raises(SpecError, match='shares leaves'):
+    with pytest.raises(SpecError, match='share leaves'):
         load_payload_spec(path)
 
 
