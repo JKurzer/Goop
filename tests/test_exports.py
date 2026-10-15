@@ -10,7 +10,8 @@ import pytest
 from gooplib import bridging as br
 from gooplib import GoopError
 from gooplib.exports import (LINKS_PER_SET, count_visible, directed_form_counts,
-                             export_names, names_digest, validate_export_words)
+                             export_names, link_texts, names_digest,
+                             validate_export_words)
 from gooplib.specs import build_section
 
 WORDS = {'anchor': 'hainish', 'target': 'delete', 'destination': 'file'}
@@ -121,3 +122,38 @@ def test_count_visible():
     assert visible == {'distinct': 2, 'occurrences': 3}
     assert count_visible(names, 'nothing here') == {'distinct': 0,
                                                     'occurrences': 0}
+
+
+# ---- function literals (owner 2026-10-15) ------------------------------------
+
+def test_link_texts_multiset_and_order():
+    for sets in (1, 2, 20):
+        texts = link_texts(WORDS, sets)
+        assert len(texts) == LINKS_PER_SET * sets
+        expected = []
+        for config in br.CANONICAL_CONFIGS:
+            expected.extend(f'{WORDS[first]} {WORDS[second]}'
+                            for first, second in config)
+        assert texts[:len(expected)] == expected  # canonical order per set
+
+
+@pytest.mark.parametrize('sets', [0, 100, '2', True, None])
+def test_link_texts_sets_refused(sets):
+    with pytest.raises(GoopError):
+        link_texts(WORDS, sets)
+
+
+def test_build_section_fn_literals_roundtrip_and_refusals():
+    spec = make_spec({'sets': 20, **WORDS})
+    spec['build']['fn_literals'] = {'sets': 1, **WORDS}
+    build = build_section(spec)
+    assert build['fn_literals'] == {'sets': 1, 'words': WORDS}
+    spec['build']['fn_literals'] = {'sets': 0, **WORDS}
+    with pytest.raises(GoopError):
+        build_section(spec)
+    spec['build']['fn_literals'] = {'sets': 1, 'anchor': 'hainish'}
+    with pytest.raises(GoopError):
+        build_section(spec)
+    spec = make_spec(None)
+    del spec['build']['exports']
+    assert build_section(spec)['fn_literals'] is None

@@ -44,7 +44,8 @@ def synthetic_line(index, length, token='gonkulator'):
 
 
 def make_run(base, name, slots, slot_size, doses, line_length,
-             format_table=True, config_tags=True, exports=None):
+             format_table=True, config_tags=True, exports=None,
+             fn_literals=None):
     """Materialize a complete run dir (spec + candidate + PREREG), unbuilt."""
     run = base / name
     (run / 'inputs').mkdir(parents=True)
@@ -56,6 +57,8 @@ def make_run(base, name, slots, slot_size, doses, line_length,
              'config_tags': config_tags}
     if exports is not None:
         build['exports'] = exports
+    if fn_literals is not None:
+        build['fn_literals'] = fn_literals
     spec = {'arm': name,
             'payload': {'path': 'inputs/candidate.txt',
                         'sha256': hashlib.sha256(blob).hexdigest()},
@@ -73,7 +76,9 @@ RUN120 = {'slots': 120, 'slot_size': 512, 'doses': {'k7': 60, 'm2': 120},
 RUN20X = {'slots': 20, 'slot_size': 256, 'doses': {'k7': 5, 'm2': 10},
           'line_length': 120,
           'exports': {'sets': 2, 'anchor': 'quorlx', 'target': 'vexel',
-                      'destination': 'murn'}}
+                      'destination': 'murn'},
+          'fn_literals': {'sets': 1, 'anchor': 'quorlx', 'target': 'vexel',
+                          'destination': 'murn'}}
 
 
 def _built_run(tmp_path_factory, name, params):

@@ -52,7 +52,9 @@ Per cell in `spec.build.doses`:
    `term_visibility` (per `spec.payload.terms`, CONTENT only). When
    `spec.build.exports` is set, also `export_visibility`
    (distinct + total occurrences of the fake export names in CONTENT;
-   gooplib/exports.py count_visible).
+   gooplib/exports.py count_visible). When `spec.build.fn_literals`
+   is set, also `fn_literal_visibility` (the literal bigram strings in
+   CONTENT, same measure).
 
 The payload is the run's frozen `inputs/candidate.txt` (or
 `spec.payload.path`); when `spec.payload.sha256` is pinned it is verified

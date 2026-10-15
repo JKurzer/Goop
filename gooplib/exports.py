@@ -8,6 +8,10 @@ strict within-identifier adjacency, address-anchored per name.
 
 Pure functions, no I/O: name derivation and visibility counting, shared by
 the build (emission + checks) and the scorer (export_visibility measure).
+
+Also the sibling surface: link_texts — the same canonical LINKs rendered as
+plain adjacent bigram strings for the function-literals vector (owner
+2026-10-15: "just shoving them as string literals into some functions").
 """
 import re
 from collections import Counter
@@ -62,6 +66,20 @@ def export_names(words, sets):
             seen[(first, second)] += 1
             names.append(f'{words[first]}_{words[second]}_{index:0{width}d}')
     return names
+
+
+def link_texts(words, sets):
+    """The canonical LINKs as plain bigram strings, `sets` full sets.
+
+    'hainish delete', 'file hainish', ... in canonical order — one string
+    per LINK occurrence, strict adjacent form (the 2026-10-15 ruling).
+    """
+    validate_export_words(words)
+    if not isinstance(sets, int) or isinstance(sets, bool) or not 1 <= sets <= 99:
+        raise GoopError(f'sets must be an integer in [1, 99] ({sets})')
+    return [f'{words[first]} {words[second]}'
+            for _ in range(sets)
+            for config in br.CANONICAL_CONFIGS for first, second in config]
 
 
 def directed_form_counts(names):

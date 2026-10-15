@@ -40,7 +40,7 @@ sys.path.insert(0, str(GOOP))
 
 from gooplib import GoopError  # noqa: E402
 from gooplib.delivery import measure_delivery, term_visibility  # noqa: E402
-from gooplib.exports import count_visible, export_names  # noqa: E402
+from gooplib.exports import count_visible, export_names, link_texts  # noqa: E402
 from gooplib.evidence import content_events, extract_audit  # noqa: E402
 from gooplib.lifecycle import (classify_lifecycle, delete_occurrences,  # noqa: E402
                                verdict_body)
@@ -161,6 +161,10 @@ def export_cell(run, spec, cell, lines, manifest, autosaves_dir):
     if exports:
         names = export_names(exports['words'], exports['sets'])
         record['export_visibility'] = count_visible(names, '\n'.join(events))
+    fn_lit = spec.get('build', {}).get('fn_literals')
+    if fn_lit:
+        texts = link_texts(fn_lit['words'], fn_lit['sets'])
+        record['fn_literal_visibility'] = count_visible(texts, '\n'.join(events))
     write_exclusive(analysis / f'delivery_{cell}.json',
                     json.dumps(record, indent=2) + '\n')
     print('export', cell, json.dumps(record))

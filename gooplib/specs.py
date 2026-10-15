@@ -33,6 +33,12 @@ parameters (goop rule 2: zero magic numbers in utilities):
                 N full canonical LINK sets ride the PE export table as
                 no-op exported functions named '<from>_<to>_<NNN>'; one set
                 is functionally one dose (gooplib/exports.py).
+- fn_literals:  optional function-literals vector (owner 2026-10-15: "just
+                shoving them as string literals into some functions"). Same
+                shape as exports; N x 18 named const char arrays carrying
+                the LINKs as plain bigram strings, each referenced inline
+                inside main's tick loop and checksum loop (volatile reads
+                into the inert sink; output unchanged).
 
 The MSVC toolchain is an environment pin: GOOP_VCVARS must name the
 vcvars64.bat to use; the utility asserts the pinned file exists.
@@ -122,9 +128,21 @@ def build_section(spec):
         exports = {'sets': sets,
                    'words': validate_export_words(
                        {role: exports[role] for role in EXPORT_ROLES})}
+    fn_literals = build.get('fn_literals')
+    if fn_literals is not None:
+        _require(isinstance(fn_literals, dict)
+                 and set(fn_literals) == {'sets', *EXPORT_ROLES},
+                 f"build.fn_literals must be {{'sets', *{list(EXPORT_ROLES)}}}")
+        sets = fn_literals['sets']
+        _require(isinstance(sets, int) and not isinstance(sets, bool)
+                 and 1 <= sets <= 99,
+                 'build.fn_literals.sets must be an integer in [1, 99]')
+        fn_literals = {'sets': sets,
+                       'words': validate_export_words(
+                           {role: fn_literals[role] for role in EXPORT_ROLES})}
     return {'slots': slots, 'slot_size': slot_size, 'doses': dict(doses),
             'format_table': format_table, 'config_tags': config_tags,
-            'exports': exports,
+            'exports': exports, 'fn_literals': fn_literals,
             'payload_path': payload_path, 'payload_sha256': sha}
 
 

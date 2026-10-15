@@ -38,7 +38,7 @@ from capstone import CS_ARCH_X86, CS_MODE_64, Cs
 from capstone.x86 import X86_OP_IMM, X86_OP_MEM, X86_REG_RIP
 
 from gooplib import HELPER, NATIVE_SRC, GoopError
-from gooplib.exports import export_names, names_digest
+from gooplib.exports import export_names, link_texts, names_digest
 from gooplib.specs import (FMT_SUMMARY_SIZE, FMT_TICK_SIZE, PROBES,
                            build_section, candidate_digest, candidate_path,
                            payload_lines, vcvars_path)
@@ -54,6 +54,9 @@ SUMMARY_PRINTF_ANCHOR = ('std::printf("SUMMARY ticks=%d seed=%llu alive0=%d aliv
 # SimConfig scalar signature (arena, skirmish, orbit, speed as float32 LE)
 # used to locate the init blob in .rdata during post-build verification.
 CONFIG_FLOAT_SIGNATURE = struct.pack('<4f', 48.0, 1.5, 3.0, 6.0)
+
+TICK_LOOP_ANCHOR = '    for (int t = 0; t < ticks; ++t) {'
+CHECKSUM_LOOP_ANCHOR = '    for (int i = 0; i < EntityStore::kCapacity; ++i) {'
 
 TICK_TEXT = 'tick %5d  alive %3d v %3d  score %d-%d  cp owner %d\n'
 SUMMARY_TEXT = ('SUMMARY ticks=%d seed=%llu alive0=%d alive1=%d score0=%d score1=%d '
@@ -135,6 +138,32 @@ def inject_exports(main_cpp, names):
     if main_cpp.count(MAIN_ANCHOR) != 1:
         raise GoopError('main.cpp anchor not unique; export injection unsafe')
     return main_cpp.replace(MAIN_ANCHOR, block + MAIN_ANCHOR)
+
+
+def inject_fn_literals(main_cpp, texts):
+    """Function literals (owner 2026-10-15): link strings shoved into the
+    function bodies an analyst re-reads. Each LINK occurrence is a named
+    const char array (named, so string pooling cannot fold duplicates
+    away), and each gets a volatile-read touch inline inside BOTH the
+    tick loop and the checksum loop. The sink is the inert provenance
+    fold's: never printed, never branched on; output is unchanged.
+    """
+    decls = '\n'.join(
+        f'#pragma comment(linker, "/include:bramble_lit_{i:03d}")\n'
+        f'extern "C" const char bramble_lit_{i:03d}[] = {json.dumps(text)};'
+        for i, text in enumerate(texts))
+    touches = '\n'.join(
+        f'    bramble_prov_sink ^= *reinterpret_cast<const volatile unsigned '
+        f'char*>(bramble_lit_{i:03d});' for i in range(len(texts)))
+    block = ('// --- function-literals arm: link literals referenced inline in\n'
+             '// the tick loop and the checksum loop. Inert.\n' + decls + '\n\n')
+    for anchor in (MAIN_ANCHOR, TICK_LOOP_ANCHOR, CHECKSUM_LOOP_ANCHOR):
+        if main_cpp.count(anchor) != 1:
+            raise GoopError(f'main.cpp anchor not unique: {anchor[:50]!r}')
+    main_cpp = main_cpp.replace(MAIN_ANCHOR, block + MAIN_ANCHOR)
+    for anchor in (TICK_LOOP_ANCHOR, CHECKSUM_LOOP_ANCHOR):
+        main_cpp = main_cpp.replace(anchor, anchor + '\n' + touches)
+    return main_cpp
 
 
 def inject_exposure(main_cpp, payloads, dose, slot_size):
@@ -527,6 +556,55 @@ def _export_checks(output, manifest, build, cells):
          for info in per_cell.values()}) == 1
 
 
+def _fnlit_checks(output, manifest, build, cells):
+    """The function-literals check, parsed live: every literal at its
+    map-derived VA, content-exact, with >= 1 code reference, and >= 1
+    reference site inside main's map-derived extent (the loop bodies).
+    """
+    texts = link_texts(build['fn_literals']['words'], build['fn_literals']['sets'])
+    per_cell = {}
+    for cell in cells:
+        cell_path = output / 'cells' / cell / 'target.exe'
+        image = cell_path.read_bytes()
+        pe_cell = pefile.PE(data=image)
+        map_text = (output / 'private' / cell / 'target.map').read_text()
+        main_va = int(re.search(r'\bmain\s+([0-9a-fA-F]+)', map_text).group(1), 16)
+        fn_vas = sorted(int(va, 16) for va in re.findall(
+            r'^\s*0001:[0-9a-fA-F]+\s+\S+\s+([0-9a-fA-F]{16})\s+f',
+            map_text, flags=re.M))
+        main_end = min((va for va in fn_vas if va > main_va),
+                       default=main_va + 0x800)
+        vas, contents_ok = [], True
+        for i, text in enumerate(texts):
+            match = re.search(rf'\bbramble_lit_{i:03d}\s+([0-9a-fA-F]+)',
+                              map_text)
+            if not match:
+                raise GoopError(f'{cell}: missing retained literal {i}')
+            va = int(match.group(1), 16)
+            offset = pe_cell.get_offset_from_rva(
+                va - pe_cell.OPTIONAL_HEADER.ImageBase)
+            if image[offset:offset + len(text)] != text.encode():
+                contents_ok = False
+            vas.append(va)
+        hits = reference_census(pe_cell, vas)
+        referenced = sum(1 for va in vas if hits[va])
+        in_main = sum(1 for va in vas
+                      if any(main_va <= site < main_end for site in hits[va]))
+        per_cell[cell] = {'count': len(vas),
+                          'contents_exact': contents_ok,
+                          'referenced': referenced,
+                          'referenced_in_main': in_main}
+    manifest['fn_literals'] = {
+        'sets': build['fn_literals']['sets'],
+        'words': dict(build['fn_literals']['words']),
+        'count': len(texts), 'texts_sha256': names_digest(texts),
+        'per_cell': per_cell}
+    manifest['checks']['fn_literals_referenced'] = all(
+        info['contents_exact'] and info['referenced'] == info['count']
+        and info['referenced_in_main'] == info['count']
+        for info in per_cell.values())
+
+
 def build_pair(run_dir, spec):
     """Build the native pair into <run_dir>/unpacked (refuses if it exists).
 
@@ -564,6 +642,12 @@ def build_pair(run_dir, spec):
                 inject_exports(main_path.read_text(encoding='utf-8'),
                                export_names(build['exports']['words'],
                                             build['exports']['sets'])),
+                encoding='utf-8')
+        if build['fn_literals']:
+            main_path.write_text(
+                inject_fn_literals(main_path.read_text(encoding='utf-8'),
+                                   link_texts(build['fn_literals']['words'],
+                                              build['fn_literals']['sets'])),
                 encoding='utf-8')
         if build['format_table']:
             main_path.write_text(
@@ -622,6 +706,8 @@ def build_pair(run_dir, spec):
     _exposure_checks(output, manifest, build, cells)
     if build['exports']:
         _export_checks(output, manifest, build, cells)
+    if build['fn_literals']:
+        _fnlit_checks(output, manifest, build, cells)
     (output / 'private/manifest.json').write_text(json.dumps(manifest, indent=2),
                                                   encoding='utf-8')
     if not all(manifest['checks'].values()):

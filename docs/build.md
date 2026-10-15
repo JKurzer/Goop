@@ -43,7 +43,9 @@ runs/<arm>/
     "format_table": true,
     "config_tags": true,
     "exports": {"sets": 20, "anchor": "hainish", "target": "delete",
-                "destination": "file"}
+                "destination": "file"},
+    "fn_literals": {"sets": 20, "anchor": "hainish", "target": "delete",
+                    "destination": "file"}
   }
 }
 ```
@@ -74,6 +76,14 @@ runs/<arm>/
   across cells (pair isolation holds apart from slot payload bytes).
   Words must be distinct lowercase identifier-safe tokens, no
   underscores; `sets` is an integer in [1, 99].
+- `fn_literals` — optional function-literals vector (owner ruling
+  2026-10-15: "just shoving them as string literals into some
+  functions"). Same shape as `exports`. The build emits `sets` x 18
+  named `extern "C" const char` arrays carrying the canonical LINKs as
+  plain adjacent bigram strings, and an inline volatile-read touch of
+  EVERY literal inside BOTH the tick loop and the checksum loop (reads
+  fold into the inert provenance sink; probes/output unchanged). Named
+  arrays + /OPT:NOICF keep every occurrence at its own address.
 
 The generated C++ keeps the `bramble_` symbol prefix so the map-file checks
 line up one-to-one with the ported scheme; goop never reads the archive.
@@ -109,10 +119,14 @@ MSVC is an environment pin: set `GOOP_VCVARS` to the full path of
     addresses distinct (/OPT:NOICF).
 12. `export_set_identical` — *(exports mode only)* names and RVAs
     byte-identical across cells.
+13. `fn_literals_referenced` — *(fn_literals mode only)* every literal
+    content-exact at its map-derived VA, >= 1 code reference, >= 1
+    reference site inside main's map-derived extent (the loop bodies).
 
 Fewer checks are emitted with the flags off (7 for plain exposure, 9 for
-exposure + config_tags, +2 with exports). Any failed check fails the
-build after the manifest is written for forensics.
+exposure + config_tags, +2 with exports, +1 with fn_literals). Any
+failed check fails the build after the manifest is written for
+forensics.
 
 ## pack
 
