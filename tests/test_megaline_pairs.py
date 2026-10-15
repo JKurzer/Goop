@@ -192,3 +192,34 @@ def test_second_pair_indistinct_refused(tmp_path):
         'second_pair': {'target': 'checksum', 'destination': 'checksum'}})
     with pytest.raises(SpecError, match='distinct'):
         load_payload_spec(path)
+
+
+def test_second_pair_two_shared_leaves_refused(tmp_path):
+    """The adversarial swap: {file, delete} aliases 8/9 configs between
+    pairs (first-match attribution would miscount). One shared leaf is
+    the chaining limit; two is a refusal.
+    """
+    path = make_spec(tmp_path, bridging={
+        'second_pair': {'target': 'file', 'destination': 'delete'}})
+    with pytest.raises(SpecError, match='shares leaves'):
+        load_payload_spec(path)
+
+
+def test_carrier_with_pair2_word_refused_at_load(tmp_path):
+    """Union-vocabulary validation: a pair-2 word in ANY carrier is a load
+    error, even if that carrier would never be dealt."""
+    raw = json.loads(V5_SPEC.read_text(encoding='utf-8'))
+    raw['bridging']['carriers'][-1] = 'The checksum was verified.'
+    path = tmp_path / 'spec.json'
+    path.write_text(json.dumps(raw), encoding='utf-8')
+    with pytest.raises(SpecError, match='role words'):
+        load_payload_spec(path)
+
+
+def test_lead_in_with_pair2_word_refused_at_load(tmp_path):
+    raw = json.loads(V5_SPEC.read_text(encoding='utf-8'))
+    raw['bridging']['lead_ins'][0] = 'The checksum seed grew.'
+    path = tmp_path / 'spec.json'
+    path.write_text(json.dumps(raw), encoding='utf-8')
+    with pytest.raises(SpecError, match='role words'):
+        load_payload_spec(path)

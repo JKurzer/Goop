@@ -182,7 +182,7 @@ def _trigram_sets(raw):
     return out
 
 
-def _drill_sentences(raw_list, words, where):
+def _drill_sentences(raw_list, word_values, where):
     """Carrier-register sentences: nonempty ascii, paren-free, role-word-free."""
     sentences = _list_of_str(raw_list, where)
     for i, sentence in enumerate(sentences):
@@ -191,7 +191,7 @@ def _drill_sentences(raw_list, words, where):
         if '(' in sentence or ')' in sentence:
             raise SpecError(f'{where}[{i}] must not contain parens; '
                             'the inserts own the parens')
-        clash = set(br.WORD.findall(sentence.lower())) & set(words.values())
+        clash = set(br.WORD.findall(sentence.lower())) & set(word_values)
         if clash:
             raise SpecError(f'{where}[{i}] contains role words '
                             f'{sorted(clash)}; every role occurrence must be '
@@ -199,8 +199,14 @@ def _drill_sentences(raw_list, words, where):
     return sentences
 
 
-def _megaline(raw, words):
-    """Validate the megaline-only keys (one complete BRIDGING per line)."""
+def _megaline(raw, vocab):
+    """Validate the megaline-only keys (one complete BRIDGING per line).
+
+    vocab is the union of all pairs' words: lead-ins must stay role-word-
+    free against EVERY pair, not just the first (a smuggled pair-2 word
+    would otherwise pass load and only fail at compose — or never, if the
+    carrier is never dealt).
+    """
     missing = sorted(MEGALINE_KEYS - set(raw))
     if missing:
         raise SpecError(f'bridging.megaline requires {missing}')
@@ -217,7 +223,7 @@ def _megaline(raw, words):
         raise SpecError(f'bridging.truncation_chars ({truncation}) must not exceed '
                         f'bridging.filter_prefix_chars ({prefix_chars}); the '
                         'probable truncation sits inside the delivered-slot window')
-    lead_ins = _drill_sentences(raw['lead_ins'], words, 'bridging.lead_ins')
+    lead_ins = _drill_sentences(raw['lead_ins'], vocab, 'bridging.lead_ins')
     for i, lead in enumerate(lead_ins):
         if not any(term in lead.lower() for term in filter_terms):
             raise SpecError(f'bridging.lead_ins[{i}] carries no filter term; the '
@@ -242,13 +248,6 @@ def _bridging(raw):
     if not forms or len(set(forms)) != len(forms) or set(forms) - set(br.FORMS):
         raise SpecError(f'bridging.form must be a nonempty duplicate-free subset of '
                         f'{list(br.FORMS)}')
-    carriers = _drill_sentences(raw['carriers'], words, 'bridging.carriers')
-    gate = raw.get('common_words_file', DEFAULT_ORDINARY_WORDS_FILE)
-    if not isinstance(gate, str) or not gate:
-        raise SpecError('bridging.common_words_file must be a nonempty path string')
-    errata = raw.get('errata')
-    if errata is not None and (not isinstance(errata, str) or not errata):
-        raise SpecError('bridging.errata must be a nonempty string when present')
     megaline = _bool(raw.get('megaline', False), 'bridging.megaline')
     extras = sorted(set(raw) & MEGALINE_KEYS)
     if not megaline and extras:
@@ -276,12 +275,27 @@ def _bridging(raw):
         if words2['target'] == words['target'] and \
                 words2['destination'] == words['destination']:
             raise SpecError('bridging.second_pair duplicates the first pair')
+        shared = {words['target'], words['destination']} & \
+                 {words2['target'], words2['destination']}
+        if len(shared) > 1:
+            raise SpecError(f'bridging.second_pair shares leaves {sorted(shared)} '
+                            'with the first pair: two shared leaves alias the '
+                            'canonical configs between pairs (attribution would '
+                            'miscount); one shared leaf is the chaining limit')
         pairs.append(words2)
+    vocab = sorted({word for pair in pairs for word in pair.values()})
+    carriers = _drill_sentences(raw['carriers'], vocab, 'bridging.carriers')
+    gate = raw.get('common_words_file', DEFAULT_ORDINARY_WORDS_FILE)
+    if not isinstance(gate, str) or not gate:
+        raise SpecError('bridging.common_words_file must be a nonempty path string')
+    errata = raw.get('errata')
+    if errata is not None and (not isinstance(errata, str) or not errata):
+        raise SpecError('bridging.errata must be a nonempty string when present')
     out = {'words': words, 'pairs': pairs, 'doses': doses, 'forms': forms,
            'carriers': carriers, 'common_words_file': gate, 'errata': errata,
            'megaline': megaline}
     if megaline:
-        out.update(_megaline(raw, words))
+        out.update(_megaline(raw, vocab))
     return out
 
 
@@ -549,7 +563,13 @@ def _compose_megalines_pairs(spec, base):
     expected_per_pair = [{br.config_label(config): bridging['doses']
                           for config in br.pair_configs(pair)}
                          for pair in pairs]
+    expected_links = (2 * len(br.CANONICAL_CONFIGS) * len(pairs)
+                      * bridging['doses'])
     for row in mega['per_line']:
+        if row['link_total'] != expected_links:
+            raise SpecError(f'line {row["line"]}: link total '
+                            f'{row["link_total"]} != {expected_links} '
+                            '(injected or missing links)')
         for pair_index in range(len(pairs)):
             if row['per_pair'][pair_index]['per_config'] != \
                     expected_per_pair[pair_index]:
@@ -571,6 +591,7 @@ def _compose_megalines_pairs(spec, base):
                           'filter_prefix_chars': bridging['filter_prefix_chars'],
                           'truncation_chars': bridging['truncation_chars'],
                           'min_line_bytes': spec['min_line_bytes'],
+                          'max_line_bytes': spec['max_line_bytes'],
                           'pairs': [dict(pair) for pair in pairs],
                           **mega}}
     return lines, _bridging_info(bridging, plan, measured, audit, integrity,

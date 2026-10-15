@@ -173,11 +173,17 @@ def compose_megalines(carriers, lead_ins, words, doses, forms, line_count,
                       min_bytes, max_bytes, seed):
     """One complete BRIDGING per line, the set packed toward the front.
 
-    The single-pair form; delegates to compose_megalines_pairs (the output
-    is byte- and plan-identical for one pair).
+    The single-pair form; delegates to compose_megalines_pairs and strips
+    the per-insert 'pair' key, so the text AND the plan match the
+    historical single-pair shape exactly (v1-v3 arm manifests included).
     """
-    return compose_megalines_pairs(carriers, lead_ins, [words], doses, forms,
-                                   line_count, min_bytes, max_bytes, seed)
+    lines, plan = compose_megalines_pairs(carriers, lead_ins, [words], doses,
+                                          forms, line_count, min_bytes,
+                                          max_bytes, seed)
+    for row in plan:
+        for insert in row['inserts']:
+            del insert['pair']
+    return lines, plan
 
 
 def compose_megalines_pairs(carriers, lead_ins, pairs, doses, forms,
@@ -485,7 +491,10 @@ def measure_megalines_pairs(lines, pairs, filter_terms, prefix_chars,
     matched against each pair's word-level canonical set — distinct
     config tuples even where single links (teleology, delete) overlap
     between pairs. Window stats are union-physical (a delivered slot shows
-    whatever it shows); per-pair coverage is the hard-check surface.
+    whatever it shows). Hard checks in the pipeline are per-pair coverage
+    PLUS whole-text directed forms and per-line link totals: an odd
+    trailing link never pairs, and stray parseable non-config links are
+    invisible to per-config counts but show up in both.
     """
     union_words = sorted({word for pair in pairs for word in pair.values()})
     identity = {word: word for word in union_words}

@@ -143,6 +143,8 @@ def test_insert_order_canonical_per_line():
                 assert second['link'] == list(config[1])
         for insert in inserts:  # plan offsets slice the actual text
             assert line[insert['start']:insert['end']] == insert['text']
+            # the historical single-pair plan shape: no 'pair' key
+            assert 'pair' not in insert
         assert row['config_ends'] == sorted(row['config_ends'])
         assert row['bytes'] == len(line.encode('utf-8'))
 
