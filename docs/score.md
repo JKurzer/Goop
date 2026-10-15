@@ -49,7 +49,10 @@ Per cell in `spec.build.doses`:
 
    Writes `analysis/delivery_<cell>.json`: `cell`, `dose`,
    `address_anchored_delivered_slots`, `delivered_count`,
-   `term_visibility` (per `spec.payload.terms`, CONTENT only).
+   `term_visibility` (per `spec.payload.terms`, CONTENT only). When
+   `spec.build.exports` is set, also `export_visibility`
+   (distinct + total occurrences of the fake export names in CONTENT;
+   gooplib/exports.py count_visible).
 
 The payload is the run's frozen `inputs/candidate.txt` (or
 `spec.payload.path`); when `spec.payload.sha256` is pinned it is verified

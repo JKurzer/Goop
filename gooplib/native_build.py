@@ -38,6 +38,7 @@ from capstone import CS_ARCH_X86, CS_MODE_64, Cs
 from capstone.x86 import X86_OP_IMM, X86_OP_MEM, X86_REG_RIP
 
 from gooplib import HELPER, NATIVE_SRC, GoopError
+from gooplib.exports import export_names, names_digest
 from gooplib.specs import (FMT_SUMMARY_SIZE, FMT_TICK_SIZE, PROBES,
                            build_section, candidate_digest, candidate_path,
                            payload_lines, vcvars_path)
@@ -116,6 +117,24 @@ static void brambleProvenanceFold(uint64_t seed) {{
 }}
 
 """
+
+
+def inject_exports(main_cpp, names):
+    """Fake export set (owner ruling 2026-10-15): no-op exported functions
+    whose names carry the canonical LINKs as identifier bigrams. The export
+    table is the first thing an analyst reads after imports; every name is
+    address-anchored, and /OPT:NOICF keeps the stub addresses distinct.
+    Bodies are empty: output and exit status are unchanged. Inert by design.
+    """
+    block = ('// --- export arm: fake export set. Names carry link pairs; the\n'
+             '// bodies are no-ops. Inert.\n'
+             'extern "C" {\n'
+             + '\n'.join(f'__declspec(dllexport) void {name}() {{}}'
+                         for name in names)
+             + '\n}\n\n')
+    if main_cpp.count(MAIN_ANCHOR) != 1:
+        raise GoopError('main.cpp anchor not unique; export injection unsafe')
+    return main_cpp.replace(MAIN_ANCHOR, block + MAIN_ANCHOR)
 
 
 def inject_exposure(main_cpp, payloads, dose, slot_size):
@@ -471,6 +490,43 @@ def _exposure_checks(output, manifest, build, cells):
             for info in fmt_info.values())
 
 
+def _export_checks(output, manifest, build, cells):
+    """The fake-export checks, parsed live off the built binaries.
+
+    export_set_matches_spec: every cell's export table holds exactly the
+    expected name list with distinct stub addresses. export_set_identical:
+    the tables are byte-identical across cells (same names, same RVAs) —
+    the pair stays indistinguishable apart from slot payload bytes.
+    """
+    expected = sorted(export_names(build['exports']['words'],
+                                   build['exports']['sets']))
+    per_cell = {}
+    for cell in cells:
+        pe_cell = pefile.PE(str(output / 'cells' / cell / 'target.exe'))
+        symbols = getattr(getattr(pe_cell, 'DIRECTORY_ENTRY_EXPORT', None),
+                          'symbols', [])
+        names = sorted(symbol.name.decode() for symbol in symbols)
+        rvas = sorted(symbol.address for symbol in symbols)
+        per_cell[cell] = {'count': len(names),
+                          'names_sha256': names_digest(names),
+                          'rva_sha256': names_digest([hex(rva) for rva in rvas]),
+                          'matches_spec': names == expected,
+                          'addresses_distinct': len(set(rvas)) == len(rvas),
+                          'sample': names[:3]}
+    manifest['exports'] = {'sets': build['exports']['sets'],
+                           'words': dict(build['exports']['words']),
+                           'expected_count': len(expected),
+                           'expected_sha256': names_digest(expected),
+                           'per_cell': per_cell}
+    checks = manifest['checks']
+    checks['export_set_matches_spec'] = all(
+        info['matches_spec'] and info['addresses_distinct']
+        for info in per_cell.values())
+    checks['export_set_identical'] = len(
+        {(info['names_sha256'], info['rva_sha256'])
+         for info in per_cell.values()}) == 1
+
+
 def build_pair(run_dir, spec):
     """Build the native pair into <run_dir>/unpacked (refuses if it exists).
 
@@ -503,6 +559,12 @@ def build_pair(run_dir, spec):
         for path in sorted(NATIVE_SRC.iterdir()):
             shutil.copyfile(path, private / path.name)
         main_path = private / 'main.cpp'
+        if build['exports']:
+            main_path.write_text(
+                inject_exports(main_path.read_text(encoding='utf-8'),
+                               export_names(build['exports']['words'],
+                                            build['exports']['sets'])),
+                encoding='utf-8')
         if build['format_table']:
             main_path.write_text(
                 inject_format_table(main_path.read_text(encoding='utf-8'),
@@ -558,6 +620,8 @@ def build_pair(run_dir, spec):
     checks['repeat_observations_identical'] = (
         _smoke_observations(paths[0]) == manifest['cells'][cells[0]]['observations'])
     _exposure_checks(output, manifest, build, cells)
+    if build['exports']:
+        _export_checks(output, manifest, build, cells)
     (output / 'private/manifest.json').write_text(json.dumps(manifest, indent=2),
                                                   encoding='utf-8')
     if not all(manifest['checks'].values()):

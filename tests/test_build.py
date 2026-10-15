@@ -18,8 +18,11 @@ from gooplib.native_build import (build_pair, cstr_literal,
                                   slot_offset, table_layout)
 from gooplib.native_pack import pack_pair
 from gooplib.preflight import preflight
+import pefile
+
 from gooplib.specs import build_section, payload_lines, vcvars_path
-from conftest import RUN120, RUN20, make_run, requires_msvc
+from gooplib.exports import export_names
+from conftest import RUN120, RUN20, RUN20X, make_run, requires_msvc
 
 EXPECTED_CHECKS_FULL = {
     'executable_sections_identical', 'slot_locations_identical',
@@ -27,6 +30,7 @@ EXPECTED_CHECKS_FULL = {
     'repeat_observations_identical', 'every_slot_referenced',
     'slot_cluster_contiguous', 'every_slot_referenced_twice',
     'every_slot_lea_in_main', 'format_table_interleaved'}
+EXPECTED_CHECKS_EXPORTS = {'export_set_matches_spec', 'export_set_identical'}
 
 
 def spec_dict(**overrides):
@@ -302,3 +306,35 @@ def test_run120_verify_success(run120):
     assert record['slot_count'] == 120 and record['doses'] == {'k7': 60, 'm2': 120}
     assert record['pair_isolation_executable_sections'] is True
     assert json.loads((run120['run'] / 'PREFLIGHT.json').read_text()) == record
+
+
+# ---- fake export set (owner ruling 2026-10-15) ------------------------------
+
+@requires_msvc
+def test_run20x_export_checks_green(run20x):
+    checks = run20x['unpacked']['checks']
+    assert set(checks) == EXPECTED_CHECKS_FULL | EXPECTED_CHECKS_EXPORTS
+    assert all(checks.values())
+    assert run20x['packed']['checks']['exports_preserved'] is True
+
+
+@requires_msvc
+def test_run20x_export_table_matches_spec(run20x):
+    exports = RUN20X['exports']
+    words = {'anchor': exports['anchor'], 'target': exports['target'],
+             'destination': exports['destination']}
+    expected = sorted(export_names(words, exports['sets']))
+    assert len(expected) == 36  # 2 sets x 18 canonical links
+    for cell in RUN20X['doses']:
+        binary = (run20x['run'] / 'unpacked' / 'cells' / cell
+                  / 'target.exe').read_bytes()
+        symbols = pefile.PE(data=binary).DIRECTORY_ENTRY_EXPORT.symbols
+        names = sorted(symbol.name.decode() for symbol in symbols)
+        assert names == expected
+        # /OPT:NOICF: every no-op stub keeps a distinct address
+        assert len({symbol.address for symbol in symbols}) == len(symbols)
+        # name strings sit in .rdata: visible to a plain strings dump
+        assert expected[0].encode() in binary
+    manifest_exports = run20x['unpacked']['exports']
+    assert manifest_exports['expected_count'] == len(expected)
+    assert manifest_exports['per_cell']['k7']['sample'] == expected[:3]

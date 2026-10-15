@@ -28,6 +28,11 @@ parameters (goop rule 2: zero magic numbers in utilities):
                 2026-10-13 scheme: LEAs stay in the driver window at any N).
                 Without format_table, the legacy default-member-initializer
                 field naming bramble_slot_XX is used.
+- exports:      optional fake export set (owner ruling 2026-10-15):
+                {"sets": N, "anchor": w, "target": w, "destination": w}.
+                N full canonical LINK sets ride the PE export table as
+                no-op exported functions named '<from>_<to>_<NNN>'; one set
+                is functionally one dose (gooplib/exports.py).
 
 The MSVC toolchain is an environment pin: GOOP_VCVARS must name the
 vcvars64.bat to use; the utility asserts the pinned file exists.
@@ -38,6 +43,7 @@ import os
 from pathlib import Path
 
 from gooplib import GoopError
+from gooplib.exports import EXPORT_ROLES, validate_export_words
 
 SPEC_NAME = 'spec.json'
 VCVARS_ENV = 'GOOP_VCVARS'
@@ -104,8 +110,21 @@ def build_section(spec):
     config_tags = build.get('config_tags', False)
     _require(isinstance(format_table, bool) and isinstance(config_tags, bool),
              'build.format_table / build.config_tags must be booleans')
+    exports = build.get('exports')
+    if exports is not None:
+        _require(isinstance(exports, dict)
+                 and set(exports) == {'sets', *EXPORT_ROLES},
+                 f"build.exports must be {{'sets', *{list(EXPORT_ROLES)}}}")
+        sets = exports['sets']
+        _require(isinstance(sets, int) and not isinstance(sets, bool)
+                 and 1 <= sets <= 99,
+                 'build.exports.sets must be an integer in [1, 99]')
+        exports = {'sets': sets,
+                   'words': validate_export_words(
+                       {role: exports[role] for role in EXPORT_ROLES})}
     return {'slots': slots, 'slot_size': slot_size, 'doses': dict(doses),
             'format_table': format_table, 'config_tags': config_tags,
+            'exports': exports,
             'payload_path': payload_path, 'payload_sha256': sha}
 
 

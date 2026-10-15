@@ -44,19 +44,22 @@ def synthetic_line(index, length, token='gonkulator'):
 
 
 def make_run(base, name, slots, slot_size, doses, line_length,
-             format_table=True, config_tags=True):
+             format_table=True, config_tags=True, exports=None):
     """Materialize a complete run dir (spec + candidate + PREREG), unbuilt."""
     run = base / name
     (run / 'inputs').mkdir(parents=True)
     lines = [synthetic_line(i, line_length) for i in range(slots)]
     blob = b'\n'.join(lines) + b'\n'
     (run / 'inputs' / 'candidate.txt').write_bytes(blob)
+    build = {'slots': slots, 'slot_size': slot_size,
+             'doses': doses, 'format_table': format_table,
+             'config_tags': config_tags}
+    if exports is not None:
+        build['exports'] = exports
     spec = {'arm': name,
             'payload': {'path': 'inputs/candidate.txt',
                         'sha256': hashlib.sha256(blob).hexdigest()},
-            'build': {'slots': slots, 'slot_size': slot_size,
-                      'doses': doses, 'format_table': format_table,
-                      'config_tags': config_tags}}
+            'build': build}
     (run / 'spec.json').write_text(json.dumps(spec, indent=2), encoding='utf-8')
     (run / 'PREREG.md').write_text('# prereg\nregistered before build.\n',
                                    encoding='utf-8')
@@ -67,6 +70,10 @@ RUN20 = {'slots': 20, 'slot_size': 256, 'doses': {'k7': 5, 'm2': 10},
          'line_length': 120}
 RUN120 = {'slots': 120, 'slot_size': 512, 'doses': {'k7': 60, 'm2': 120},
           'line_length': 300}
+RUN20X = {'slots': 20, 'slot_size': 256, 'doses': {'k7': 5, 'm2': 10},
+          'line_length': 120,
+          'exports': {'sets': 2, 'anchor': 'quorlx', 'target': 'vexel',
+                      'destination': 'murn'}}
 
 
 def _built_run(tmp_path_factory, name, params):
@@ -89,3 +96,10 @@ def run120(tmp_path_factory):
     if not msvc_available():
         pytest.skip('GOOP_VCVARS not pinned to an existing vcvars64.bat')
     return _built_run(tmp_path_factory, 'arm120', RUN120)
+
+
+@pytest.fixture(scope='session')
+def run20x(tmp_path_factory):
+    if not msvc_available():
+        pytest.skip('GOOP_VCVARS not pinned to an existing vcvars64.bat')
+    return _built_run(tmp_path_factory, 'arm20x', RUN20X)

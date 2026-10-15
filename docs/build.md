@@ -41,7 +41,9 @@ runs/<arm>/
     "slot_size": 256,
     "doses": {"k7": 5, "m2": 10},
     "format_table": true,
-    "config_tags": true
+    "config_tags": true,
+    "exports": {"sets": 20, "anchor": "hainish", "target": "delete",
+                "destination": "file"}
   }
 }
 ```
@@ -63,6 +65,15 @@ runs/<arm>/
   `main` at any N, and the LEA check uses the map-derived extent of
   `main`, not a fixed window). Without `format_table`, the legacy
   default-member-initializer field naming `bramble_slot_XX` is used.
+- `exports` — optional fake export set (owner ruling 2026-10-15). When
+  present, the build emits `sets` x 18 no-op exported functions named
+  `<from>_<to>_<NNN>` — the canonical LINKs as snake_case identifier
+  bigrams with per-form zero-padded occurrence suffixes (gooplib/
+  exports.py; one set = one functional dose). The export table is the
+  first thing an analyst reads after imports; identical names and RVAs
+  across cells (pair isolation holds apart from slot payload bytes).
+  Words must be distinct lowercase identifier-safe tokens, no
+  underscores; `sets` is an integer in [1, 99].
 
 The generated C++ keeps the `bramble_` symbol prefix so the map-file checks
 line up one-to-one with the ported scheme; goop never reads the archive.
@@ -93,10 +104,15 @@ MSVC is an environment pin: set `GOOP_VCVARS` to the full path of
    map-derived extent of `main` (the check that forced the 2026-10-13 fix).
 10. `format_table_interleaved` — tick-fmt / lo-slots / summary-fmt /
     hi-slots chain strictly increasing with gaps <= slot_size.
+11. `export_set_matches_spec` — *(exports mode only)* every cell's
+    export table holds exactly the expected name list, all stub
+    addresses distinct (/OPT:NOICF).
+12. `export_set_identical` — *(exports mode only)* names and RVAs
+    byte-identical across cells.
 
 Fewer checks are emitted with the flags off (7 for plain exposure, 9 for
-exposure + config_tags). Any failed check fails the build after the
-manifest is written for forensics.
+exposure + config_tags, +2 with exports). Any failed check fails the
+build after the manifest is written for forensics.
 
 ## pack
 
@@ -105,7 +121,10 @@ and requires byte-equality with the unpacked manifest observations, and
 checks the payload is statically hidden: every candidate line of >= 16
 bytes is a needle, and no needle may appear in the packed binary
 (`payload_statically_hidden`). Sections, imports, entry VA, sizes, and
-hashes land in `private/manifest.json`.
+hashes land in `private/manifest.json`. With `exports`, packing passes
+`--compress-exports=0` (the default would compress the export section
+away) and the `exports_preserved` check requires the packed export table
+to equal the spec name list exactly.
 
 ## verify (preflight)
 
