@@ -173,20 +173,43 @@ def compose_megalines(carriers, lead_ins, words, doses, forms, line_count,
                       min_bytes, max_bytes, seed):
     """One complete BRIDGING per line, the set packed toward the front.
 
-    The megaline trick: every line independently carries the full 9-config
-    canonical set at `doses`, so any single delivered slot window still
-    holds complete dose material. Layout per line:
+    The single-pair form; delegates to compose_megalines_pairs (the output
+    is byte- and plan-identical for one pair).
+    """
+    return compose_megalines_pairs(carriers, lead_ins, [words], doses, forms,
+                                   line_count, min_bytes, max_bytes, seed)
 
-        <lead-in> <insert> ... <insert (18*doses)> <carrier prose ...>
+
+def compose_megalines_pairs(carriers, lead_ins, pairs, doses, forms,
+                            line_count, min_bytes, max_bytes, seed):
+    """One complete BRIDGING per pair per line, the sets packed front.
+
+    The megaline trick: every line independently carries the full 9-config
+    canonical set at `doses` for EVERY pair (pairs share one anchor;
+    delete-class leaves may chain pair to pair per the 2026-10-15
+    doctrine), so any single delivered slot window still holds complete
+    dose material. Layout per line:
+
+        <lead-in> <insert> ... <insert (18*doses*len(pairs))> <carrier prose ...>
 
     The lead-in is a short drill sentence (it owns the filter echo; the
-    spec validates that). Inserts follow in canonical config order; dealt
-    carriers then fill the line into [min_bytes, max_bytes]. Lead-ins and
-    carriers are dealt without replacement from seeded shuffles; a carrier
-    that would overshoot max_bytes is held back for later lines. The whole
-    artifact is a pure function of the arguments. Returns (lines, plan)
-    with one plan row per line.
+    spec validates that). Inserts follow in canonical config order, pair
+    by pair, dose by dose; dealt carriers then fill the line into
+    [min_bytes, max_bytes]. Lead-ins and carriers are dealt without
+    replacement from seeded shuffles; a carrier that would overshoot
+    max_bytes is held back for later lines. The whole artifact is a pure
+    function of the arguments. Returns (lines, plan) with one plan row
+    per line.
     """
+    if not pairs:
+        raise ValueError('need at least one pair')
+    anchors = {pair['anchor'] for pair in pairs}
+    if len(anchors) != 1:
+        raise ValueError(f'pairs must share one anchor (the K-way doctrine), '
+                         f'got {sorted(anchors)}')
+    for pair in pairs:
+        if len(set(pair.values())) != 3:
+            raise ValueError(f'pair words must be three distinct words: {pair}')
     if doses < 1:
         raise ValueError(f'need doses >= 1 ({doses})')
     if not forms or any(form not in FORMS for form in forms):
@@ -210,19 +233,21 @@ def compose_megalines(carriers, lead_ins, words, doses, forms, line_count,
         pieces, inserts, config_ends = [lead], [], []
         cursor = len(lead)
         for dose in range(doses):
-            for config_index, config in enumerate(CANONICAL_CONFIGS):
-                for link in config:
-                    form = rng.choice(forms)
-                    text = link_text(link, words, form)
-                    cursor += 1  # the separating space
-                    start = cursor
-                    cursor += len(text)
-                    pieces.append(text)
-                    inserts.append({'dose': dose, 'config_index': config_index,
-                                    'link': list(link), 'form': form,
-                                    'text': text, 'start': start,
-                                    'end': cursor})
-                config_ends.append(cursor)
+            for pair_index, pair in enumerate(pairs):
+                for config_index, config in enumerate(CANONICAL_CONFIGS):
+                    for link in config:
+                        form = rng.choice(forms)
+                        text = link_text(link, pair, form)
+                        cursor += 1  # the separating space
+                        start = cursor
+                        cursor += len(text)
+                        pieces.append(text)
+                        inserts.append({'dose': dose, 'pair': pair_index,
+                                        'config_index': config_index,
+                                        'link': list(link), 'form': form,
+                                        'text': text, 'start': start,
+                                        'end': cursor})
+                    config_ends.append(cursor)
         line = ' '.join(pieces)
         body_bytes = len(line.encode('utf-8'))
         if body_bytes > max_bytes:
@@ -394,6 +419,125 @@ def measure_megalines(lines, words, filter_terms, prefix_chars,
                 sum(row['complete_pair_in_window'] for row in rows),
             'lines_with_first_four_in_truncation':
                 sum(row['first_four_links_in_truncation'] for row in rows)}
+
+
+def pair_configs(pair):
+    """The canonical configs of one pair as WORD tuples (not role names)."""
+    return [tuple(tuple(pair[role] for role in link) for link in config)
+            for config in CANONICAL_CONFIGS]
+
+
+def expected_directed_forms_pairs(pairs, sets):
+    """The word-level directed-form multiset of `sets` full sets per pair."""
+    counts = Counter()
+    for pair in pairs:
+        for config in pair_configs(pair):
+            for first, second in config:
+                counts[f'{first}>{second}'] += sets
+    return dict(counts)
+
+
+def measure_megalines_pairs(lines, pairs, filter_terms, prefix_chars,
+                            truncation_chars):
+    """Multi-pair per-line dose integrity, parsed off the final text.
+
+    Same reading as measure_megalines, but links parse as WORD pairs (the
+    union of all pairs' words) and consecutive links pair into configs
+    matched against each pair's word-level canonical set — distinct
+    config tuples even where single links (teleology, delete) overlap
+    between pairs. Window stats are union-physical (a delivered slot shows
+    whatever it shows); per-pair coverage is the hard-check surface.
+    """
+    union_words = sorted({word for pair in pairs for word in pair.values()})
+    identity = {word: word for word in union_words}
+    per_pair_configs = [pair_configs(pair) for pair in pairs]
+    per_pair_labels = [[config_label(config) for config in configs]
+                       for configs in per_pair_configs]
+    rows = []
+    for number, line in enumerate(lines):
+        parsed = [(link, match.end())
+                  for match in PAREN_GROUP.finditer(line)
+                  for link in [parse_link(match.group(1).split(), identity)]
+                  if link is not None]
+        per_pair = [{'per_config': {label: 0 for label in labels},
+                     'pair_total': 0} for labels in per_pair_labels]
+        in_window = 0
+        for i in range(0, len(parsed) - 1, 2):
+            candidate = (parsed[i][0], parsed[i + 1][0])
+            for pair_index, configs in enumerate(per_pair_configs):
+                if candidate in configs:
+                    per_pair[pair_index]['per_config'][config_label(candidate)] += 1
+                    per_pair[pair_index]['pair_total'] += 1
+                    if parsed[i + 1][1] <= prefix_chars:
+                        in_window += 1
+                    break
+        head = line[:prefix_chars].lower()
+        hits = sorted((head.find(term), term) for term in filter_terms
+                      if term in head)
+        rows.append({'line': number,
+                     'per_pair': [{'per_config': row['per_config'],
+                                   'pair_total': row['pair_total']}
+                                  for row in per_pair],
+                     'pair_total': sum(row['pair_total'] for row in per_pair),
+                     'link_total': len(parsed),
+                     'filter_term': hits[0][1] if hits else None,
+                     'filter_char': hits[0][0] if hits else None,
+                     'configs_in_window': in_window,
+                     'complete_pair_in_window': in_window > 0,
+                     'fourth_link_end':
+                         parsed[3][1] if len(parsed) >= 4 else None,
+                     'first_four_links_in_truncation':
+                         len(parsed) >= 4
+                         and parsed[3][1] <= truncation_chars})
+    counts = [row['configs_in_window'] for row in rows]
+    return {'per_line': rows,
+            'configs_in_window_min': min(counts),
+            'configs_in_window_mean': sum(counts) / len(counts),
+            'lines_with_filter_echo':
+                sum(row['filter_term'] is not None for row in rows),
+            'lines_with_complete_pair_in_window':
+                sum(row['complete_pair_in_window'] for row in rows),
+            'lines_with_first_four_in_truncation':
+                sum(row['first_four_links_in_truncation'] for row in rows)}
+
+
+def role_audit_pairs(lines, pairs):
+    """role_audit for multi-pair megalines: one shared anchor, chained leaves.
+
+    Every anchor occurrence must sit at a bridge position; role words (the
+    union of all pairs' words) are insert-only; the only anchorless LINKs
+    accepted are the declared per-pair d->t leaf-to-leaf spares
+    (pair 1: file>delete; pair 2: delete>checksum-style chaining).
+    """
+    union_words = sorted({word for pair in pairs for word in pair.values()})
+    identity = {word: word for word in union_words}
+    anchor = pairs[0]['anchor']
+    declared_leaf = {(pair['destination'], pair['target']) for pair in pairs}
+    violations, occurrences, at_bridge = [], 0, 0
+    for number, line in enumerate(lines):
+        stray = [token for token in WORD.findall(strip_groups(line).lower())
+                 if token in identity]
+        if stray:
+            violations.append({'line': number,
+                               'error': f'role words outside inserts: {stray}'})
+        for group in paren_groups(line):
+            link = parse_link(group, identity)
+            endpoints = (group[0], group[-1]) if group else ()
+            occurrences += endpoints.count(anchor)
+            if link is None:
+                violations.append({'line': number,
+                                   'error': f'unparseable group: {group}'})
+            elif link == (anchor, anchor):
+                violations.append({'line': number,
+                                   'error': 'anchor paired with itself'})
+            elif anchor in endpoints:
+                at_bridge += 1
+            elif link not in declared_leaf:
+                violations.append({'line': number,
+                                   'error': f'undeclared anchorless link: '
+                                            f'{link[0]}>{link[1]}'})
+    return {'ok': not violations, 'violations': violations,
+            'anchor_occurrences': occurrences, 'anchor_at_bridge': at_bridge}
 
 
 def role_audit(lines, words):

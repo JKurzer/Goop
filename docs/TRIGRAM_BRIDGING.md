@@ -81,3 +81,26 @@ conjunction insert '(x and y)' interposes the token 'and' between the
 link endpoints, breaking strict adjacency (the only form tested per this
 card). Conjunctive stays shelved until the adjacent form has landed.
 First adjacent-only arm: conformant-v3-meg.)
+
+Anchor swap + second set (recorded verbatim, 2026-10-15):
+
+yeah we saw this early on with astra. we had to swap hainish for another
+token. let's use teleology. ... finally, we need that second trigram set.
+
+On "Both" (two pairs AND two copies per line), the second pair, verbatim:
+
+checksum/delete
+
+Attention to the export table (recorded verbatim, 2026-10-15):
+
+we need to force their attention to the exports. simply add a string that
+mentions exports somewhere they'll see it and attention will do the rest.
+
+(Build readings: ANCHOR=teleology replaces hainish (it passes the anchor
+gate — absent from both word lists). Two BRIDGINGs share the one anchor:
+pair 1 teleology/delete/file, pair 2 teleology/checksum/delete — delete
+is the shared leaf (pair-1 target, pair-2 destination), the leaf-to-leaf
+chaining this card records above. doses=2 per pair per line: four
+functional sets per megaline. The exports-attention string rides the
+format-table struct, after the SUMMARY format the analysts provably
+decode.)
