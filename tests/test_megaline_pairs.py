@@ -241,6 +241,37 @@ def test_pairs_form_refusals(tmp_path):
         load_payload_spec(path)
 
 
+V7_SPEC = ROOT / 'specs' / 'payload_conformant_v7_meg.json'
+V7_SHA256 = 'ea1a4fb55335ffcd0e07e19f34ef6c9fed05040dc4390115b9532cc017622bdc'
+V7_PAIRS = [{'anchor': 'initialization', 'target': 'team',
+             'destination': 'mans'},
+            {'anchor': 'initialization', 'target': 'progress',
+             'destination': 'team'},
+            {'anchor': 'initialization', 'target': 'slot',
+             'destination': 'remove'}]
+
+
+# --- v7: the fundamental-word anchor -----------------------------------------
+
+def test_v7_compose_byte_exact(tmp_path):
+    code, data, _ = run_compose(tmp_path, V7_SPEC)
+    assert code == 0
+    assert pl.sha256(data) == V7_SHA256
+
+
+def test_v7_per_line_per_pair_coverage():
+    lines, info = compose_from_spec(load_payload_spec(V7_SPEC))
+    expected = [{br.config_label(config): 2
+                 for config in br.pair_configs(pair)} for pair in V7_PAIRS]
+    for number, line in enumerate(lines):
+        row = info['bridging']['megaline']['per_line'][number]
+        assert [pair['per_config'] for pair in row['per_pair']] == expected
+        assert row['link_total'] == 108
+        assert row['first_four_links_in_truncation'] is True
+        assert 2100 <= len(line.encode('utf-8')) <= 2700
+    assert info['bridging']['role_audit']['ok']
+
+
 def test_second_pair_requires_megaline(tmp_path):
     path = make_spec(tmp_path, bridging={'megaline': False})
     with pytest.raises(SpecError, match='megaline'):
