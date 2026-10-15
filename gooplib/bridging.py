@@ -361,6 +361,45 @@ def expected_directed_forms(doses):
     return dict(counts)
 
 
+def measure_bridging_pairs(lines, pairs):
+    """Whole-text multi-pair counts, parsed off the final text (word-level).
+
+    The pair-mode sibling of measure_bridging: links parse against the
+    union of all pairs' words, consecutive links pair into configs matched
+    per pair (distinct config tuples even where single links overlap
+    between pairs), and word totals cover the union vocabulary.
+    """
+    union_words = sorted({word for pair in pairs for word in pair.values()})
+    identity = {word: word for word in union_words}
+    per_pair_configs = [pair_configs(pair) for pair in pairs]
+    per_pair_counts = [Counter() for _ in pairs]
+    directed = Counter()
+    links = 0
+    for line in lines:
+        parsed = [link for link in
+                  (parse_link(group, identity) for group in paren_groups(line))
+                  if link is not None]
+        links += len(parsed)
+        for first, second in parsed:
+            directed[f'{first}>{second}'] += 1
+        for i in range(0, len(parsed) - 1, 2):
+            candidate = (parsed[i], parsed[i + 1])
+            for pair_index, configs in enumerate(per_pair_configs):
+                if candidate in configs:
+                    per_pair_counts[pair_index][config_label(candidate)] += 1
+                    break
+    tokens = Counter(WORD.findall('\n'.join(lines).lower()))
+    return {'per_pair': [{label: counts[label] for label in
+                          [config_label(config) for config in configs]}
+                         for counts, configs in
+                         zip(per_pair_counts, per_pair_configs)],
+            'pair_total': sum(sum(counts.values())
+                              for counts in per_pair_counts),
+            'link_total': links,
+            'directed_forms': dict(sorted(directed.items())),
+            'word_totals': {word: tokens[word] for word in union_words}}
+
+
 def measure_megalines(lines, words, filter_terms, prefix_chars,
                       truncation_chars):
     """Per-line dose integrity + window stats, parsed off the final text.

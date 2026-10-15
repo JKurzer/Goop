@@ -5,7 +5,10 @@ off the final text by `gooplib/bridging.py`; nothing was delivered anywhere.
 
 Specs: `specs/payload_conformant_v1_meg.json` (anchor hainish),
 `specs/payload_conformant_v2_meg.json` (anchor tainish — the only
-difference). Candidates: `runs/conformant-v1-meg/inputs/candidate.txt` and
+difference), `specs/payload_conformant_v3_meg.json` (hainish,
+adjacent-form-only per the 2026-10-15 ruling),
+`specs/payload_conformant_v5_meg.json` (multi-pair, below). Candidates:
+`runs/conformant-v1-meg/inputs/candidate.txt` and
 `runs/conformant-v2-meg/inputs/candidate.txt` (9356 bytes, 20 lines, LF).
 
 sha256 v1-meg: `bafab4b11da2d34d72424e69c8bf6e79d6992f0ff79416d693753ceaee1c34ac`
@@ -35,6 +38,28 @@ per line so no future layout change can silently break it.
 chars, the v13 analyst-filter prefix model. The slot-size expansion to
 512 is the delivery model, not the layout — candidate bytes and shas are
 unchanged.)
+
+## Multi-pair mode (2026-10-15 doctrine; conformant-v5-meg)
+
+Owner rulings (verbatim in docs/TRIGRAM_BRIDGING.md): anchor teleology
+replaces hainish; the second trigram set is "Both" — two pairs along the
+one anchor, two copies of each pair's set per line. Pair 1
+teleology/delete/file, pair 2 teleology/checksum/delete; delete is the
+shared leaf (pair-1 target, pair-2 destination — the leaf-to-leaf
+chaining the card records). Each line therefore carries 2 doses x 2
+pairs x 18 LINKs = 72 inserts (four functional sets), byte band
+[1450, 2000] for the 2048-byte slot geometry. The same hard checks hold
+per pair per line (full 9-config coverage, echo in the 512 window, a
+complete LINK-pair in the window, first four LINKs inside the 240
+truncation); measured: fourth LINK ends chars 86–104, 20/20 lines.
+sha256 v5-meg:
+`222f1654e92e98983344d3b9626c4f7a571ae145f0b291da1fcce33c4eebf9a0`
+Implementation: `gooplib/bridging.py: compose_megalines_pairs,
+measure_megalines_pairs, measure_bridging_pairs, role_audit_pairs` (the
+single-pair functions delegate/stay for the v1-v3 arms); pipeline:
+`tools/goop_payload.py: _compose_megalines_pairs`; spec key:
+`bridging.second_pair {target, destination}` (megaline-only); tests:
+`tests/test_bridging_pairs.py`, `tests/test_megaline_pairs.py`.
 
 ## Layout per line
 

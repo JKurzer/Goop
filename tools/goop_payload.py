@@ -46,9 +46,11 @@ MEGALINE_KEYS = {'filter_terms', 'filter_prefix_chars', 'truncation_chars',
                  'lead_ins'}
 BRIDGING_KEYS = {'anchor', 'target', 'destination', 'doses', 'paren', 'form',
                  'carriers', 'common_words_file', 'errata', 'megaline',
+                 'second_pair',
                  'filter_terms', 'filter_prefix_chars', 'truncation_chars',
                  'lead_ins'}
-BRIDGING_REQUIRED = BRIDGING_KEYS - {'common_words_file', 'megaline'} - MEGALINE_KEYS
+BRIDGING_REQUIRED = (BRIDGING_KEYS - {'common_words_file', 'megaline',
+                                      'second_pair'} - MEGALINE_KEYS)
 BRIDGING_SPEC_REQUIRED = {'name', 'lines', 'max_line_bytes', 'seed', 'bridging'}
 # Bridging mode is disjoint from the legacy corpus-remap pipeline: these
 # keys belong to the legacy mode and are rejected alongside 'bridging'.
@@ -252,7 +254,30 @@ def _bridging(raw):
     if not megaline and extras:
         raise SpecError(f'bridging sets megaline-only keys {extras} without '
                         '"megaline": true')
-    out = {'words': words, 'doses': doses, 'forms': forms,
+    second = raw.get('second_pair')
+    pairs = [words]
+    if second is not None:
+        if not megaline:
+            raise SpecError('bridging.second_pair requires "megaline": true '
+                            '(the classic bridging mode is single-pair)')
+        check_keys(second, {'target', 'destination'}, {'target', 'destination'},
+                   where='bridging.second_pair')
+        words2 = {'anchor': words['anchor'],
+                  'target': _trigram_word(second['target'],
+                                          'bridging.second_pair.target'),
+                  'destination': _trigram_word(
+                      second['destination'], 'bridging.second_pair.destination')}
+        if words2['target'] == words2['destination']:
+            raise SpecError('bridging.second_pair target/destination must be '
+                            'distinct words')
+        if words['anchor'] in (words2['target'], words2['destination']):
+            raise SpecError('bridging.second_pair puts the anchor at a leaf '
+                            'position (the R1 mistake)')
+        if words2['target'] == words['target'] and \
+                words2['destination'] == words['destination']:
+            raise SpecError('bridging.second_pair duplicates the first pair')
+        pairs.append(words2)
+    out = {'words': words, 'pairs': pairs, 'doses': doses, 'forms': forms,
            'carriers': carriers, 'common_words_file': gate, 'errata': errata,
            'megaline': megaline}
     if megaline:
@@ -442,6 +467,7 @@ def _bridging_info(bridging, plan, measured, audit, integrity, stats, extra=None
                'leaf_links': [f'{first}>{second}' for first, second
                               in br.CANONICAL_LEAF_LINKS],
                'errata': bridging['errata'],
+               'pairs': [dict(pair) for pair in bridging['pairs']],
                'canonical_source_note': br.CANONICAL_SOURCE_NOTE}
     if extra:
         section.update(extra)
@@ -467,6 +493,90 @@ def _compose_bridging(spec, base):
     return lines, _bridging_info(bridging, plan, measured, audit, integrity, stats)
 
 
+def _check_bridging_pairs_text(lines, pairs, sets, min_bytes, max_bytes):
+    """The pair-mode sibling of _check_bridging_text: whole-text integrity.
+
+    Per pair, every canonical config lands at exactly `sets` across the
+    text; the union directed forms equal the pair multiset; every anchor
+    at a bridge position; parens balanced; every line in the byte band.
+    """
+    integrity = br.paren_integrity(lines)
+    if not integrity['ok']:
+        raise SpecError(f'paren integrity failed: {integrity["violations"][:3]}')
+    audit = br.role_audit_pairs(lines, pairs)
+    if not audit['ok']:
+        raise SpecError(f'role audit failed: {audit["violations"][:3]}')
+    measured = br.measure_bridging_pairs(lines, pairs)
+    for pair_index, pair in enumerate(pairs):
+        expected = {br.config_label(config): sets
+                    for config in br.pair_configs(pair)}
+        if measured['per_pair'][pair_index] != expected:
+            raise SpecError(f'pair {pair_index} coverage mismatch: measured '
+                            f'{measured["per_pair"][pair_index]} != expected '
+                            f'{expected}')
+    if measured['directed_forms'] != br.expected_directed_forms_pairs(pairs, sets):
+        raise SpecError(f'directed-form mismatch: {measured["directed_forms"]}')
+    for line in lines:
+        if not min_bytes <= len(line.encode('utf-8')) <= max_bytes:
+            raise SpecError('a composed line violates the byte budget')
+    return measured, audit, integrity
+
+
+def _compose_megalines_pairs(spec, base):
+    """Multi-pair megaline pipeline (2026-10-15 doctrine: shared anchor,
+    chained leaves, `doses` copies of every pair's set per line).
+
+    The single-pair hard checks hold per pair per line: full coverage, the
+    filter echo in the window, a complete LINK-pair in the window, and the
+    first four LINKs inside the probable truncation window.
+    """
+    bridging = spec['bridging']
+    pairs = bridging['pairs']
+    _anchor_gate(bridging, base)
+    try:
+        lines, plan = br.compose_megalines_pairs(
+            bridging['carriers'], bridging['lead_ins'], pairs,
+            bridging['doses'], bridging['forms'], spec['lines'],
+            spec['min_line_bytes'], spec['max_line_bytes'], spec['seed'])
+    except ValueError as exc:
+        raise SpecError(str(exc)) from exc
+    sets = bridging['doses'] * spec['lines']
+    measured, audit, integrity = _check_bridging_pairs_text(
+        lines, pairs, sets, spec['min_line_bytes'], spec['max_line_bytes'])
+    mega = br.measure_megalines_pairs(
+        lines, pairs, bridging['filter_terms'],
+        bridging['filter_prefix_chars'], bridging['truncation_chars'])
+    expected_per_pair = [{br.config_label(config): bridging['doses']
+                          for config in br.pair_configs(pair)}
+                         for pair in pairs]
+    for row in mega['per_line']:
+        for pair_index in range(len(pairs)):
+            if row['per_pair'][pair_index]['per_config'] != \
+                    expected_per_pair[pair_index]:
+                raise SpecError(f'line {row["line"]}: pair {pair_index} '
+                                f'{len(br.CANONICAL_CONFIGS)}-config coverage '
+                                'mismatch')
+        if row['filter_term'] is None:
+            raise SpecError(f'line {row["line"]}: no filter term inside the '
+                            f'first {bridging["filter_prefix_chars"]} chars')
+        if not row['complete_pair_in_window']:
+            raise SpecError(f'line {row["line"]}: no complete LINK-pair inside '
+                            f'the first {bridging["filter_prefix_chars"]} chars')
+        if not row['first_four_links_in_truncation']:
+            raise SpecError(f'line {row["line"]}: the first four LINKs do not '
+                            f'all end inside the probable truncation window '
+                            f'(the first {bridging["truncation_chars"]} chars)')
+    stats = br.carrier_stats(lines, _goop_baseline_lines(base))
+    extra = {'megaline': {'filter_terms': list(bridging['filter_terms']),
+                          'filter_prefix_chars': bridging['filter_prefix_chars'],
+                          'truncation_chars': bridging['truncation_chars'],
+                          'min_line_bytes': spec['min_line_bytes'],
+                          'pairs': [dict(pair) for pair in pairs],
+                          **mega}}
+    return lines, _bridging_info(bridging, plan, measured, audit, integrity,
+                                 stats, extra)
+
+
 def _compose_megalines(spec, base):
     """Megaline pipeline: a full BRIDGING per line, hard-fail per-line integrity.
 
@@ -478,6 +588,8 @@ def _compose_megalines(spec, base):
     """
     bridging = spec['bridging']
     _anchor_gate(bridging, base)
+    if len(bridging['pairs']) > 1:
+        return _compose_megalines_pairs(spec, base)
     try:
         lines, plan = br.compose_megalines(
             bridging['carriers'], bridging['lead_ins'], bridging['words'],
