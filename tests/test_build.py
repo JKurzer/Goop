@@ -80,7 +80,7 @@ def test_nonboolean_flags_rejected(flags):
 
 def test_payload_line_count_must_match_slots(tmp_path):
     run, _ = make_run(tmp_path, 'mismatch', 4, 64, {'k7': 1, 'm2': 2}, 32)
-    spec = build_section(spec_dict(slots=4, slot_size=64,
+    spec = build_section(spec_dict(slots=4, slot_size=64, format_table=False,
                                    doses={'k7': 1, 'm2': 2}))
     (run / 'inputs' / 'candidate.txt').write_bytes(b'only\ntwo\nlines\n')
     with pytest.raises(GoopError, match='slots'):
@@ -89,7 +89,7 @@ def test_payload_line_count_must_match_slots(tmp_path):
 
 def test_payload_line_must_fit_slot(tmp_path):
     run, _ = make_run(tmp_path, 'toolong', 2, 64, {'k7': 1, 'm2': 1}, 32)
-    spec = build_section(spec_dict(slots=2, slot_size=64,
+    spec = build_section(spec_dict(slots=2, slot_size=64, format_table=False,
                                    doses={'k7': 1, 'm2': 1}))
     (run / 'inputs' / 'candidate.txt').write_bytes(b'x' * 64 + b'\nok\n')
     with pytest.raises(GoopError, match='slot_size'):
@@ -199,7 +199,8 @@ def test_pack_refuses_overwrite(run20):
 
 @requires_msvc
 def test_pack_refuses_without_unpacked(tmp_path):
-    run, spec = make_run(tmp_path, 'nobuild', 2, 64, {'k7': 1, 'm2': 1}, 32)
+    run, spec = make_run(tmp_path, 'nobuild', 2, 64, {'k7': 1, 'm2': 1},
+                         32, format_table=False)
     with pytest.raises(GoopError, match='unpacked'):
         pack_pair(run, spec)
 

@@ -97,7 +97,14 @@ one shared leaf word between them (the chaining limit).
   fixed 128-byte field right after the SUMMARY format — the decode spot
   fired analysts provably read — shifting the hi slots by 128 (the
   layout stays computable exactly; `_verify_slots` checks the bytes at
-  the computed offset, and the manifest records `attention_va`).
+  the computed offset, and the manifest records `attention_va` inside
+  the true memory chain).
+
+Geometry rules: with `format_table`, `slot_size` must be >=
+FMT_SUMMARY_SIZE (128), or >= 256 with `attention` (the summary->hi
+chain gap). Manifest schema note (2026-10-15): `manifest['exports']`
+and `manifest['fn_literals']` carry `block` (the normalized
+words/pairs block) — older manifests carried `words`.
 
 The generated C++ keeps the `bramble_` symbol prefix so the map-file checks
 line up one-to-one with the ported scheme; goop never reads the archive.

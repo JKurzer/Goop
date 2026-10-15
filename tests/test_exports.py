@@ -173,8 +173,20 @@ def test_block_dispatch_matches_direct_calls():
     assert block_names({'words': WORDS, 'sets': 2}) == export_names(WORDS, 2)
     assert block_names({'pairs': [WORDS], 'sets': 2}) == export_names(WORDS, 2)
     assert block_texts({'words': WORDS, 'sets': 2}) == link_texts(WORDS, 2)
-    assert block_texts({'pairs': [WORDS, WORDS], 'sets': 1}) == \
-        link_texts(WORDS, 1) + link_texts(WORDS, 1)
+    pair2 = {'anchor': 'hainish', 'target': 'checksum', 'destination': 'delete'}
+    assert block_texts({'pairs': [WORDS, pair2], 'sets': 1}) == \
+        link_texts(WORDS, 1) + link_texts(pair2, 1)
+
+
+def test_block_dispatch_raw_flat_shape():
+    """The raw run-spec flat triple (every pre-pairs arm) must not crash
+    the scorer's visibility path (the e5f60f7 regression class)."""
+    raw = {'sets': 2, 'anchor': 'hainish', 'target': 'delete',
+           'destination': 'file'}
+    assert block_names(raw) == export_names(WORDS, 2)
+    assert block_texts(raw) == link_texts(WORDS, 2)
+    with pytest.raises(GoopError, match='words shape'):
+        block_names({'sets': 2, 'nonsense': True})
 
 
 def test_build_section_pairs_form_roundtrip():
@@ -201,6 +213,26 @@ def test_build_section_pairs_form_roundtrip():
 def test_build_section_pairs_form_refusals(block):
     with pytest.raises(GoopError):
         build_section(make_spec(block))
+
+
+def test_build_section_slot_size_bounds_with_format_table():
+    spec = make_spec(None)
+    del spec['build']['exports']
+    spec['build']['slot_size'] = 128
+    assert build_section(spec)['slot_size'] == 128  # no attention: >= 128
+    spec['build']['slot_size'] = 127
+    with pytest.raises(GoopError, match='slot_size'):
+        build_section(spec)
+    spec['build']['slot_size'] = 255
+    spec['build']['attention'] = 'see the export table'
+    with pytest.raises(GoopError, match='slot_size'):
+        build_section(spec)  # attention: needs >= 256
+    spec['build']['slot_size'] = 256
+    assert build_section(spec)['slot_size'] == 256
+    spec['build']['slot_size'] = 64
+    spec['build']['format_table'] = False
+    del spec['build']['attention']
+    assert build_section(spec)['slot_size'] == 64  # unconstrained otherwise
 
 
 def test_build_section_attention():

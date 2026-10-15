@@ -126,18 +126,35 @@ def link_texts_pairs(pairs, sets):
     return texts
 
 
-def block_names(block):
-    """export_names for a normalized exports block ('words' or 'pairs')."""
+def _block_words(block, where):
+    """The word material of an exports/fn_literals block, any shape:
+    normalized ('words' / 'pairs') or the raw run-spec flat triple
+    (anchor/target/destination beside 'sets')."""
+    if 'anchor' in block:
+        return ('words', validate_export_words(
+            {role: block[role] for role in EXPORT_ROLES}))
     if 'pairs' in block:
-        return export_names_pairs(block['pairs'], block['sets'])
-    return export_names(block['words'], block['sets'])
+        return ('pairs', validate_pairs(block['pairs']))
+    if 'words' in block:
+        return ('words', validate_export_words(block['words']))
+    raise GoopError(f'{where} block has no recognizable words shape: '
+                    f'{sorted(block)}')
+
+
+def block_names(block):
+    """export_names for an exports block of any shape (normalized or raw)."""
+    kind, words = _block_words(block, 'exports')
+    if kind == 'pairs':
+        return export_names_pairs(words, block['sets'])
+    return export_names(words, block['sets'])
 
 
 def block_texts(block):
-    """link_texts for a normalized fn_literals block ('words' or 'pairs')."""
-    if 'pairs' in block:
-        return link_texts_pairs(block['pairs'], block['sets'])
-    return link_texts(block['words'], block['sets'])
+    """link_texts for a fn_literals block of any shape (normalized or raw)."""
+    kind, words = _block_words(block, 'fn_literals')
+    if kind == 'pairs':
+        return link_texts_pairs(words, block['sets'])
+    return link_texts(words, block['sets'])
 
 
 def directed_form_counts(names):

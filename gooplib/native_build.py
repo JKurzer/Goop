@@ -40,9 +40,9 @@ from capstone.x86 import X86_OP_IMM, X86_OP_MEM, X86_REG_RIP
 from gooplib import HELPER, NATIVE_SRC, GoopError
 from gooplib.exports import (block_names, block_texts, export_names,
                              link_texts, names_digest)
-from gooplib.specs import (FMT_SUMMARY_SIZE, FMT_TICK_SIZE, PROBES,
-                           build_section, candidate_digest, candidate_path,
-                           payload_lines, vcvars_path)
+from gooplib.specs import (ATTENTION_SIZE, FMT_SUMMARY_SIZE, FMT_TICK_SIZE,
+                           PROBES, build_section, candidate_digest,
+                           candidate_path, payload_lines, vcvars_path)
 
 MODULES = ['entities', 'sim', 'objectives', 'main']
 MAIN_ANCHOR = 'int main(int argc, char** argv) {'
@@ -212,7 +212,6 @@ STRUCT_DEF = '''struct BrambleTable {{
 }};'''
 
 ATTENTION_FIELD = '    char attention[{ATTENTION_SIZE}];'
-ATTENTION_SIZE = 128
 
 EXPOSURE_PROLOGUE_FMT = """// --- exposure arm: retained tag slots, referenced on the init path.
 // Format-table variant: output formats and tag slots share one struct
@@ -531,7 +530,10 @@ def _exposure_checks(output, manifest, build, cells):
             summary_va = table_va + layout['fmt_summary']
             vas = slot_vas[cell]
             half_n = layout['half']
-            chain = [tick_va, *vas[:half_n], summary_va, *vas[half_n:]]
+            chain = [tick_va, *vas[:half_n], summary_va]
+            if build['attention']:  # the true memory chain includes the field
+                chain.append(table_va + layout['attention'])
+            chain += vas[half_n:]
             gaps = [b - a for a, b in zip(chain, chain[1:])]
             fmt_info[cell] = {'bramble_table': hex(table_va),
                               'kFmtTick': hex(tick_va), 'kFmtSummary': hex(summary_va),

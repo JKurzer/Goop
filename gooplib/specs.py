@@ -60,6 +60,9 @@ DEFAULT_PAYLOAD_PATH = 'inputs/candidate.txt'
 # not of any run, so they live here rather than in the spec.
 FMT_TICK_SIZE = 64
 FMT_SUMMARY_SIZE = 128
+# The exports-attention string rides a fixed-size field between fmtSummary
+# and the hi slots in the format-table struct (owner ruling 2026-10-15).
+ATTENTION_SIZE = 128
 # The four probe observations every cell must reproduce (ticks, seed).
 # Harness protocol constant, identical for every arm.
 PROBES = [(0, 42), (513, 42), (4096, 42), (4096, 7)]
@@ -159,11 +162,21 @@ def build_section(spec):
     if attention is not None:
         _require(isinstance(attention, str) and attention
                  and all(0x20 <= ord(ch) <= 0x7E for ch in attention)
-                 and len(attention) <= 127,
-                 'build.attention must be printable ASCII, 1-127 chars')
+                 and len(attention) <= ATTENTION_SIZE - 1,
+                 f'build.attention must be printable ASCII, '
+                 f'1-{ATTENTION_SIZE - 1} chars')
         _require(format_table,
                  'build.attention requires format_table (it rides the '
                  'format-table struct after the SUMMARY format)')
+    if format_table:
+        # The interleaved-chain check demands max_gap <= slot_size; the
+        # summary->hi gap is FMT_SUMMARY_SIZE (+ ATTENTION_SIZE when the
+        # attention field is present). Refuse here, not post-compile.
+        minimum = FMT_SUMMARY_SIZE + (ATTENTION_SIZE if attention else 0)
+        _require(slot_size >= minimum,
+                 f'build.slot_size must be >= {minimum} with format_table'
+                 f'{" and attention" if attention else ""} (the '
+                 f'summary->hi chain gap is {minimum} bytes)')
     return {'slots': slots, 'slot_size': slot_size, 'doses': dict(doses),
             'format_table': format_table, 'config_tags': config_tags,
             'exports': exports, 'fn_literals': fn_literals,
