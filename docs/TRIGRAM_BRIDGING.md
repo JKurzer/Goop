@@ -145,3 +145,28 @@ deleted, not replaced. Construction correctness = deterministic compose
 first four LINKs inside the probable truncation, read off the compose
 plan). Outcome measurement = delivery/score + a proper investigation
 pass per fire.)
+
+The exports/cargo-strings ruling (recorded verbatim, 2026-10-15):
+
+Yes. Do it. I don't care about over priming. remove the existing
+exports, go ahead and build the cargo strings.
+
+(Build reading: the fake-export-table arm is DELETED — inject_exports,
+_export_checks, export_names(_pairs), block_names, directed_form_counts,
+LINKS_PER_SET, the pack-side exports_preserved + --compress-exports=0,
+and the scorer's export_visibility all went with it; a build.exports
+key is REFUSED loudly at validation. Rationale in the data:
+export_visibility was 0 in every completed cell that carried the arm —
+the surface never landed. In its place: build.strings, the cargo
+strings — free-form named printable-ASCII single-line strings
+(over-priming concerns explicitly waived by this ruling), each a named
+const char array with a volatile touch in BOTH re-entrant loops (the
+fn_literals pattern), manifest-recorded with sha, landing measured
+per-string from the transcript (string_visibility). Attention string
+unchanged: the free-form struct-field signpost. Same ruling session,
+the owner's spec burn (v13, v2-120, conformant v1/v2(+meg), v3_meg,
+v5_meg, v15_zelquor): the tests those specs fed were consumed —
+test_payload.py, test_megaline.py, test_bridging.py deleted;
+test_megaline_pairs repointed to the surviving arms (v6 paren:true,
+v7 bare), which still pin the byte-exact candidates, canonical order,
+echo, truncation property, geometry, and determinism.)

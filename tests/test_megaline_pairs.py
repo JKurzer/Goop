@@ -16,10 +16,10 @@ from gooplib import payload as pl
 from gooplib.spec import SpecError
 from tools.goop_payload import ROOT, compose_from_spec, load_payload_spec, main
 
-V5_SPEC = ROOT / 'specs' / 'payload_conformant_v5_meg.json'
-V5_SHA256 = '222f1654e92e98983344d3b9626c4f7a571ae145f0b291da1fcce33c4eebf9a0'
-V5_PAIRS = [{'anchor': 'teleology', 'target': 'delete', 'destination': 'file'},
-            {'anchor': 'teleology', 'target': 'checksum', 'destination': 'delete'}]
+# payload_conformant_v5_meg.json was deleted by the owner 2026-10-15 (the
+# 'corrections' spec burn); its byte pin died with its subject. The
+# second_pair-key validation tests went too (their v5 template; v6/v7 use
+# the pairs-list form). Surviving arms: v6 (paren:true) and v7 (bare).
 V6_SPEC = ROOT / 'specs' / 'payload_conformant_v6_meg.json'
 V6_SHA256 = '66ef4565c612c6d040c42a4429c8fcfe4a99524336b959e74016122786731384'
 V6_PAIRS = [{'anchor': 'teleology', 'target': 'remove', 'destination': 'garlic'},
@@ -32,8 +32,7 @@ V7_PAIRS = [{'anchor': 'initialization', 'target': 'team', 'destination': 'mans'
              'destination': 'team'},
             {'anchor': 'initialization', 'target': 'slot',
              'destination': 'remove'}]
-ARMS = ((V5_SPEC, V5_SHA256, V5_PAIRS, 2, (1450, 2000)),
-        (V6_SPEC, V6_SHA256, V6_PAIRS, 2, (2100, 2700)),
+ARMS = ((V6_SPEC, V6_SHA256, V6_PAIRS, 2, (2100, 2700)),
         (V7_SPEC, V7_SHA256, V7_PAIRS, 2, (2100, 2700)))
 
 
@@ -87,34 +86,23 @@ def test_arm_structure(spec, sha, pairs, doses, band):
 
 
 def test_manifest_pairs_section(tmp_path):
-    code, _, run_dir = run_compose(tmp_path, V5_SPEC)
+    code, _, run_dir = run_compose(tmp_path, V6_SPEC)
     assert code == 0
     manifest = json.loads(
         (run_dir / 'candidate.txt.manifest.json').read_text(encoding='utf-8'))
-    assert manifest['name'] == 'conformant-v5-meg'
+    assert manifest['name'] == 'conformant-v6-meg'
     bridging = manifest['bridging']
     assert 'measurement' not in bridging
     assert 'role_audit' not in bridging
     assert 'paren_integrity' not in bridging
-    assert bridging['pairs'] == V5_PAIRS
+    assert bridging['pairs'] == V6_PAIRS
     mega = bridging['megaline']
-    assert mega['pairs'] == V5_PAIRS
+    assert mega['pairs'] == V6_PAIRS
     assert mega['truncation_chars'] == 240
     assert len(bridging['plan']) == 20
 
 
 # --- second_pair / pairs-form refusals ------------------------------------------
-
-def make_v5_spec(tmp_path, bridging=None, drop=()):
-    raw = json.loads(V5_SPEC.read_text(encoding='utf-8'))
-    for key, value in (bridging or {}).items():
-        raw['bridging'][key] = value
-    for key in drop:
-        del raw['bridging'][key]
-    path = tmp_path / 'spec.json'
-    path.write_text(json.dumps(raw), encoding='utf-8')
-    return path
-
 
 def make_v6_spec(tmp_path, bridging=None, drop=()):
     raw = json.loads(V6_SPEC.read_text(encoding='utf-8'))
@@ -125,42 +113,6 @@ def make_v6_spec(tmp_path, bridging=None, drop=()):
     path = tmp_path / 'spec.json'
     path.write_text(json.dumps(raw), encoding='utf-8')
     return path
-
-
-def test_second_pair_requires_megaline(tmp_path):
-    path = make_v5_spec(tmp_path, bridging={'megaline': False})
-    with pytest.raises(SpecError, match='megaline'):
-        load_payload_spec(path)
-
-
-def test_second_pair_duplicate_refused(tmp_path):
-    path = make_v5_spec(tmp_path, bridging={
-        'second_pair': {'target': 'delete', 'destination': 'file'}})
-    with pytest.raises(SpecError, match='duplicates'):
-        load_payload_spec(path)
-
-
-def test_second_pair_anchor_as_leaf_refused(tmp_path):
-    path = make_v5_spec(tmp_path, bridging={
-        'second_pair': {'target': 'teleology', 'destination': 'file'}})
-    with pytest.raises(SpecError, match='R1'):
-        load_payload_spec(path)
-
-
-def test_second_pair_two_shared_leaves_refused(tmp_path):
-    path = make_v5_spec(tmp_path, bridging={
-        'second_pair': {'target': 'file', 'destination': 'delete'}})
-    with pytest.raises(SpecError, match='share leaves'):
-        load_payload_spec(path)
-
-
-def test_carrier_with_pair2_word_refused_at_load(tmp_path):
-    raw = json.loads(V5_SPEC.read_text(encoding='utf-8'))
-    raw['bridging']['carriers'][-1] = 'The checksum was verified.'
-    path = tmp_path / 'spec.json'
-    path.write_text(json.dumps(raw), encoding='utf-8')
-    with pytest.raises(SpecError, match='role words'):
-        load_payload_spec(path)
 
 
 def test_pairs_form_refusals(tmp_path):

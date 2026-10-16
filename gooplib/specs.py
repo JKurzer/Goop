@@ -46,6 +46,7 @@ vcvars64.bat to use; the utility asserts the pinned file exists.
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 
 from gooplib import GoopError
@@ -63,6 +64,13 @@ FMT_SUMMARY_SIZE = 128
 # The exports-attention string rides a fixed-size field between fmtSummary
 # and the hi slots in the format-table struct (owner ruling 2026-10-15).
 ATTENTION_SIZE = 128
+
+# Cargo strings (owner ruling 2026-10-15, verbatim: "I don't care about over
+# priming. remove the existing exports, go ahead and build the cargo
+# strings."). Free-form content: over-priming concerns explicitly waived.
+STRING_TEXT_MAX = 4096   # printable ASCII, single line (newlines split rows)
+STRINGS_MAX = 99
+STRING_NAME = re.compile(r'^[a-z][a-z0-9_]{0,31}$')
 # The four probe observations every cell must reproduce (ticks, seed).
 # Harness protocol constant, identical for every arm.
 PROBES = [(0, 42), (513, 42), (4096, 42), (4096, 7)]
@@ -115,6 +123,37 @@ def _link_block(value, where):
                 {role: value[role] for role in EXPORT_ROLES})}
 
 
+def _strings_block(value):
+    """A build.strings block: the cargo strings (owner ruling 2026-10-15).
+
+    Each entry is exactly {'name', 'text'}: a unique C-identifier-safe
+    name (it becomes bramble_str_<name> in the emitted source) and a
+    printable-ASCII single-line text — newlines are refused because the
+    strings channel ([\x20-\x7e]{5,}) would split the string into
+    separate rows.
+    """
+    _require(isinstance(value, list) and 1 <= len(value) <= STRINGS_MAX,
+             f'build.strings must be a list of 1-{STRINGS_MAX} entries')
+    entries = []
+    for i, entry in enumerate(value):
+        _require(isinstance(entry, dict) and set(entry) == {'name', 'text'},
+                 f"build.strings[{i}] must hold exactly 'name' and 'text'")
+        name, text = entry['name'], entry['text']
+        _require(isinstance(name, str) and STRING_NAME.match(name),
+                 f'build.strings[{i}].name {name!r} must match '
+                 "'^[a-z][a-z0-9_]{0,31}$' (it becomes a C identifier)")
+        _require(isinstance(text, str) and text
+                 and len(text) <= STRING_TEXT_MAX
+                 and all(0x20 <= ord(ch) <= 0x7E for ch in text),
+                 f'build.strings[{i}].text must be printable ASCII, '
+                 f'1-{STRING_TEXT_MAX} chars, single line')
+        entries.append({'name': name, 'text': text})
+    names = [entry['name'] for entry in entries]
+    _require(len(set(names)) == len(names),
+             f'build.strings names must be unique: {sorted(names)}')
+    return entries
+
+
 def build_section(spec):
     """Validate spec['build'] (+ payload pin) and return a normalized dict."""
     _require(isinstance(spec, dict), 'spec must be a JSON object')
@@ -152,9 +191,14 @@ def build_section(spec):
     config_tags = build.get('config_tags', False)
     _require(isinstance(format_table, bool) and isinstance(config_tags, bool),
              'build.format_table / build.config_tags must be booleans')
-    exports = build.get('exports')
-    if exports is not None:
-        exports = _link_block(exports, 'exports')
+    # The exports block is deleted (owner ruling 2026-10-15, verbatim: "I
+    # don't care about over priming. remove the existing exports, go ahead
+    # and build the cargo strings.") — refused, not ignored, so a stale
+    # spec fails loudly instead of silently building without its arm.
+    _require('exports' not in build,
+             'build.exports is deleted (2026-10-15 ruling): the fake export '
+             'table never landed (0 visible in five consecutive completed '
+             'cells); use build.strings (cargo strings)')
     fn_literals = build.get('fn_literals')
     if fn_literals is not None:
         fn_literals = _link_block(fn_literals, 'fn_literals')
@@ -168,6 +212,9 @@ def build_section(spec):
         _require(format_table,
                  'build.attention requires format_table (it rides the '
                  'format-table struct after the SUMMARY format)')
+    strings = build.get('strings')
+    if strings is not None:
+        strings = _strings_block(strings)
     if format_table:
         # The interleaved-chain check demands max_gap <= slot_size; the
         # summary->hi gap is FMT_SUMMARY_SIZE (+ ATTENTION_SIZE when the
@@ -179,7 +226,7 @@ def build_section(spec):
                  f'summary->hi chain gap is {minimum} bytes)')
     return {'slots': slots, 'slot_size': slot_size, 'doses': dict(doses),
             'format_table': format_table, 'config_tags': config_tags,
-            'exports': exports, 'fn_literals': fn_literals,
+            'strings': strings, 'fn_literals': fn_literals,
             'attention': attention,
             'payload_path': payload_path, 'payload_sha256': sha}
 

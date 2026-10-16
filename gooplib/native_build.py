@@ -38,8 +38,7 @@ from capstone import CS_ARCH_X86, CS_MODE_64, Cs
 from capstone.x86 import X86_OP_IMM, X86_OP_MEM, X86_REG_RIP
 
 from gooplib import HELPER, NATIVE_SRC, GoopError
-from gooplib.exports import (block_names, block_texts, export_names,
-                             link_texts, names_digest)
+from gooplib.exports import block_texts, names_digest
 from gooplib.specs import (ATTENTION_SIZE, FMT_SUMMARY_SIZE, FMT_TICK_SIZE,
                            PROBES, build_section, candidate_digest,
                            candidate_path, payload_lines, vcvars_path)
@@ -123,22 +122,38 @@ static void brambleProvenanceFold(uint64_t seed) {{
 """
 
 
-def inject_exports(main_cpp, names):
-    """Fake export set (owner ruling 2026-10-15): no-op exported functions
-    whose names carry the canonical LINKs as identifier bigrams. The export
-    table is the first thing an analyst reads after imports; every name is
-    address-anchored, and /OPT:NOICF keeps the stub addresses distinct.
-    Bodies are empty: output and exit status are unchanged. Inert by design.
+def _c_chunks(text, size=1000):
+    """Adjacent C string-literal chunks (keeps single literals modest)."""
+    return [text[i:i + size] for i in range(0, len(text), size)]
+
+
+def inject_strings(main_cpp, entries):
+    """Cargo strings (owner ruling 2026-10-15, verbatim: "I don't care about
+    over priming. remove the existing exports, go ahead and build the cargo
+    strings."). Free-form named ASCII strings carried in the binary, each a
+    named const char array (named, so string pooling cannot fold duplicates
+    away), each with a volatile-read touch inline inside BOTH the tick loop
+    and the checksum loop. The sink is the inert provenance fold's: never
+    printed, never branched on; output is unchanged. Inert by design.
     """
-    block = ('// --- export arm: fake export set. Names carry link pairs; the\n'
-             '// bodies are no-ops. Inert.\n'
-             'extern "C" {\n'
-             + '\n'.join(f'__declspec(dllexport) void {name}() {{}}'
-                         for name in names)
-             + '\n}\n\n')
-    if main_cpp.count(MAIN_ANCHOR) != 1:
-        raise GoopError('main.cpp anchor not unique; export injection unsafe')
-    return main_cpp.replace(MAIN_ANCHOR, block + MAIN_ANCHOR)
+    decls = '\n'.join(
+        f'#pragma comment(linker, "/include:bramble_str_{entry["name"]}")\n'
+        f'extern "C" const char bramble_str_{entry["name"]}[] =\n        '
+        + '\n        '.join(json.dumps(chunk)
+                            for chunk in _c_chunks(entry['text'])) + ';'
+        for entry in entries)
+    touches = '\n'.join(
+        f'    bramble_prov_sink ^= *reinterpret_cast<const volatile unsigned '
+        f'char*>(bramble_str_{entry["name"]});' for entry in entries)
+    block = ('// --- cargo-strings arm: free-form strings referenced inline in\n'
+             '// the tick loop and the checksum loop. Inert.\n' + decls + '\n\n')
+    for anchor in (MAIN_ANCHOR, TICK_LOOP_ANCHOR, CHECKSUM_LOOP_ANCHOR):
+        if main_cpp.count(anchor) != 1:
+            raise GoopError(f'main.cpp anchor not unique: {anchor[:50]!r}')
+    main_cpp = main_cpp.replace(MAIN_ANCHOR, block + MAIN_ANCHOR)
+    for anchor in (TICK_LOOP_ANCHOR, CHECKSUM_LOOP_ANCHOR):
+        main_cpp = main_cpp.replace(anchor, anchor + '\n' + touches)
+    return main_cpp
 
 
 def inject_fn_literals(main_cpp, texts):
@@ -552,42 +567,55 @@ def _exposure_checks(output, manifest, build, cells):
             for info in fmt_info.values())
 
 
-def _export_checks(output, manifest, build, cells):
-    """The fake-export checks, parsed live off the built binaries.
-
-    export_set_matches_spec: every cell's export table holds exactly the
-    expected name list with distinct stub addresses. export_set_identical:
-    the tables are byte-identical across cells (same names, same RVAs) —
-    the pair stays indistinguishable apart from slot payload bytes.
+def _strings_checks(output, manifest, build, cells):
+    """The cargo-strings check, parsed live: every string at its
+    map-derived VA, content-exact, with >= 1 code reference, and >= 1
+    reference site inside main's map-derived extent (the loop bodies).
     """
-    expected = sorted(block_names(build['exports']))
+    entries = build['strings']
     per_cell = {}
     for cell in cells:
-        pe_cell = pefile.PE(str(output / 'cells' / cell / 'target.exe'))
-        symbols = getattr(getattr(pe_cell, 'DIRECTORY_ENTRY_EXPORT', None),
-                          'symbols', [])
-        names = sorted(symbol.name.decode() for symbol in symbols)
-        rvas = sorted(symbol.address for symbol in symbols)
-        per_cell[cell] = {'count': len(names),
-                          'names_sha256': names_digest(names),
-                          'rva_sha256': names_digest([hex(rva) for rva in rvas]),
-                          'matches_spec': names == expected,
-                          'addresses_distinct': len(set(rvas)) == len(rvas),
-                          'sample': names[:3]}
-    manifest['exports'] = {'sets': build['exports']['sets'],
-                           'block': {key: build['exports'][key]
-                                     for key in build['exports']
-                                     if key != 'sets'},
-                           'expected_count': len(expected),
-                           'expected_sha256': names_digest(expected),
-                           'per_cell': per_cell}
-    checks = manifest['checks']
-    checks['export_set_matches_spec'] = all(
-        info['matches_spec'] and info['addresses_distinct']
+        cell_path = output / 'cells' / cell / 'target.exe'
+        image = cell_path.read_bytes()
+        pe_cell = pefile.PE(data=image)
+        map_text = (output / 'private' / cell / 'target.map').read_text()
+        main_va = int(re.search(r'\bmain\s+([0-9a-fA-F]+)', map_text).group(1), 16)
+        fn_vas = sorted(int(va, 16) for va in re.findall(
+            r'^\s*0001:[0-9a-fA-F]+\s+\S+\s+([0-9a-fA-F]{16})\s+f',
+            map_text, flags=re.M))
+        main_end = min((va for va in fn_vas if va > main_va),
+                       default=main_va + 0x800)
+        vas, contents_ok = [], True
+        for entry in entries:
+            match = re.search(rf'\bbramble_str_{entry["name"]}\s+([0-9a-fA-F]+)',
+                              map_text)
+            if not match:
+                raise GoopError(f'{cell}: missing retained string '
+                                f'{entry["name"]!r}')
+            va = int(match.group(1), 16)
+            offset = pe_cell.get_offset_from_rva(
+                va - pe_cell.OPTIONAL_HEADER.ImageBase)
+            text = entry['text'].encode()
+            if image[offset:offset + len(text)] != text:
+                contents_ok = False
+            vas.append(va)
+        hits = reference_census(pe_cell, vas)
+        referenced = sum(1 for va in vas if hits[va])
+        in_main = sum(1 for va in vas
+                      if any(main_va <= site < main_end for site in hits[va]))
+        per_cell[cell] = {'count': len(vas),
+                          'contents_exact': contents_ok,
+                          'referenced': referenced,
+                          'referenced_in_main': in_main}
+    manifest['strings'] = {
+        'names': [entry['name'] for entry in entries],
+        'count': len(entries),
+        'texts_sha256': names_digest([entry['text'] for entry in entries]),
+        'per_cell': per_cell}
+    manifest['checks']['strings_referenced'] = all(
+        info['contents_exact'] and info['referenced'] == info['count']
+        and info['referenced_in_main'] == info['count']
         for info in per_cell.values())
-    checks['export_set_identical'] = len(
-        {(info['names_sha256'], info['rva_sha256'])
-         for info in per_cell.values()}) == 1
 
 
 def _fnlit_checks(output, manifest, build, cells):
@@ -672,10 +700,10 @@ def build_pair(run_dir, spec):
         for path in sorted(NATIVE_SRC.iterdir()):
             shutil.copyfile(path, private / path.name)
         main_path = private / 'main.cpp'
-        if build['exports']:
+        if build['strings']:
             main_path.write_text(
-                inject_exports(main_path.read_text(encoding='utf-8'),
-                               block_names(build['exports'])),
+                inject_strings(main_path.read_text(encoding='utf-8'),
+                               build['strings']),
                 encoding='utf-8')
         if build['fn_literals']:
             main_path.write_text(
@@ -739,8 +767,8 @@ def build_pair(run_dir, spec):
     checks['repeat_observations_identical'] = (
         _smoke_observations(paths[0]) == manifest['cells'][cells[0]]['observations'])
     _exposure_checks(output, manifest, build, cells)
-    if build['exports']:
-        _export_checks(output, manifest, build, cells)
+    if build['strings']:
+        _strings_checks(output, manifest, build, cells)
     if build['fn_literals']:
         _fnlit_checks(output, manifest, build, cells)
     (output / 'private/manifest.json').write_text(json.dumps(manifest, indent=2),

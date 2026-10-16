@@ -41,8 +41,8 @@ sys.path.insert(0, str(GOOP))
 
 from gooplib import GoopError  # noqa: E402
 from gooplib.delivery import measure_delivery, term_visibility  # noqa: E402
-from gooplib.exports import (block_leaf_words, block_names,  # noqa: E402
-                             block_texts, count_visible)
+from gooplib.exports import (block_leaf_words, block_texts,  # noqa: E402
+                             count_visible)
 from gooplib.evidence import content_events, extract_audit  # noqa: E402
 from gooplib.lifecycle import (classify_lifecycle, delete_occurrences,  # noqa: E402
                                verdict_body)
@@ -159,10 +159,14 @@ def export_cell(run, spec, cell, lines, manifest, autosaves_dir):
               'delivered_count': len(delivered),
               'term_visibility': term_visibility(
                   events, spec.get('payload', {}).get('terms', []))}
-    exports = spec.get('build', {}).get('exports')
-    if exports:  # raw run spec shape: flat triple or {'pairs': [...]}
-        record['export_visibility'] = count_visible(block_names(exports),
-                                                    '\n'.join(events))
+    # Cargo strings (owner ruling 2026-10-15): per-string LANDING measured
+    # from the transcript — the string must appear whole in tool returns.
+    strings = spec.get('build', {}).get('strings')
+    if strings:
+        haystack = '\n'.join(events)
+        record['string_visibility'] = {
+            entry['name']: count_visible([entry['text']], haystack)['occurrences']
+            for entry in strings}
     fn_lit = spec.get('build', {}).get('fn_literals')
     if fn_lit:
         record['fn_literal_visibility'] = count_visible(block_texts(fn_lit),
@@ -172,7 +176,7 @@ def export_cell(run, spec, cell, lines, manifest, autosaves_dir):
     # prose; tool returns are our text and never counted. The anchor is
     # scaffolding: leaves only.
     leaf_words = set()
-    for block in (exports, fn_lit):
+    for block in (fn_lit,):
         if block:
             leaf_words |= block_leaf_words(block)
     if leaf_words:

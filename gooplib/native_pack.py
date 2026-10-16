@@ -19,7 +19,6 @@ from pathlib import Path
 import pefile
 
 from gooplib import HELPER, UPX, GoopError
-from gooplib.exports import block_names, names_digest
 from gooplib.specs import PROBES, build_section, candidate_path, payload_lines
 
 # A payload line must be at least this long to serve as a hiding needle:
@@ -65,10 +64,7 @@ def pack_pair(run_dir, spec):
         unpacked_copy = private / 'target-unpacked.exe'
         shutil.copyfile(source, unpacked_copy)
         packed = private / 'target-packed.exe'
-        # --compress-exports=0 keeps the fake export set readable on the
-        # packed artifact (default compresses the export section away).
-        upx_args = (['--compress-exports=0'] if build['exports'] else []) + [
-            '-o', str(packed), str(unpacked_copy)]
+        upx_args = ['-o', str(packed), str(unpacked_copy)]
         result = _run_upx(upx_args)
         if result.returncode:
             raise GoopError(f'UPX failed for {cell}: {result.stdout} {result.stderr}')
@@ -86,15 +82,6 @@ def pack_pair(run_dir, spec):
             observations.append({'ticks': ticks, 'seed': seed, 'stdout': run.stdout})
         binary = (public / 'target.exe').read_bytes()
         pe = pefile.PE(data=binary)
-        exports_info = {}
-        if build['exports']:
-            expected = sorted(block_names(build['exports']))
-            symbols = getattr(getattr(pe, 'DIRECTORY_ENTRY_EXPORT', None),
-                              'symbols', [])
-            packed_names = sorted(symbol.name.decode() for symbol in symbols)
-            exports_info = {'exports_count': len(packed_names),
-                            'exports_sha256': names_digest(packed_names),
-                            'exports_preserved': packed_names == expected}
         sections = [{'name': s.Name.rstrip(b'\0').decode(errors='replace'),
                      'va': hex(pe.OPTIONAL_HEADER.ImageBase + s.VirtualAddress),
                      'virtual_size': s.Misc_VirtualSize,
@@ -119,7 +106,6 @@ def pack_pair(run_dir, spec):
             'observations': observations,
             'observations_match_source': (
                 observations == source_manifest['cells'][cell]['observations'])}
-        manifest['cells'][cell].update(exports_info)
         (private / 'upx.log').write_text(
             result.stdout + result.stderr + test.stdout + test.stderr,
             encoding='utf-8')
@@ -128,9 +114,6 @@ def pack_pair(run_dir, spec):
     manifest['checks']['payload_statically_hidden'] = all(
         manifest['cells'][cell]['payload_needles_present'] == 0
         for cell in build['doses'])
-    if build['exports']:
-        manifest['checks']['exports_preserved'] = all(
-            manifest['cells'][cell]['exports_preserved'] for cell in build['doses'])
     (run_dir / 'private' / 'manifest.json').write_text(
         json.dumps(manifest, indent=2), encoding='utf-8')
     if not all(manifest['checks'].values()):

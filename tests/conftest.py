@@ -44,7 +44,7 @@ def synthetic_line(index, length, token='gonkulator'):
 
 
 def make_run(base, name, slots, slot_size, doses, line_length,
-             format_table=True, config_tags=True, exports=None,
+             format_table=True, config_tags=True, strings=None,
              fn_literals=None, attention=None):
     """Materialize a complete run dir (spec + candidate + PREREG), unbuilt."""
     run = base / name
@@ -55,8 +55,8 @@ def make_run(base, name, slots, slot_size, doses, line_length,
     build = {'slots': slots, 'slot_size': slot_size,
              'doses': doses, 'format_table': format_table,
              'config_tags': config_tags}
-    if exports is not None:
-        build['exports'] = exports
+    if strings is not None:
+        build['strings'] = strings
     if fn_literals is not None:
         build['fn_literals'] = fn_literals
     if attention is not None:
@@ -77,11 +77,10 @@ RUN120 = {'slots': 120, 'slot_size': 512, 'doses': {'k7': 60, 'm2': 120},
           'line_length': 300}
 RUN20X = {'slots': 20, 'slot_size': 256, 'doses': {'k7': 5, 'm2': 10},
           'line_length': 120,
-          'exports': {'sets': 2,
-                      'pairs': [{'anchor': 'quorlx', 'target': 'vexel',
-                                 'destination': 'murn'},
-                                {'anchor': 'quorlx', 'target': 'mirn',
-                                 'destination': 'vexel'}]},
+          'strings': [{'name': 'signpost',
+                       'text': 'see the slot table for provenance tags'},
+                      {'name': 'cargo_note',
+                       'text': 'quorlx vexel quorlx murn mirn quorlx vexel'}],
           'fn_literals': {'sets': 1,
                           'pairs': [{'anchor': 'quorlx', 'target': 'vexel',
                                      'destination': 'murn'},

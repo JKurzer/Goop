@@ -1,17 +1,17 @@
-"""Fake export set: link-bearing identifiers in the PE export table.
+"""Link-text and word machinery for the fn_literals vector + visibility
+counting. Pure functions, no I/O, shared by the build (emission + checks)
+and the scorer (visibility measures).
 
-Owner ruling (2026-10-15): "export is pretty good. we can just inject a fake
-export set." The export table is the first thing an RE analyst reads after
-imports, and models read terms as code identifiers — so the canonical LINKs
-ride as snake_case identifier bigrams (hainish_delete, file_hainish, ...),
-strict within-identifier adjacency, address-anchored per name.
+The fake-export-table arm is DELETED (owner ruling 2026-10-15, verbatim:
+"I don't care about over priming. remove the existing exports, go ahead
+and build the cargo strings."). Five consecutive completed cells measured
+export_visibility 0 — the surface never landed. export_names,
+export_names_pairs, block_names, directed_form_counts and LINKS_PER_SET
+went with it; historical runs' manifests keep their records.
 
-Pure functions, no I/O: name derivation and visibility counting, shared by
-the build (emission + checks) and the scorer (export_visibility measure).
-
-Also the sibling surface: link_texts — the same canonical LINKs rendered as
-plain adjacent bigram strings for the function-literals vector (owner
-2026-10-15: "just shoving them as string literals into some functions").
+Surviving: link_texts — the canonical LINKs rendered as plain adjacent
+bigram strings for the function-literals vector (owner 2026-10-15: "just
+shoving them as string literals into some functions").
 """
 import re
 from collections import Counter
@@ -21,11 +21,7 @@ from gooplib import bridging as br
 
 EXPORT_ROLES = ('anchor', 'target', 'destination')
 
-# One export set is one full canonical BRIDGING of links (9 configs x 2),
-# so one set is functionally a single dose (owner's dosing note 2026-10-14).
-LINKS_PER_SET = len(br.CANONICAL_CONFIGS) * 2
-
-# No underscores: '<from>_<to>_<suffix>' must split back unambiguously.
+# No underscores: identifier-safe role words split back unambiguously.
 WORD = re.compile(r'^[a-z][a-z0-9]*$')
 
 
@@ -41,12 +37,6 @@ def validate_export_words(words):
         raise GoopError('exports words must be distinct; an anchor at a target '
                         'position is unattributable (the R1 mistake)')
     return dict(words)
-
-
-def export_names(words, sets):
-    """The ordered fake-export name list for `sets` full canonical sets
-    (single pair; delegates to export_names_pairs, identical output)."""
-    return export_names_pairs([words], sets)
 
 
 def validate_pairs(pairs):
@@ -72,36 +62,6 @@ def validate_pairs(pairs):
                                 'than one shared leaf aliases the canonical '
                                 'configs between pairs')
     return words
-
-
-def export_names_pairs(pairs, sets):
-    """The ordered fake-export name list for `sets` full sets of EVERY pair.
-
-    The union link stream (per set, per pair, the 18 canonical links in
-    canonical order), each link rendered '<from>_<to>_<NNN>' — the pair
-    snake_cased (adjacent inside the identifier) with a zero-padded
-    per-directed-form occurrence suffix counted across the whole stream
-    (a form shared by two pairs, like teleology>delete, earns its full
-    multiplicity). Deterministic pure function of (pairs, sets).
-    """
-    words = validate_pairs(pairs)
-    if not isinstance(sets, int) or isinstance(sets, bool) or not 1 <= sets <= 99:
-        raise GoopError(f'exports sets must be an integer in [1, 99] ({sets})')
-    word_links = [(pair[first], pair[second])
-                  for pair in words
-                  for config in br.CANONICAL_CONFIGS
-                  for first, second in config]
-    totals = Counter()
-    for link in word_links:
-        totals[link] += sets
-    width = len(str(max(totals.values()) - 1))
-    names, seen = [], Counter()
-    for _ in range(sets):
-        for first, second in word_links:
-            index = seen[(first, second)]
-            seen[(first, second)] += 1
-            names.append(f'{first}_{second}_{index:0{width}d}')
-    return names
 
 
 def link_texts(words, sets):
@@ -141,14 +101,6 @@ def _block_words(block, where):
                     f'{sorted(block)}')
 
 
-def block_names(block):
-    """export_names for an exports block of any shape (normalized or raw)."""
-    kind, words = _block_words(block, 'exports')
-    if kind == 'pairs':
-        return export_names_pairs(words, block['sets'])
-    return export_names(words, block['sets'])
-
-
 def block_texts(block):
     """link_texts for a fn_literals block of any shape (normalized or raw)."""
     kind, words = _block_words(block, 'fn_literals')
@@ -165,20 +117,6 @@ def block_leaf_words(block):
     pairs = words if kind == 'pairs' else [words]
     return {word for pair in pairs
             for word in (pair['target'], pair['destination'])}
-
-
-def directed_form_counts(names):
-    """The directed-form multiset of a name list, parsed back off the names.
-
-    '<from>_<to>_<suffix>' — from/to are single words, so the split is the
-    first and last-but-one underscore fields (the suffix is digits).
-    """
-    counts = Counter()
-    for name in names:
-        fields = name.rsplit('_', 2)
-        if len(fields) == 3 and fields[2].isdigit():
-            counts[f'{fields[0]}>{fields[1]}'] += 1
-    return dict(counts)
 
 
 def names_digest(names):
