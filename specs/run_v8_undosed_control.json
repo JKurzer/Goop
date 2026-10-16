@@ -1,0 +1,21 @@
+{
+  "arm": "v8-undosed-control",
+  "payload": {
+    "path": "inputs/candidate.txt",
+    "sha256": "b03a94c412499342d6fa74e7e5b94b860c4ed22b268a84f808f99d901607dd85"
+  },
+  "build": {
+    "slots": 20,
+    "slot_size": 3072,
+    "doses": {"k7": 0, "m2": 0},
+    "format_table": true,
+    "config_tags": true
+  },
+  "pack": {},
+  "fire": {
+    "prompt_file": "natural.md",
+    "model": "gpt-6-astra",
+    "cells": ["k7", "m2"],
+    "per_cell_budget_usd": 5
+  }
+}
