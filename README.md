@@ -15,7 +15,7 @@ skip cleanly when the sealed archive is absent.
 | Utility | Stage | What it does |
 |---|---|---|
 | `tools/goop_payload.py` | compose+freeze | Build a goop candidate from a payload spec (corpus, vocab, hub, terms, lines, seed, visibility predicate — all from files), or freeze an existing text file. Byte-exact regression controls. |
-| `tools/goop_build.py` | build+pack+verify | Native pair (N slots, k7/m2 doses, format-table + config-tags), UPX pack, generic preflight (per-slot bytes, hashes, pair isolation). |
+| `tools/goop_build.py` | build+pack+verify | Native pair (N slots, RunA/RunB doses, format-table + config-tags), UPX pack, generic preflight (per-slot bytes, hashes, pair isolation). |
 | `tools/goop_fire.py` | fire | Run cells via code-puppy with a prompt FILE. Provider-abort detection (timeout/5xx/credits => not a cell). Usage-file/log reconciliation (segmented usage trips the stop, never the ledger). |
 | `tools/goop_score.py` | export+score | Audits from autosaves, address-anchored delivery (quote-tolerant, spill-page aware, content-only), one aftermath JSONL row per cell. |
 

@@ -20,7 +20,7 @@ ARCHIVE = Path(os.environ.get('BRAMBLE_ARCHIVE', str(Path.home() / 'bramble')))
 V14_REPORTS = ARCHIVE / 'eval/native/runs/packed-v14/reports'
 
 
-def make_run(root, cells=('k7', 'm2'), fire_overrides=None):
+def make_run(root, cells=('RunA', 'RunB'), fire_overrides=None):
     """A synthetic goop run dir: spec.json + staged cells (fake target/helper)."""
     run = root / 'run'
     for cell in cells:
@@ -77,7 +77,7 @@ class DeathMarkerTests(unittest.TestCase):
         self.assertIsNone(goop_fire.death_marker(raw_with_calls(3)))
 
     def test_assess_flags_nonzero_exit_and_missing_usage(self):
-        status, aborted = goop_fire.assess_cell('k7', 1, 1.0, 'clean\n', None)
+        status, aborted = goop_fire.assess_cell('RunA', 1, 1.0, 'clean\n', None)
         self.assertIn('exit=1', aborted)
         self.assertIn('usage-file missing', aborted)
         self.assertEqual(status['aborted'], aborted)
@@ -95,16 +95,16 @@ class ReconciliationTests(unittest.TestCase):
     def test_within_pm1_tolerance_passes(self):
         raw = raw_with_calls(5)
         for filed in (4, 5, 6):
-            _, aborted = goop_fire.assess_cell('k7', 0, 1.0, raw, usage(filed))
+            _, aborted = goop_fire.assess_cell('RunA', 0, 1.0, raw, usage(filed))
             self.assertEqual(aborted, [], f'filed={filed} should reconcile')
 
     def test_beyond_pm1_aborts(self):
-        _, aborted = goop_fire.assess_cell('k7', 0, 1.0, raw_with_calls(5), usage(1))
+        _, aborted = goop_fire.assess_cell('RunA', 0, 1.0, raw_with_calls(5), usage(1))
         self.assertTrue(any('usage reconciliation' in item for item in aborted))
 
     def test_zero_observed_skips_reconciliation(self):
         # Ported semantics: `if observed and ...` — a tool-free log can't trip it.
-        _, aborted = goop_fire.assess_cell('k7', 0, 1.0, 'no bullets\n', usage(9))
+        _, aborted = goop_fire.assess_cell('RunA', 0, 1.0, 'no bullets\n', usage(9))
         self.assertEqual(aborted, [])
 
 
@@ -141,7 +141,7 @@ class PromptFileTests(unittest.TestCase):
             self.assertIn('{python}', template)
 
     def test_render_substitutes_cell_and_python(self):
-        cell_dir = Path('C:/x/runs/arm/cells/k7')
+        cell_dir = Path('C:/x/runs/arm/cells/RunA')
         for name in ('natural.md', 'reduced.md'):
             rendered = goop_fire.render_prompt(goop_fire.load_prompt(name), cell_dir)
             self.assertIn(str(cell_dir), rendered)
@@ -165,39 +165,39 @@ class RefusalTests(unittest.TestCase):
             run, fire_spec = make_run(Path(temporary))
             reports = run / 'reports'
             reports.mkdir()
-            (reports / 'status_k7.json').write_text(
-                json.dumps({'cell': 'k7', 'exit': 0, 'usage': usage(3)}),
+            (reports / 'status_RunA.json').write_text(
+                json.dumps({'cell': 'RunA', 'exit': 0, 'usage': usage(3)}),
                 encoding='utf-8')
-            self.assertEqual(goop_fire.completed_cells(run), {'k7'})
+            self.assertEqual(goop_fire.completed_cells(run), {'RunA'})
             with self.assertRaisesRegex(RuntimeError, 'never re-run'):
-                fire(run, fire_spec, ['k7'], FakeRunner({}), 'reports-k7')
+                fire(run, fire_spec, ['RunA'], FakeRunner({}), 'reports-RunA')
 
     def test_aborted_status_does_not_block_and_sibling_untouched(self):
         with tempfile.TemporaryDirectory() as temporary:
             run, fire_spec = make_run(Path(temporary))
             reports = run / 'reports'
             reports.mkdir()
-            (reports / 'status_k7.json').write_text(
-                json.dumps({'cell': 'k7', 'exit': 0, 'usage': usage(3)}),
+            (reports / 'status_RunA.json').write_text(
+                json.dumps({'cell': 'RunA', 'exit': 0, 'usage': usage(3)}),
                 encoding='utf-8')
-            (reports / 'status_m2.json').write_text(
-                json.dumps({'cell': 'm2', 'exit': 0,
+            (reports / 'status_RunB.json').write_text(
+                json.dumps({'cell': 'RunB', 'exit': 0,
                             'aborted': ['provider-death: Request timed out']}),
                 encoding='utf-8')
-            self.assertEqual(goop_fire.completed_cells(run), {'k7'})
-            runner = FakeRunner({'m2': (0, raw_with_calls(2), usage(2))})
-            code = fire(run, fire_spec, ['m2'], runner, 'reports-m2')
+            self.assertEqual(goop_fire.completed_cells(run), {'RunA'})
+            runner = FakeRunner({'RunB': (0, raw_with_calls(2), usage(2))})
+            code = fire(run, fire_spec, ['RunB'], runner, 'reports-RunB')
             self.assertEqual(code, 0)
-            self.assertTrue((run / 'reports-m2/status_m2.json').is_file())
-            k7_status = json.loads((reports / 'status_k7.json').read_text())
-            self.assertNotIn('aborted', k7_status)  # completed sibling untouched
+            self.assertTrue((run / 'reports-RunB/status_RunB.json').is_file())
+            run_a_status = json.loads((reports / 'status_RunA.json').read_text())
+            self.assertNotIn('aborted', run_a_status)  # completed sibling untouched
 
     def test_stale_output_dir_refused(self):
         with tempfile.TemporaryDirectory() as temporary:
             run, fire_spec = make_run(Path(temporary))
             (run / 'reports').mkdir()
             with self.assertRaisesRegex(RuntimeError, 'exists'):
-                fire(run, fire_spec, ['k7', 'm2'], FakeRunner({}))
+                fire(run, fire_spec, ['RunA', 'RunB'], FakeRunner({}))
 
     def test_spec_unknown_key_and_missing_key_refused(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -215,17 +215,17 @@ class RefusalTests(unittest.TestCase):
 
 class ParseCellsTests(unittest.TestCase):
     def test_default_is_full_spec_into_reports(self):
-        self.assertEqual(goop_fire.parse_cells(None, ['k7', 'm2']),
-                         (['k7', 'm2'], 'reports'))
+        self.assertEqual(goop_fire.parse_cells(None, ['RunA', 'RunB']),
+                         (['RunA', 'RunB'], 'reports'))
 
     def test_subset_gets_fresh_dir_name(self):
-        self.assertEqual(goop_fire.parse_cells('m2', ['k7', 'm2']),
-                         (['m2'], 'reports-m2'))
+        self.assertEqual(goop_fire.parse_cells('RunB', ['RunA', 'RunB']),
+                         (['RunB'], 'reports-RunB'))
 
     def test_unknown_or_duplicate_refused(self):
-        for bad in ('bogus', 'm2,m2', 'k7,bogus'):
+        for bad in ('bogus', 'RunB,RunB', 'RunA,bogus'):
             with self.assertRaises(RuntimeError, msg=bad):
-                goop_fire.parse_cells(bad, ['k7', 'm2'])
+                goop_fire.parse_cells(bad, ['RunA', 'RunB'])
 
 
 class EndToEndFakeFireTests(unittest.TestCase):
@@ -234,62 +234,62 @@ class EndToEndFakeFireTests(unittest.TestCase):
     def test_happy_path_fires_both_cells(self):
         with tempfile.TemporaryDirectory() as temporary:
             run, fire_spec = make_run(Path(temporary))
-            runner = FakeRunner({'k7': (0, raw_with_calls(3), usage(3)),
-                                 'm2': (0, raw_with_calls(2), usage(2))})
-            self.assertEqual(fire(run, fire_spec, ['k7', 'm2'], runner), 0)
-            self.assertEqual(runner.calls, ['k7', 'm2'])
-            prompt = (run / 'reports/prompt_k7.txt').read_text(encoding='utf-8')
-            self.assertIn(str(run / 'cells' / 'k7'), prompt)
+            runner = FakeRunner({'RunA': (0, raw_with_calls(3), usage(3)),
+                                 'RunB': (0, raw_with_calls(2), usage(2))})
+            self.assertEqual(fire(run, fire_spec, ['RunA', 'RunB'], runner), 0)
+            self.assertEqual(runner.calls, ['RunA', 'RunB'])
+            prompt = (run / 'reports/prompt_RunA.txt').read_text(encoding='utf-8')
+            self.assertIn(str(run / 'cells' / 'RunA'), prompt)
             self.assertIn(sys.executable, prompt)
-            status = json.loads((run / 'reports/status_k7.json').read_text())
+            status = json.loads((run / 'reports/status_RunA.json').read_text())
             self.assertEqual(status['log_tool_calls'], 3)
             self.assertNotIn('aborted', status)
 
     def test_provider_death_stops_before_next_cell(self):
         with tempfile.TemporaryDirectory() as temporary:
             run, fire_spec = make_run(Path(temporary))
-            runner = FakeRunner({'k7': (0, 'work...\nRequest timed out\n', None),
-                                 'm2': (0, raw_with_calls(2), usage(2))})
-            code = fire(run, fire_spec, ['k7', 'm2'], runner)
+            runner = FakeRunner({'RunA': (0, 'work...\nRequest timed out\n', None),
+                                 'RunB': (0, raw_with_calls(2), usage(2))})
+            code = fire(run, fire_spec, ['RunA', 'RunB'], runner)
             self.assertEqual(code, 2)
-            self.assertEqual(runner.calls, ['k7'])  # m2 never launched
-            status = json.loads((run / 'reports/status_k7.json').read_text())
+            self.assertEqual(runner.calls, ['RunA'])  # RunB never launched
+            status = json.loads((run / 'reports/status_RunA.json').read_text())
             self.assertIn('provider-death: Request timed out', status['aborted'])
             self.assertIn('usage-file missing', status['aborted'])
-            stub = (run / 'ATTEMPT_K7_ABORTED.md').read_text(encoding='utf-8')
+            stub = (run / 'ATTEMPT_RUNA_ABORTED.md').read_text(encoding='utf-8')
             self.assertIn('- provider-death: Request timed out', stub)
-            self.assertIn('reports/raw_k7.log', stub)
-            self.assertFalse((run / 'reports/status_m2.json').exists())
+            self.assertIn('reports/raw_RunA.log', stub)
+            self.assertFalse((run / 'reports/status_RunB.json').exists())
 
     def test_reconciliation_mismatch_aborts(self):
         with tempfile.TemporaryDirectory() as temporary:
             run, fire_spec = make_run(Path(temporary))
-            runner = FakeRunner({'k7': (0, raw_with_calls(5), usage(1))})
-            code = fire(run, fire_spec, ['k7'], runner, 'reports-k7')
+            runner = FakeRunner({'RunA': (0, raw_with_calls(5), usage(1))})
+            code = fire(run, fire_spec, ['RunA'], runner, 'reports-RunA')
             self.assertEqual(code, 2)
-            stub = (run / 'ATTEMPT_K7_ABORTED.md').read_text(encoding='utf-8')
+            stub = (run / 'ATTEMPT_RUNA_ABORTED.md').read_text(encoding='utf-8')
             self.assertIn('usage reconciliation: file says 1 calls, log shows 5', stub)
 
     def test_budget_stop_counts_the_cell_and_exits_3(self):
         with tempfile.TemporaryDirectory() as temporary:
             run, fire_spec = make_run(Path(temporary))
-            runner = FakeRunner({'k7': (0, raw_with_calls(3), usage(3, cost=9.99)),
-                                 'm2': (0, raw_with_calls(2), usage(2))})
-            code = fire(run, fire_spec, ['k7', 'm2'], runner)
+            runner = FakeRunner({'RunA': (0, raw_with_calls(3), usage(3, cost=9.99)),
+                                 'RunB': (0, raw_with_calls(2), usage(2))})
+            code = fire(run, fire_spec, ['RunA', 'RunB'], runner)
             self.assertEqual(code, 3)
-            self.assertEqual(runner.calls, ['k7'])
-            status = json.loads((run / 'reports/status_k7.json').read_text())
+            self.assertEqual(runner.calls, ['RunA'])
+            status = json.loads((run / 'reports/status_RunA.json').read_text())
             self.assertNotIn('aborted', status)  # budget stop is a real cell
-            self.assertFalse((run / 'ATTEMPT_K7_ABORTED.md').exists())
+            self.assertFalse((run / 'ATTEMPT_RUNA_ABORTED.md').exists())
 
     def test_attempt_stub_serializes_on_reabort(self):
         with tempfile.TemporaryDirectory() as temporary:
             run = Path(temporary)
-            first = goop_fire.attempt_stub_path(run, 'k7')
-            self.assertEqual(first.name, 'ATTEMPT_K7_ABORTED.md')
+            first = goop_fire.attempt_stub_path(run, 'RunA')
+            self.assertEqual(first.name, 'ATTEMPT_RUNA_ABORTED.md')
             first.write_text('# first\n', encoding='utf-8')
-            self.assertEqual(goop_fire.attempt_stub_path(run, 'k7').name,
-                             'ATTEMPT_K7_ABORTED_2.md')
+            self.assertEqual(goop_fire.attempt_stub_path(run, 'RunA').name,
+                             'ATTEMPT_RUNA_ABORTED_2.md')
 
 
 class ImmutableWriteTests(unittest.TestCase):

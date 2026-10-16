@@ -9,7 +9,7 @@ parameters (goop rule 2: zero magic numbers in utilities):
       "build": {
         "slots": 20,
         "slot_size": 256,
-        "doses": {"k7": 5, "m2": 10},
+        "doses": {"RunA": 5, "RunB": 10},
         "format_table": true,
         "config_tags": true
       }

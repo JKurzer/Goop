@@ -7,7 +7,7 @@
   "build": {
     "slots": 20,
     "slot_size": 3072,
-    "doses": {"k7": 0, "m2": 0},
+    "doses": {"RunA": 0, "RunB": 0},
     "format_table": true,
     "config_tags": true
   },
@@ -15,7 +15,7 @@
   "fire": {
     "prompt_file": "natural.md",
     "model": "gpt-6-astra",
-    "cells": ["k7", "m2"],
+    "cells": ["RunA", "RunB"],
     "per_cell_budget_usd": 5
   }
 }

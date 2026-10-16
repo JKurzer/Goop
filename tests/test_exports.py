@@ -114,7 +114,7 @@ def test_count_visible():
 
 def make_spec(fn_literals=None):
     build = {'slots': 20, 'slot_size': 512,
-             'doses': {'k7': 10, 'm2': 20},
+             'doses': {'RunA': 10, 'RunB': 20},
              'format_table': True, 'config_tags': True}
     if fn_literals is not None:
         build['fn_literals'] = fn_literals

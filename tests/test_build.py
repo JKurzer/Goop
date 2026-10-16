@@ -36,7 +36,7 @@ EXPECTED_CHECKS_STRINGS = {'strings_referenced', 'fn_literals_referenced'}
 
 
 def spec_dict(**overrides):
-    build = {'slots': 20, 'slot_size': 256, 'doses': {'k7': 5, 'm2': 10},
+    build = {'slots': 20, 'slot_size': 256, 'doses': {'RunA': 5, 'RunB': 10},
              'format_table': True, 'config_tags': True}
     build.update(overrides)
     return {'payload': {'sha256': 'a' * 64}, 'build': build}
@@ -47,7 +47,7 @@ def spec_dict(**overrides):
 def test_valid_spec_accepted():
     build = build_section(spec_dict())
     assert build['slots'] == 20 and build['slot_size'] == 256
-    assert build['doses'] == {'k7': 5, 'm2': 10}
+    assert build['doses'] == {'RunA': 5, 'RunB': 10}
     assert build['format_table'] and build['config_tags']
 
 
@@ -57,9 +57,9 @@ def test_bad_slots_rejected(slots):
         build_section(spec_dict(slots=slots))
 
 
-@pytest.mark.parametrize('doses', [{'k7': 21, 'm2': 10}, {'k7': -1, 'm2': 10},
-                                   {'k7': 5}, {'k7': 5, 'm2': 10, 'x3': 1},
-                                   {'k7': '5', 'm2': 10}, None])
+@pytest.mark.parametrize('doses', [{'RunA': 21, 'RunB': 10}, {'RunA': -1, 'RunB': 10},
+                                   {'RunA': 5}, {'RunA': 5, 'RunB': 10, 'x3': 1},
+                                   {'RunA': '5', 'RunB': 10}, None])
 def test_bad_doses_rejected(doses):
     with pytest.raises(GoopError):
         build_section(spec_dict(doses=doses))
@@ -80,18 +80,18 @@ def test_nonboolean_flags_rejected(flags):
 
 
 def test_payload_line_count_must_match_slots(tmp_path):
-    run, _ = make_run(tmp_path, 'mismatch', 4, 64, {'k7': 1, 'm2': 2}, 32)
+    run, _ = make_run(tmp_path, 'mismatch', 4, 64, {'RunA': 1, 'RunB': 2}, 32)
     spec = build_section(spec_dict(slots=4, slot_size=64, format_table=False,
-                                   doses={'k7': 1, 'm2': 2}))
+                                   doses={'RunA': 1, 'RunB': 2}))
     (run / 'inputs' / 'candidate.txt').write_bytes(b'only\ntwo\nlines\n')
     with pytest.raises(GoopError, match='slots'):
         payload_lines(run / 'inputs' / 'candidate.txt', spec)
 
 
 def test_payload_line_must_fit_slot(tmp_path):
-    run, _ = make_run(tmp_path, 'toolong', 2, 64, {'k7': 1, 'm2': 1}, 32)
+    run, _ = make_run(tmp_path, 'toolong', 2, 64, {'RunA': 1, 'RunB': 1}, 32)
     spec = build_section(spec_dict(slots=2, slot_size=64, format_table=False,
-                                   doses={'k7': 1, 'm2': 1}))
+                                   doses={'RunA': 1, 'RunB': 1}))
     (run / 'inputs' / 'candidate.txt').write_bytes(b'x' * 64 + b'\nok\n')
     with pytest.raises(GoopError, match='slot_size'):
         payload_lines(run / 'inputs' / 'candidate.txt', spec)
@@ -164,24 +164,24 @@ def test_run20_manifest_checks_all_green(run20):
 @requires_msvc
 def test_run20_observations_identical_across_cells(run20):
     cells = run20['unpacked']['cells']
-    assert cells['k7']['observations'] == cells['m2']['observations']
-    assert [o['ticks'] for o in cells['k7']['observations']] == [0, 513, 4096, 4096]
+    assert cells['RunA']['observations'] == cells['RunB']['observations']
+    assert [o['ticks'] for o in cells['RunA']['observations']] == [0, 513, 4096, 4096]
 
 
 @requires_msvc
 def test_run20_packed_checks_and_payload_hidden(run20):
     packed = run20['packed']
     assert all(packed['checks'].values())
-    assert packed['cells']['k7']['payload_needles'] == 20
-    raw_packed = (run20['run'] / 'cells' / 'k7' / 'target.exe').read_bytes()
-    raw_unpacked = (run20['run'] / 'unpacked' / 'cells' / 'k7' / 'target.exe').read_bytes()
+    assert packed['cells']['RunA']['payload_needles'] == 20
+    raw_packed = (run20['run'] / 'cells' / 'RunA' / 'target.exe').read_bytes()
+    raw_unpacked = (run20['run'] / 'unpacked' / 'cells' / 'RunA' / 'target.exe').read_bytes()
     needle = b'needle-gonkulator-003'
     assert needle in raw_unpacked and needle not in raw_packed
 
 
 @requires_msvc
 def test_run20_helper_shipped_is_bundled_copy(run20):
-    for cell in ('k7', 'm2'):
+    for cell in ('RunA', 'RunB'):
         shipped = run20['run'] / 'cells' / cell / 'pe_inspect.py'
         assert shipped.read_bytes() == HELPER.read_bytes()
 
@@ -200,7 +200,7 @@ def test_pack_refuses_overwrite(run20):
 
 @requires_msvc
 def test_pack_refuses_without_unpacked(tmp_path):
-    run, spec = make_run(tmp_path, 'nobuild', 2, 64, {'k7': 1, 'm2': 1},
+    run, spec = make_run(tmp_path, 'nobuild', 2, 64, {'RunA': 1, 'RunB': 1},
                          32, format_table=False)
     with pytest.raises(GoopError, match='unpacked'):
         pack_pair(run, spec)
@@ -234,11 +234,11 @@ def test_verify_refuses_without_prereg(run20):
 def test_verify_success_writes_preflight(run20):
     record = preflight(run20['run'])
     assert record['slot_count'] == 20
-    assert record['doses'] == {'k7': 5, 'm2': 10}
+    assert record['doses'] == {'RunA': 5, 'RunB': 10}
     assert record['pair_isolation_executable_sections'] is True
     assert record['candidate_sha256'] == run20['spec']['payload']['sha256']
     helper_sha = hashlib.sha256(HELPER.read_bytes()).hexdigest()
-    for cell in ('k7', 'm2'):
+    for cell in ('RunA', 'RunB'):
         assert record['cells'][cell]['helper_sha256'] == helper_sha
         assert record['cells'][cell]['slot_bytes_verified'] is True
     assert (run20['run'] / 'PREFLIGHT.json').is_file()
@@ -264,7 +264,7 @@ def test_run120_slot_bytes_at_manifest_offsets(run120):
     run, manifest = run120['run'], run120['unpacked']
     lines = (run / 'inputs' / 'candidate.txt').read_bytes().splitlines()
     assert len(lines) == 120
-    for cell, dose in (('k7', 60), ('m2', 120)):
+    for cell, dose in (('RunA', 60), ('RunB', 120)):
         raw = (run / 'unpacked' / 'cells' / cell / 'target.exe').read_bytes()
         # boundary slots: first, last occupied, first empty (if any), last
         for index in {0, dose - 1, min(dose, 119), 119}:
@@ -276,7 +276,7 @@ def test_run120_slot_bytes_at_manifest_offsets(run120):
 @requires_msvc
 def test_run120_observations_identical_across_cells(run120):
     cells = run120['unpacked']['cells']
-    assert cells['k7']['observations'] == cells['m2']['observations']
+    assert cells['RunA']['observations'] == cells['RunB']['observations']
 
 
 @requires_msvc
@@ -306,7 +306,7 @@ def test_verify_detects_candidate_tamper(run120, tmp_path):
 @requires_msvc
 def test_run120_verify_success(run120):
     record = preflight(run120['run'])
-    assert record['slot_count'] == 120 and record['doses'] == {'k7': 60, 'm2': 120}
+    assert record['slot_count'] == 120 and record['doses'] == {'RunA': 60, 'RunB': 120}
     assert record['pair_isolation_executable_sections'] is True
     assert json.loads((run120['run'] / 'PREFLIGHT.json').read_text()) == record
 

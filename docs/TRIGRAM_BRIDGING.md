@@ -171,6 +171,14 @@ test_megaline_pairs repointed to the surviving arms (v6 paren:true,
 v7 bare), which still pin the byte-exact candidates, canonical order,
 echo, truncation property, geometry, and determinism.)
 
+Cell-naming ruling (recorded verbatim, 2026-10-16): "let's please
+rename M2 and K7 to something sensible like RunA and RunB. we're living
+in squalor." The cell names are pure data (no model mapping — both
+cells are the same deployment with different doses). RunA/RunB is the
+convention going forward: fixtures, run-spec templates, docs. Historical
+records (archive arm names, the aftermath ledger, fired runs and their
+autosave scope_keys, v11-v15 fixture modeling) keep the old names.
+
 Content-strings-in-JSON ruling (recorded verbatim, 2026-10-16): "where
 are these sourced from? I'm going to manually modify them. if they
 don't come from a json, implement that." Implemented same day: the two

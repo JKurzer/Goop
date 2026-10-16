@@ -30,7 +30,7 @@ STUB_MAIN = ('int main(int argc, char** argv) {\n'
 
 def make_spec(strings=None):
     build = {'slots': 20, 'slot_size': 512,
-             'doses': {'k7': 10, 'm2': 20},
+             'doses': {'RunA': 10, 'RunB': 20},
              'format_table': True, 'config_tags': True}
     if strings is not None:
         build['strings'] = strings

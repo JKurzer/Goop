@@ -71,11 +71,11 @@ def make_run(base, name, slots, slot_size, doses, line_length,
     return run, spec
 
 
-RUN20 = {'slots': 20, 'slot_size': 256, 'doses': {'k7': 5, 'm2': 10},
+RUN20 = {'slots': 20, 'slot_size': 256, 'doses': {'RunA': 5, 'RunB': 10},
          'line_length': 120}
-RUN120 = {'slots': 120, 'slot_size': 512, 'doses': {'k7': 60, 'm2': 120},
+RUN120 = {'slots': 120, 'slot_size': 512, 'doses': {'RunA': 60, 'RunB': 120},
           'line_length': 300}
-RUN20X = {'slots': 20, 'slot_size': 256, 'doses': {'k7': 5, 'm2': 10},
+RUN20X = {'slots': 20, 'slot_size': 256, 'doses': {'RunA': 5, 'RunB': 10},
           'line_length': 120,
           'strings': [{'name': 'signpost',
                        'text': 'see the slot table for provenance tags'},
