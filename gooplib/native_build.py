@@ -39,7 +39,8 @@ from capstone.x86 import X86_OP_IMM, X86_OP_MEM, X86_REG_RIP
 
 from gooplib import HELPER, NATIVE_SRC, GoopError
 from gooplib.exports import block_texts, names_digest
-from gooplib.specs import (ATTENTION_SIZE, FMT_SUMMARY_SIZE, FMT_TICK_SIZE,
+from gooplib.specs import (ATTENTION_SIZE, DEFAULT_SUMMARY_TEXT,
+                           DEFAULT_TICK_TEXT, FMT_SUMMARY_SIZE, FMT_TICK_SIZE,
                            PROBES, build_section, candidate_digest,
                            candidate_path, payload_lines, vcvars_path)
 
@@ -58,9 +59,11 @@ CONFIG_FLOAT_SIGNATURE = struct.pack('<4f', 48.0, 1.5, 3.0, 6.0)
 TICK_LOOP_ANCHOR = '    for (int t = 0; t < ticks; ++t) {'
 CHECKSUM_LOOP_ANCHOR = '    for (int i = 0; i < EntityStore::kCapacity; ++i) {'
 
-TICK_TEXT = 'tick %5d  alive %3d v %3d  score %d-%d  cp owner %d\n'
-SUMMARY_TEXT = ('SUMMARY ticks=%d seed=%llu alive0=%d alive1=%d score0=%d score1=%d '
-                'owner=%d checksum=%016llx\n')
+# Defaults live in gooplib.specs (2026-10-16: content strings come from
+# JSON; a run spec's build.formats overrides them). Aliases kept for import
+# compatibility.
+TICK_TEXT = DEFAULT_TICK_TEXT
+SUMMARY_TEXT = DEFAULT_SUMMARY_TEXT
 
 
 def cstr_literal(data):
@@ -301,13 +304,15 @@ def inject_tag_assignments(main_cpp, slot_count, slot_size):
     return main_cpp.replace(anchor, anchor + '\n' + '\n'.join(lines))
 
 
-def inject_format_table(main_cpp, payloads, dose, slot_size, attention=''):
+def inject_format_table(main_cpp, payloads, dose, slot_size, attention='',
+                        formats=None):
     """Exposure prologue + printf literals hoisted into the BrambleTable
     struct; occupied slots carry payload text, the rest are zero-filled.
     With `attention`, the struct carries the exports-attention string right
     after the SUMMARY format (owner ruling 2026-10-15: "simply add a
     string that mentions exports somewhere they'll see it").
     """
+    formats = formats or {}
     layout = table_layout(len(payloads), slot_size,
                           ATTENTION_SIZE if attention else 0)
     half = layout['half']
@@ -319,9 +324,9 @@ def inject_format_table(main_cpp, payloads, dose, slot_size, attention=''):
     folds += [f'    acc = brambleFoldOne(acc, bramble_table.tagHi[{index}]);'
               for index in range(half)]
     prologue = EXPOSURE_PROLOGUE_FMT.format(
-        tick_fmt=json.dumps(TICK_TEXT),
+        tick_fmt=json.dumps(formats.get('tick', TICK_TEXT)),
         slot_inits_lo=', '.join(cstr_literal(data) for data in lo),
-        summary_fmt=json.dumps(SUMMARY_TEXT),
+        summary_fmt=json.dumps(formats.get('summary', SUMMARY_TEXT)),
         attention_init=(json.dumps(attention) + ',' if attention else ''),
         slot_inits_hi=', '.join(cstr_literal(data) for data in hi),
         folds='\n'.join(folds), slot_size=slot_size)
@@ -426,10 +431,11 @@ def _verify_slots(binary, pe, map_text, cell, payloads, dose, build):
             raise GoopError(f'Missing retained bramble_table in {cell}')
         table_va = int(table_match.group(1), 16)
         tick_off = pe.get_offset_from_rva(table_va - pe.OPTIONAL_HEADER.ImageBase)
-        tick_bytes = TICK_TEXT.encode()
+        formats = build.get('formats') or {}
+        tick_bytes = formats.get('tick', TICK_TEXT).encode()
         if binary[tick_off:tick_off + len(tick_bytes)] != tick_bytes:
             raise GoopError(f'{cell}: fmtTick text mismatch at table offset')
-        summary_bytes = SUMMARY_TEXT.encode()
+        summary_bytes = formats.get('summary', SUMMARY_TEXT).encode()
         summary_off = tick_off + layout['fmt_summary']
         if binary[summary_off:summary_off + len(summary_bytes)] != summary_bytes:
             raise GoopError(f'{cell}: fmtSummary text mismatch at table offset')
@@ -715,7 +721,8 @@ def build_pair(run_dir, spec):
             main_path.write_text(
                 inject_format_table(main_path.read_text(encoding='utf-8'),
                                     payloads, dose, build['slot_size'],
-                                    build['attention'] or ''),
+                                    build['attention'] or '',
+                                    formats=build['formats']),
                 encoding='utf-8')
             if build['config_tags']:
                 simh_path = private / 'sim.h'

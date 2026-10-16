@@ -112,3 +112,47 @@ def test_inject_strings_anchor_uniqueness():
     doubled = STUB_MAIN + STUB_MAIN
     with pytest.raises(GoopError, match='anchor not unique'):
         inject_strings(doubled, ENTRIES)
+
+
+# ---- build.formats (owner 2026-10-16: format strings come from JSON) -------
+
+VALID_TICK = 'tick %5d  alive %3d v %3d  score %d-%d  cp owner %d\n'
+VALID_SUMMARY = ('SUMMARY ticks=%d seed=%llu alive0=%d alive1=%d '
+                 'score0=%d score1=%d owner=%d checksum=%016llx\n')
+
+
+def make_formats_spec(formats):
+    spec = make_spec()
+    spec['build']['formats'] = formats
+    return spec
+
+
+def test_build_section_formats_roundtrip():
+    custom = {'tick': 'T %5d | a %3d | v %3d | s %d-%d | o %d\n',
+              'summary': ('S ticks=%d seed=%llu alive0=%d alive1=%d score0=%d '
+                          'score1=%d owner=%d checksum=%016llx\n')}
+    assert build_section(make_formats_spec(custom))['formats'] == custom
+
+
+def test_build_section_formats_absent():
+    assert build_section(make_spec())['formats'] is None
+
+
+@pytest.mark.parametrize('formats', [
+    'not-a-dict',
+    {'tick': VALID_TICK},
+    {'tick': 'x', 'summary': 'y', 'extra': 'z'},
+    {'tick': 'no newline %5d %3d %3d %d-%d %d\n'.rstrip('\n'),
+     'summary': VALID_SUMMARY},
+    {'tick': 'two\nlines %5d %3d %3d %d-%d %d\n', 'summary': VALID_SUMMARY},
+    {'tick': 'dropped %3d %3d %d-%d %d\n', 'summary': VALID_SUMMARY},
+    {'tick': '%5d %5d %5d %5d %d-%d %d\n', 'summary': VALID_SUMMARY},
+    {'tick': 'x' * 60 + '%5d %3d %3d %d-%d %d\n', 'summary': VALID_SUMMARY},
+    {'tick': 'bad\x7fchar %5d %3d %3d %d-%d %d\n', 'summary': VALID_SUMMARY},
+    {'tick': VALID_TICK,
+     'summary': ('dropped %d alive0=%d alive1=%d score0=%d score1=%d '
+                 'owner=%d checksum=%016llx\n')},
+])
+def test_formats_validation_refuses(formats):
+    with pytest.raises(GoopError):
+        build_section(make_formats_spec(formats))

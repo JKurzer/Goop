@@ -61,6 +61,15 @@ DEFAULT_PAYLOAD_PATH = 'inputs/candidate.txt'
 # not of any run, so they live here rather than in the spec.
 FMT_TICK_SIZE = 64
 FMT_SUMMARY_SIZE = 128
+
+# Default output format strings (the re-entrant print channel). Overridable
+# per-run via build.formats (owner 2026-10-16: "if they don't come from a
+# json, implement that" — all content strings live in JSON). The conversion
+# specifiers are a fixed contract with the printf call sites.
+DEFAULT_TICK_TEXT = 'tick %5d  alive %3d v %3d  score %d-%d  cp owner %d\n'
+DEFAULT_SUMMARY_TEXT = ('SUMMARY ticks=%d seed=%llu alive0=%d alive1=%d '
+                        'score0=%d score1=%d owner=%d checksum=%016llx\n')
+FMT_SPECIFIER = re.compile(r'%(?:\d+)?(?:\.\d+)?(?:ll|l)?[a-z]')
 # The exports-attention string rides a fixed-size field between fmtSummary
 # and the hi slots in the format-table struct (owner ruling 2026-10-15).
 ATTENTION_SIZE = 128
@@ -154,6 +163,34 @@ def _strings_block(value):
     return entries
 
 
+def _formats(raw):
+    """A build.formats block: {'tick', 'summary'} custom output format
+    strings (owner 2026-10-16: content strings come from JSON, hand-editable
+    per run). Printable ASCII with exactly one trailing newline, sized to
+    the struct fields, and the printf conversion specifiers must match the
+    defaults exactly \u2014 the call sites pass a fixed argument list, so a
+    dropped or reordered specifier reads garbage off the stack.
+    """
+    _require(isinstance(raw, dict) and set(raw) == {'tick', 'summary'},
+             "build.formats must hold exactly 'tick' and 'summary'")
+    out = {}
+    for key, default, size in (('tick', DEFAULT_TICK_TEXT, FMT_TICK_SIZE),
+                               ('summary', DEFAULT_SUMMARY_TEXT, FMT_SUMMARY_SIZE)):
+        text = raw[key]
+        _require(isinstance(text, str) and text.endswith('\n')
+                 and '\n' not in text[:-1]
+                 and all(0x20 <= ord(ch) <= 0x7E for ch in text[:-1])
+                 and len(text) <= size - 1,
+                 f'build.formats.{key} must be single-line printable ASCII '
+                 f'with one trailing newline, <= {size - 1} chars')
+        _require(FMT_SPECIFIER.findall(text) == FMT_SPECIFIER.findall(default),
+                 f'build.formats.{key} must keep the exact conversion '
+                 f'specifiers {FMT_SPECIFIER.findall(default)} (the printf '
+                 'call site passes a fixed argument list)')
+        out[key] = text
+    return out
+
+
 def build_section(spec):
     """Validate spec['build'] (+ payload pin) and return a normalized dict."""
     _require(isinstance(spec, dict), 'spec must be a JSON object')
@@ -215,6 +252,9 @@ def build_section(spec):
     strings = build.get('strings')
     if strings is not None:
         strings = _strings_block(strings)
+    formats = build.get('formats')
+    if formats is not None:
+        formats = _formats(formats)
     if format_table:
         # The interleaved-chain check demands max_gap <= slot_size; the
         # summary->hi gap is FMT_SUMMARY_SIZE (+ ATTENTION_SIZE when the
@@ -227,7 +267,7 @@ def build_section(spec):
     return {'slots': slots, 'slot_size': slot_size, 'doses': dict(doses),
             'format_table': format_table, 'config_tags': config_tags,
             'strings': strings, 'fn_literals': fn_literals,
-            'attention': attention,
+            'attention': attention, 'formats': formats,
             'payload_path': payload_path, 'payload_sha256': sha}
 
 
