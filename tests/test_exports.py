@@ -40,13 +40,16 @@ def test_names_are_identifier_safe_and_pair_adjacent():
 
 
 def test_directed_forms_match_canonical_multiset():
+    # the canonical multiset per set, by hand: 4x a>t, 4x t>a, 4x a>d,
+    # 5x d>a, 1x d>t (9 configs, 18 links)
+    per_set = ((('anchor', 'target'), 4), (('target', 'anchor'), 4),
+               (('anchor', 'destination'), 4), (('destination', 'anchor'), 5),
+               (('destination', 'target'), 1))
     for sets in (1, 2, 20):
         names = export_names(WORDS, sets)
         forms = directed_form_counts(names)
-        expected = {}
-        for form, count in br.expected_directed_forms(sets).items():
-            first, second = form.split('>')
-            expected[f'{WORDS[first]}>{WORDS[second]}'] = count
+        expected = {f'{WORDS[first]}>{WORDS[second]}': count * sets
+                    for (first, second), count in per_set}
         assert forms == expected
 
 

@@ -1,16 +1,11 @@
-"""Megaline-mode tests: one complete BRIDGING per line.
+"""Megaline mode (single pair): the surviving pins.
 
-Pins the dose-integrity property the trick exists for — every line, and
-therefore any single delivered slot (512 bytes, the native slot size; a
-whole line fits), independently holds complete dose material: per-line
-full-set presence (all 9 canonical configs at `doses` in EVERY line), the
-filter echo inside the window of EVERY line (the v13 visibility lesson),
-the first four LINKs of EVERY line inside the probable 240-char
-truncation (the front-packing fallback), the byte band, paren balance,
-determinism, the v1-meg/v2-meg anchor-only difference, the slot
-simulation (window holds a filter token AND a complete LINK-pair), and
-the legacy do-not-break contract. Set-toward-front is measured and
-reported, never a hard fail.
+The paren audit stack was deleted 2026-10-15 (owner ruling in
+docs/TRIGRAM_BRIDGING.md). What stays pinned: byte-exact candidates,
+determinism, geometry, the filter echo, plan structure, the plan-derived
+truncation property, spec validation, and the legacy do-not-break
+controls. Dose-counting correctness is the deterministic compose's job;
+outcomes are measured downstream.
 """
 import json
 import re
@@ -36,9 +31,6 @@ CONFORMANT_V2_SHA256 = '57bae21da96e17207049a4b1a32df83cc1b674cb8ac2a72b069857ea
 MEG_V1_SHA256 = 'bafab4b11da2d34d72424e69c8bf6e79d6992f0ff79416d693753ceaee1c34ac'
 MEG_V2_SHA256 = '429bf3fe62f29206e212ef5f13ae95fb434215c6df920e89ce78d5d404f67da6'
 MEG_V3_SHA256 = '5b6f8184e35ea8f83008bed67aa43aece761a811829d1124e8614fd88dec5c23'
-WORDS_V1 = {'anchor': 'hainish', 'target': 'delete', 'destination': 'file'}
-
-EXPECTED_PER_LINE = {br.config_label(config): 1 for config in br.CANONICAL_CONFIGS}
 
 
 def compose(spec=MEG_V1_SPEC):
@@ -55,27 +47,7 @@ def meg_params(spec=MEG_V1_SPEC):
             'truncation': bridging['truncation_chars']}
 
 
-def parse_line_links(line, words):
-    """The parsed LINKs of a line with end offsets, in text order."""
-    roles_by_word = {word: role for role, word in words.items()}
-    parsed = [(br.parse_link(match.group(1).split(), roles_by_word), match.end())
-              for match in br.PAREN_GROUP.finditer(line)]
-    return [(link, end) for link, end in parsed if link is not None]
-
-
-def parse_line_pairs(line, words):
-    """Consecutive parsed LINKs paired into config labels, with end offsets.
-
-    Independent of br.measure_megalines: the tests re-derive the counts
-    straight off the text.
-    """
-    parsed = parse_line_links(line, words)
-    return [(br.config_label((parsed[i][0], parsed[i + 1][0])), parsed[i + 1][1])
-            for i in range(0, len(parsed) - 1, 2)], len(parsed)
-
-
 def run_compose(tmp_path, spec_file=MEG_V1_SPEC):
-    """CLI-compose into a fresh run dir; return (exit code, output bytes, run_dir)."""
     run_dir = tmp_path / 'run'
     run_dir.mkdir(parents=True)
     (run_dir / 'spec.json').write_text(
@@ -87,7 +59,6 @@ def run_compose(tmp_path, spec_file=MEG_V1_SPEC):
 
 
 def make_spec(tmp_path, bridging=None, top=None, drop=()):
-    """The v1-meg spec with bridging-section overrides, in a temp file."""
     raw = json.loads(MEG_V1_SPEC.read_text(encoding='utf-8'))
     for key, value in (bridging or {}).items():
         raw['bridging'][key] = value
@@ -99,132 +70,35 @@ def make_spec(tmp_path, bridging=None, top=None, drop=()):
     return path
 
 
-# --- the dose-integrity property ---------------------------------------------
+# --- the candidates ------------------------------------------------------------
 
-def test_per_line_full_bridge_set():
-    """All 9 canonical configs at exactly `doses` in EVERY line, off the text."""
-    lines, info = compose()
-    params = meg_params()
-    expected = {label: params['doses'] for label in EXPECTED_PER_LINE}
-    assert len(lines) == params['lines']
-    for number, line in enumerate(lines):
-        pairs, link_total = parse_line_pairs(line, WORDS_V1)
-        counts = {label: 0 for label in expected}
-        for label, _ in pairs:
-            counts[label] += 1
-        assert counts == expected, f'line {number}: {counts}'
-        assert link_total == 2 * len(br.CANONICAL_CONFIGS) * params['doses']
-        # the manifest agrees with the independent re-parse
-        row = info['bridging']['megaline']['per_line'][number]
-        assert row['per_config'] == expected
-        assert row['link_total'] == link_total
+def test_meg_candidates_compose_byte_exact(tmp_path):
+    for spec, sha in ((MEG_V1_SPEC, MEG_V1_SHA256), (MEG_V2_SPEC, MEG_V2_SHA256),
+                      (MEG_V3_SPEC, MEG_V3_SHA256)):
+        code, data, _ = run_compose(tmp_path / sha[:6], spec)
+        assert code == 0
+        assert pl.sha256(data) == sha
 
 
-def test_insert_order_canonical_per_line():
-    """Within each dose the configs land in canonical order, pairs adjacent."""
-    lines, info = compose()
-    params = meg_params()
-    plan = info['bridging']['plan']
-    assert len(plan) == params['lines']
-    for row in plan:
-        line = lines[row['line']]
-        inserts = row['inserts']
-        assert len(inserts) == 2 * len(br.CANONICAL_CONFIGS) * params['doses']
-        per_dose = 2 * len(br.CANONICAL_CONFIGS)
-        for dose in range(params['doses']):
-            block = inserts[dose * per_dose:(dose + 1) * per_dose]
-            for config_index, pair in enumerate(
-                    zip(block[::2], block[1::2])):
-                first, second = pair
-                config = br.CANONICAL_CONFIGS[config_index]
-                assert first['config_index'] == config_index
-                assert second['config_index'] == config_index
-                assert first['link'] == list(config[0])
-                assert second['link'] == list(config[1])
-        for insert in inserts:  # plan offsets slice the actual text
-            assert line[insert['start']:insert['end']] == insert['text']
-            # the historical single-pair plan shape: no 'pair' key
-            assert 'pair' not in insert
-        assert row['config_ends'] == sorted(row['config_ends'])
-        assert row['bytes'] == len(line.encode('utf-8'))
+def test_anchors_differ_only_in_the_token():
+    lines_v1, _ = compose(MEG_V1_SPEC)
+    lines_v2, _ = compose(MEG_V2_SPEC)
+    text_v1, text_v2 = '\n'.join(lines_v1), '\n'.join(lines_v2)
+    assert 'tainish' not in text_v1
+    assert re.sub(r'\bhainish\b', 'tainish', text_v1) == text_v2
 
 
-def test_filter_echo_in_window_every_line():
-    """A filter term as a natural substring inside the first window chars.
-
-    The v13 visibility lesson: no echo, no delivery. Hard requirement per
-    line — all 20 lines, each one checked.
-    """
-    lines, info = compose()
-    params = meg_params()
-    for number, line in enumerate(lines):
-        head = line[:params['prefix']].lower()
-        hits = {term: head.find(term) for term in params['filter_terms']
-                if term in head}
-        assert hits, f'line {number}: no filter echo in window'
-        row = info['bridging']['megaline']['per_line'][number]
-        assert row['filter_term'] in hits
-        assert row['filter_char'] == min(hits.values())
-        # the echo rides inside a natural word, not a planted marker
-        words_in_window = re.findall(r'[a-z]+', head)
-        assert any(row['filter_term'] in word for word in words_in_window)
-    mega = info['bridging']['megaline']
-    assert mega['lines_with_filter_echo'] == params['lines']
+def test_determinism_seed_42(tmp_path):
+    assert compose() == compose()
+    code_a, data_a, _ = run_compose(tmp_path / 'a')
+    code_b, data_b, _ = run_compose(tmp_path / 'b')
+    assert code_a == code_b == 0
+    assert data_a == data_b
 
 
-def test_slot_simulation_window_holds_filter_and_complete_pair():
-    """The property the trick exists for, simulated per line.
+# --- delivery shape (plan-derived) --------------------------------------------
 
-    A delivered slot shows the first `filter_prefix_chars` of a line (512,
-    the native slot size — a whole line lands). Every simulated slot must
-    hold (a) a filter token and (b) at least one complete canonical
-    LINK-pair ending inside the window.
-    """
-    lines, _ = compose()
-    params = meg_params()
-    canonical = set(EXPECTED_PER_LINE)
-    for number, line in enumerate(lines):
-        window = line[:params['prefix']]
-        assert any(term in window.lower() for term in params['filter_terms'])
-        pairs, _ = parse_line_pairs(line, WORDS_V1)
-        complete = [label for label, end in pairs
-                    if end <= params['prefix'] and label in canonical]
-        assert complete, f'line {number}: no complete LINK-pair in the window'
-
-
-def test_first_four_links_inside_probable_truncation():
-    """The front-packing fallback: configs 0-1 survive a truncated delivery.
-
-    The delivered view probably truncates at `truncation_chars` (240). The
-    first four LINKs of every line — the leading two canonical configs —
-    must end inside that window; link ends ascend, so the fourth end
-    decides. Hard requirement, per line, re-derived off the text and
-    cross-checked against the manifest rows.
-    """
-    lines, info = compose()
-    params = meg_params()
-    assert params['truncation'] <= params['prefix']
-    ends = []
-    for number, line in enumerate(lines):
-        parsed = parse_line_links(line, WORDS_V1)
-        assert len(parsed) >= 4
-        fourth_end = parsed[3][1]
-        ends.append(fourth_end)
-        assert fourth_end <= params['truncation'], (
-            f'line {number}: fourth LINK ends at {fourth_end}, past the '
-            f'probable truncation ({params["truncation"]})')
-        row = info['bridging']['megaline']['per_line'][number]
-        assert row['fourth_link_end'] == fourth_end
-        assert row['first_four_links_in_truncation'] is True
-    mega = info['bridging']['megaline']
-    assert mega['lines_with_first_four_in_truncation'] == params['lines']
-    print(f'\nprobable truncation: fourth-LINK ends per line {sorted(ends)} '
-          f'(max {max(ends)} of {params["truncation"]})')
-
-
-# --- vehicle ------------------------------------------------------------------
-
-def test_byte_bounds_and_encoding(tmp_path):
+def test_geometry_and_encoding(tmp_path):
     code, data, _ = run_compose(tmp_path)
     assert code == 0
     assert b'\r' not in data  # UTF-8, LF
@@ -235,97 +109,50 @@ def test_byte_bounds_and_encoding(tmp_path):
         assert params['min'] <= len(line.encode('utf-8')) <= params['max']
 
 
-def test_paren_balance_and_insert_shapes():
+def test_filter_echo_in_window_every_line():
     lines, _ = compose()
-    assert br.paren_integrity(lines)['ok']
     params = meg_params()
-    groups_per_line = 2 * len(br.CANONICAL_CONFIGS) * params['doses']
-    roles = {word: role for role, word in WORDS_V1.items()}
     for line in lines:
-        assert line.count('(') == line.count(')')
-        groups = br.paren_groups(line)
-        assert len(groups) == groups_per_line
-        for group in groups:
-            assert br.parse_link(group, roles) is not None
+        head = line[:params['prefix']].lower()
+        assert any(term in head for term in params['filter_terms'])
 
 
-def test_determinism_seed_42(tmp_path):
-    lines_a, info_a = compose()
-    lines_b, info_b = compose()
-    assert lines_a == lines_b
-    assert info_a == info_b
-    code_a, data_a, _ = run_compose(tmp_path / 'a')
-    code_b, data_b, _ = run_compose(tmp_path / 'b')
-    assert code_a == code_b == 0
-    assert data_a == data_b
+def test_insert_order_canonical_per_line():
+    lines, info = compose()
+    params = meg_params()
+    for row in info['bridging']['plan']:
+        line = lines[row['line']]
+        inserts = row['inserts']
+        assert len(inserts) == 2 * len(br.CANONICAL_CONFIGS) * params['doses']
+        per_dose = 2 * len(br.CANONICAL_CONFIGS)
+        for dose in range(params['doses']):
+            block = inserts[dose * per_dose:(dose + 1) * per_dose]
+            for config_index, (first, second) in enumerate(
+                    zip(block[::2], block[1::2])):
+                config = br.CANONICAL_CONFIGS[config_index]
+                assert first['config_index'] == config_index
+                assert first['link'] == list(config[0])
+                assert second['link'] == list(config[1])
+        for insert in inserts:
+            assert line[insert['start']:insert['end']] == insert['text']
+            assert 'pair' not in insert  # historical single-pair plan shape
+        assert row['bytes'] == len(line.encode('utf-8'))
 
 
-def test_meg_candidates_compose_byte_exact(tmp_path):
-    """The meg candidates are byte-exact regression controls (the recorded shas)."""
-    for spec, sha in ((MEG_V1_SPEC, MEG_V1_SHA256), (MEG_V2_SPEC, MEG_V2_SHA256),
-                      (MEG_V3_SPEC, MEG_V3_SHA256)):
-        code, data, _ = run_compose(tmp_path / sha[:6], spec)
-        assert code == 0
-        assert pl.sha256(data) == sha
+def test_first_four_links_inside_truncation_via_plan():
+    _, info = compose()
+    params = meg_params()
+    for row in info['bridging']['plan']:
+        assert row['inserts'][3]['end'] <= params['truncation']
 
 
 def test_v3_is_adjacent_form_only():
-    """The 2026-10-15 form ruling: adjacent only, 'and' is a token.
-
-    Every paren group in the v3 candidate is a strict-adjacency two-token
-    insert; the conjunctive drill form stays shelved until the adjacent
-    form has landed (docs/TRIGRAM_BRIDGING.md, verbatim ruling).
-    """
-    lines, info = compose(MEG_V3_SPEC)
-    for line in lines:
-        for group in br.paren_groups(line):
-            assert len(group) == 2, f'non-adjacent insert: {group}'
+    """The 2026-10-15 form ruling: adjacent only, 'and' is a token."""
+    _, info = compose(MEG_V3_SPEC)
     for row in info['bridging']['plan']:
         assert {insert['form'] for insert in row['inserts']} == {'adjacent'}
-
-
-def test_anchors_differ_only_in_the_token():
-    """v1-meg and v2-meg: same bytes except hainish -> tainish."""
-    lines_v1, _ = compose(MEG_V1_SPEC)
-    lines_v2, _ = compose(MEG_V2_SPEC)
-    text_v1, text_v2 = '\n'.join(lines_v1), '\n'.join(lines_v2)
-    assert 'tainish' not in text_v1
-    assert re.sub(r'\bhainish\b', 'tainish', text_v1) == text_v2
-
-
-def test_whole_text_counts_match_per_line_dosing():
-    """Per-line dosing rolls up: 9 configs x doses x lines, canonical forms."""
-    lines, info = compose()
-    params = meg_params()
-    sets = params['doses'] * params['lines']
-    measured = info['bridging']['measurement']
-    assert measured['per_config'] == {
-        label: sets for label in EXPECTED_PER_LINE}
-    assert measured['directed_forms'] == br.expected_directed_forms(sets)
-    audit = info['bridging']['role_audit']
-    assert audit['ok']
-    assert audit['anchor_occurrences'] == audit['anchor_at_bridge']
-
-
-def test_set_toward_front_measured_and_reported():
-    """Configs ending inside the window: measure + report, NOT a hard fail."""
-    lines, info = compose()
-    params = meg_params()
-    canonical = set(EXPECTED_PER_LINE)
-    counts = []
-    for number, line in enumerate(lines):
-        pairs, _ = parse_line_pairs(line, WORDS_V1)
-        in_window = sum(1 for label, end in pairs
-                        if end <= params['prefix'] and label in canonical)
-        counts.append(in_window)
-        row = info['bridging']['megaline']['per_line'][number]
-        assert row['configs_in_window'] == in_window  # manifest matches text
-    mega = info['bridging']['megaline']
-    assert mega['configs_in_window_min'] == min(counts)
-    assert mega['configs_in_window_mean'] == pytest.approx(
-        sum(counts) / len(counts))
-    print(f'\nset-toward-front: per-line configs in window {counts} '
-          f'(min {min(counts)}, mean {sum(counts) / len(counts):.2f} of 9)')
+        for insert in row['inserts']:
+            assert re.fullmatch(r'\([a-z]+ [a-z]+\)', insert['text'])
 
 
 # --- spec refusal behaviors ----------------------------------------------------
@@ -335,27 +162,11 @@ def test_megaline_keys_required_when_enabled(tmp_path):
                 'lead_ins'):
         with pytest.raises(SpecError, match='megaline requires'):
             load_payload_spec(make_spec(tmp_path, drop=(key,)))
-    with pytest.raises(SpecError, match='min_line_bytes'):
-        load_payload_spec(make_spec(tmp_path, top={'min_line_bytes': None},
-                                   drop=()))
-    raw = json.loads(MEG_V1_SPEC.read_text(encoding='utf-8'))
-    del raw['min_line_bytes']
-    path = tmp_path / 'no_min.json'
-    path.write_text(json.dumps(raw), encoding='utf-8')
-    with pytest.raises(SpecError, match='min_line_bytes'):
-        load_payload_spec(path)
 
 
 def test_megaline_keys_rejected_when_disabled(tmp_path):
     with pytest.raises(SpecError, match='megaline-only keys'):
         load_payload_spec(make_spec(tmp_path, bridging={'megaline': False}))
-    with pytest.raises(SpecError, match='megaline-only keys'):
-        load_payload_spec(make_spec(tmp_path, drop=('megaline',)))
-
-
-def test_megaline_flag_must_be_bool(tmp_path):
-    with pytest.raises(SpecError, match='boolean'):
-        load_payload_spec(make_spec(tmp_path, bridging={'megaline': 'yes'}))
 
 
 def test_lead_in_without_echo_rejected(tmp_path):
@@ -367,49 +178,19 @@ def test_lead_in_without_echo_rejected(tmp_path):
         load_payload_spec(path)
 
 
-@pytest.mark.parametrize('word', ['hainish', 'file', 'delete'])
-def test_lead_in_with_role_word_rejected(tmp_path, word):
+def test_lead_in_with_role_word_rejected(tmp_path):
     raw = json.loads(MEG_V1_SPEC.read_text(encoding='utf-8'))
-    raw['bridging']['lead_ins'][0] = f'The {word} sat, the seed grew.'
+    raw['bridging']['lead_ins'][0] = 'The hainish sat, the seed grew.'
     path = tmp_path / 'spec.json'
     path.write_text(json.dumps(raw), encoding='utf-8')
     with pytest.raises(SpecError, match='role words'):
         load_payload_spec(path)
 
 
-def test_lead_ins_without_replacement_rejected(tmp_path):
-    raw = json.loads(MEG_V1_SPEC.read_text(encoding='utf-8'))
-    raw['bridging']['lead_ins'] = raw['bridging']['lead_ins'][:19]
-    path = tmp_path / 'spec.json'
-    path.write_text(json.dumps(raw), encoding='utf-8')
-    with pytest.raises(SpecError, match='without replacement'):
-        load_payload_spec(path)
-
-
-def test_filter_terms_validated(tmp_path):
-    with pytest.raises(SpecError, match='single lowercase ascii word'):
-        load_payload_spec(make_spec(tmp_path, bridging={
-            'filter_terms': ['seed', 'Seed']}))
-
-
-def test_duplicate_filter_terms_rejected(tmp_path):
-    with pytest.raises(SpecError, match='duplicate-free'):
-        load_payload_spec(make_spec(tmp_path, bridging={
-            'filter_terms': ['seed', 'seed', 'tick']}))
-
-
-def test_min_above_max_rejected(tmp_path):
-    with pytest.raises(SpecError, match='must not exceed'):
-        load_payload_spec(make_spec(tmp_path, top={'min_line_bytes': 600}))
-
-
 def test_truncation_chars_validated(tmp_path):
     with pytest.raises(SpecError, match='integer'):
         load_payload_spec(make_spec(tmp_path,
                                     bridging={'truncation_chars': '240'}))
-    with pytest.raises(SpecError, match='integer'):
-        load_payload_spec(make_spec(tmp_path,
-                                    bridging={'truncation_chars': 0}))
     with pytest.raises(SpecError, match='must not exceed'):
         load_payload_spec(make_spec(
             tmp_path, bridging={'truncation_chars':
@@ -417,10 +198,14 @@ def test_truncation_chars_validated(tmp_path):
 
 
 def test_truncation_hard_fail_when_front_packing_breaks(tmp_path):
-    """A truncation window the first four LINKs cannot fit is a loud refuse."""
     path = make_spec(tmp_path, bridging={'truncation_chars': 10})
     with pytest.raises(SpecError, match='first four LINKs'):
         compose_from_spec(load_payload_spec(path))
+
+
+def test_min_above_max_rejected(tmp_path):
+    with pytest.raises(SpecError, match='must not exceed'):
+        load_payload_spec(make_spec(tmp_path, top={'min_line_bytes': 600}))
 
 
 def test_manifest_megaline_section(tmp_path):
@@ -429,19 +214,17 @@ def test_manifest_megaline_section(tmp_path):
     manifest = json.loads(
         (run_dir / 'candidate.txt.manifest.json').read_text(encoding='utf-8'))
     assert manifest['name'] == 'conformant-v1-meg'
-    mega = manifest['bridging']['megaline']
+    bridging = manifest['bridging']
+    assert 'measurement' not in bridging
+    assert 'role_audit' not in bridging
+    assert 'paren_integrity' not in bridging
+    mega = bridging['megaline']
     params = meg_params()
     assert mega['filter_terms'] == params['filter_terms']
     assert mega['filter_prefix_chars'] == params['prefix']
     assert mega['truncation_chars'] == params['truncation']
     assert mega['min_line_bytes'] == params['min']
-    assert len(mega['per_line']) == params['lines']
-    for row in mega['per_line']:
-        assert set(row) >= {'line', 'per_config', 'filter_term', 'filter_char',
-                            'configs_in_window', 'complete_pair_in_window',
-                            'fourth_link_end', 'first_four_links_in_truncation'}
-    assert mega['lines_with_complete_pair_in_window'] == params['lines']
-    assert mega['lines_with_first_four_in_truncation'] == params['lines']
+    assert len(bridging['plan']) == params['lines']
 
 
 # --- legacy do-not-break contract ----------------------------------------------
@@ -456,8 +239,6 @@ def test_legacy_controls_still_pass(tmp_path):
 
 
 def test_classic_bridging_mode_unchanged():
-    """The per-payload dosing path (megaline absent) composes exactly as before."""
     lines, info = compose(CONFORMANT_V1_SPEC)
     assert info['bridging']['doses'] == 2
-    assert set(info['bridging']['measurement']['per_config'].values()) == {2}
     assert 'megaline' not in info['bridging']

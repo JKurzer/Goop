@@ -121,3 +121,27 @@ that is itself a word the analyst writes, or a leaf-chain that reaches
 one. The conformant/meg arms violated this by optimizing anchor
 saturation and anchor attributability; the adoption metric is
 usable-words-in-output, nothing else.)
+
+The paren ruling (recorded verbatim, 2026-10-15):
+
+strip them. delete and do not replace the audit stack. we'll actually do
+a proper investigation pass each time now.
+
+And the rationale (recorded verbatim, 2026-10-15):
+
+yeah so I'm increasingly worried that the level of complexity introduced
+by all this weird legacy shit has created a situation where we're either
+incorrectly over-priming the analysts, exposing too much information,
+incorrectly composing things, or performing false audits. All of these
+have happened. So that's why we're stripping this shit out.
+
+(Build reading: the R5 'parens are KEPT' doctrine is REVERSED. LINKs
+render bare by default (spec 'paren' absent/false); legacy paren:true
+specs render '(x y)' byte-identically for historical reproduction only.
+The paren-parsing audit stack (paren_groups, parse_link, measure_*,
+role_audit*, expected_directed_forms*, pair_configs — 347 lines) is
+deleted, not replaced. Construction correctness = deterministic compose
++ spec validation + the delivery-shape checks (echo in the slot window,
+first four LINKs inside the probable truncation, read off the compose
+plan). Outcome measurement = delivery/score + a proper investigation
+pass per fire.)

@@ -48,10 +48,11 @@ teleology/delete/file, pair 2 teleology/checksum/delete; delete is the
 shared leaf (pair-1 target, pair-2 destination — the leaf-to-leaf
 chaining the card records). Each line therefore carries 2 doses x 2
 pairs x 18 LINKs = 72 inserts (four functional sets), byte band
-[1450, 2000] for the 2048-byte slot geometry. The same hard checks hold
-per pair per line (full 9-config coverage, echo in the 512 window, a
-complete LINK-pair in the window, first four LINKs inside the 240
-truncation); measured: fourth LINK ends chars 86–104, 20/20 lines.
+[1450, 2000] for the 2048-byte slot geometry. The delivery-shape checks
+hold per line (echo in the window, first four LINKs inside the 240
+truncation); dose counting is the byte-exact sha pin, not a text audit
+(2026-10-15 ruling). Measured at compose: fourth LINK ends chars 86–104,
+20/20 lines.
 sha256 v5-meg:
 `222f1654e92e98983344d3b9626c4f7a571ae145f0b291da1fcce33c4eebf9a0`
 Implementation: `gooplib/bridging.py: compose_megalines_pairs,
@@ -90,17 +91,20 @@ everything is a pure function of the spec.
 
 ## Hard checks (compose fails loudly unless all hold)
 
-Parsed back off the final text, per line: all 9 configs at exactly
-`doses`; a filter echo inside the 512-char slot window; at least one
-complete LINK-pair fully inside the slot window (the dose-integrity
-property); the first four LINKs ending inside the probable 240-char
-truncation (the front-packing fallback property); line bytes in
-[440, 500]; paren integrity; role audit (every anchor at a bridge
-position; the only anchorless LINK is the declared d->t spare);
-whole-text directed forms equal the canonical multiset at `doses x lines`
-sets. Set-toward-front (configs ending inside the slot window) is
-measured and reported, not a hard fail — at 512 it is trivially 9 of 9;
-the binding front-packing constraint is the truncation check.
+(2026-10-15 paren ruling: the dose-counting audit — per-config counts,
+role audit, paren integrity, directed-form multisets — is DELETED, not
+replaced. Construction correctness is the deterministic compose plus
+spec validation; what survives as compose-time hard checks is the
+delivery shape, read off the compose plan:)
+
+Per line: a filter echo inside the slot window (substring on the
+lowercased prefix; the v13 visibility lesson — no echo, no delivery);
+the first four LINKs ending inside the probable 240-char truncation
+(plan offsets; the front-packing fallback property); line bytes in the
+spec band (the compose fit itself enforces it, loudly). Dose counting is
+verified by the byte-exact sha pins in tests, not by parsing the text.
+Outcome measurement (delivery, visibility, adoption) happens downstream
+— delivery/score plus a proper investigation pass per fire.
 
 ## Measured (both candidates; identical modulo the anchor token)
 

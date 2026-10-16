@@ -252,9 +252,10 @@ def _bridging(raw):
                             'distinct words; an anchor at a target position is '
                             'unattributable (the R1 mistake)')
     doses = _int(raw['doses'], 'bridging.doses')
-    if raw['paren'] is not True:
-        raise SpecError('bridging.paren must be true; the conformant drill format is '
-                        'parenthesized inserts (paren-stripping was the R5 break)')
+    # 2026-10-15 ruling (verbatim in docs/TRIGRAM_BRIDGING.md): 'strip
+    # them.' Parens are STRIPPED by default; legacy paren:true specs keep
+    # rendering '(x y)' for byte-identical historical reproduction.
+    paren = _bool(raw.get('paren', False), 'bridging.paren')
     forms = _list_of_str(raw['form'], 'bridging.form')
     if not forms or len(set(forms)) != len(forms) or set(forms) - set(br.FORMS):
         raise SpecError(f'bridging.form must be a nonempty duplicate-free subset of '
@@ -330,6 +331,7 @@ def _bridging(raw):
     if errata is not None and (not isinstance(errata, str) or not errata):
         raise SpecError('bridging.errata must be a nonempty string when present')
     out = {'words': words, 'pairs': pairs, 'doses': doses, 'forms': forms,
+           'paren': paren,
            'carriers': carriers, 'common_words_file': gate, 'errata': errata,
            'megaline': megaline}
     if megaline:
@@ -483,39 +485,17 @@ def compose_from_spec(spec, base=ROOT):
     return _compose_legacy(spec, base)
 
 
-def _check_bridging_text(lines, words, sets, min_bytes, max_bytes):
-    """Hard-fail text integrity shared by both bridging pipelines.
+def _bridging_info(bridging, plan, stats, extra=None):
+    """The manifest 'bridging' section, shared by both bridging pipelines.
 
-    Parsed off the final text, not the plan: per-config counts equal `sets`
-    exactly (every canonical config), directed forms equal the canonical
-    multiset, inserts balanced, every anchor at a bridge position, and
-    every line lands in [min_bytes, max_bytes].
+    The paren-audit sections (measurement / role_audit / paren_integrity)
+    were deleted with the audit stack (2026-10-15 ruling): construction
+    correctness comes from the deterministic compose + spec validation;
+    outcomes are measured downstream.
     """
-    integrity = br.paren_integrity(lines)
-    if not integrity['ok']:
-        raise SpecError(f'paren integrity failed: {integrity["violations"][:3]}')
-    audit = br.role_audit(lines, words)
-    if not audit['ok']:
-        raise SpecError(f'role audit failed: {audit["violations"][:3]}')
-    measured = br.measure_bridging(lines, words)
-    expected = {br.config_label(config): sets for config in br.CANONICAL_CONFIGS}
-    if measured['per_config'] != expected:
-        raise SpecError(f'{len(br.CANONICAL_CONFIGS)}-config coverage mismatch: '
-                        f'measured {measured["per_config"]} != expected {expected}')
-    if measured['directed_forms'] != br.expected_directed_forms(sets):
-        raise SpecError(f'directed-form mismatch: {measured["directed_forms"]}')
-    for line in lines:
-        if not min_bytes <= len(line.encode('utf-8')) <= max_bytes:
-            raise SpecError('a composed line violates the byte budget')
-    return measured, audit, integrity
-
-
-def _bridging_info(bridging, plan, measured, audit, integrity, stats, extra=None):
-    """The manifest 'bridging' section, shared by both bridging pipelines."""
     section = {'roles': dict(bridging['words']), 'doses': bridging['doses'],
                'forms': list(bridging['forms']), 'plan': plan,
-               'measurement': measured, 'role_audit': audit,
-               'paren_integrity': integrity, 'carrier_stats': stats,
+               'paren': bridging['paren'], 'carrier_stats': stats,
                'leaf_links': [f'{first}>{second}' for first, second
                               in br.CANONICAL_LEAF_LINKS],
                'errata': bridging['errata'],
@@ -526,61 +506,49 @@ def _bridging_info(bridging, plan, measured, audit, integrity, stats, extra=None
     return {'bridging': section}
 
 
-def _compose_bridging(spec, base):
-    """Conformant bridging pipeline: weave one BRIDGING across the vehicle.
+def _check_megaline_delivery_shape(lines, plan, bridging):
+    """The surviving delivery-shape checks (construction-side, plan-derived).
 
-    Megaline mode branches away; the text integrity hard-fails live in
-    _check_bridging_text (parsed off the final text, not the plan).
+    The audit stack is gone; these are the two checks that protect
+    DELIVERY (not dose-counting): the filter echo lands inside the slot
+    window of EVERY line (the v13 visibility lesson; no echo, no
+    delivery), and the first four LINKs of every line end inside the
+    probable truncation window (the front-packing fallback). Offsets come
+    from the compose plan, not from parsing the text.
     """
+    for row in plan:
+        line = lines[row['line']]
+        if not any(term in line[:bridging['filter_prefix_chars']].lower()
+                   for term in bridging['filter_terms']):
+            raise SpecError(f'line {row["line"]}: no filter echo inside the '
+                            f'first {bridging["filter_prefix_chars"]} chars '
+                            '(the v13 visibility lesson)')
+        if (len(row['inserts']) >= 4
+                and row['inserts'][3]['end'] > bridging['truncation_chars']):
+            raise SpecError(f'line {row["line"]}: the first four LINKs do not '
+                            'all end inside the probable truncation window '
+                            f'(first {bridging["truncation_chars"]} chars)')
+
+
+def _compose_bridging(spec, base):
+    """Conformant bridging pipeline: weave one BRIDGING across the vehicle."""
     if spec['bridging']['megaline']:
         return _compose_megalines(spec, base)
     bridging = spec['bridging']
     _anchor_gate(bridging, base)
     lines, plan = br.compose_bridging(
         bridging['carriers'], bridging['words'], bridging['doses'],
-        bridging['forms'], spec['lines'], spec['seed'])
-    measured, audit, integrity = _check_bridging_text(
-        lines, bridging['words'], bridging['doses'], 1, spec['max_line_bytes'])
+        bridging['forms'], spec['lines'], spec['seed'], bridging['paren'])
     stats = br.carrier_stats(lines, _goop_baseline_lines(base))
-    return lines, _bridging_info(bridging, plan, measured, audit, integrity, stats)
-
-
-def _check_bridging_pairs_text(lines, pairs, sets, min_bytes, max_bytes):
-    """The pair-mode sibling of _check_bridging_text: whole-text integrity.
-
-    Per pair, every canonical config lands at exactly `sets` across the
-    text; the union directed forms equal the pair multiset; every anchor
-    at a bridge position; parens balanced; every line in the byte band.
-    """
-    integrity = br.paren_integrity(lines)
-    if not integrity['ok']:
-        raise SpecError(f'paren integrity failed: {integrity["violations"][:3]}')
-    audit = br.role_audit_pairs(lines, pairs)
-    if not audit['ok']:
-        raise SpecError(f'role audit failed: {audit["violations"][:3]}')
-    measured = br.measure_bridging_pairs(lines, pairs)
-    for pair_index, pair in enumerate(pairs):
-        expected = {br.config_label(config): sets
-                    for config in br.pair_configs(pair)}
-        if measured['per_pair'][pair_index] != expected:
-            raise SpecError(f'pair {pair_index} coverage mismatch: measured '
-                            f'{measured["per_pair"][pair_index]} != expected '
-                            f'{expected}')
-    if measured['directed_forms'] != br.expected_directed_forms_pairs(pairs, sets):
-        raise SpecError(f'directed-form mismatch: {measured["directed_forms"]}')
-    for line in lines:
-        if not min_bytes <= len(line.encode('utf-8')) <= max_bytes:
-            raise SpecError('a composed line violates the byte budget')
-    return measured, audit, integrity
+    return lines, _bridging_info(bridging, plan, stats)
 
 
 def _compose_megalines_pairs(spec, base):
     """Multi-pair megaline pipeline (2026-10-15 doctrine: shared anchor,
     chained leaves, `doses` copies of every pair's set per line).
 
-    The single-pair hard checks hold per pair per line: full coverage, the
-    filter echo in the window, a complete LINK-pair in the window, and the
-    first four LINKs inside the probable truncation window.
+    Dose-counting audit deleted (2026-10-15 ruling); the surviving checks
+    are spec validation, the compose fit, and _check_megaline_delivery_shape.
     """
     bridging = spec['bridging']
     pairs = bridging['pairs']
@@ -589,61 +557,26 @@ def _compose_megalines_pairs(spec, base):
         lines, plan = br.compose_megalines_pairs(
             bridging['carriers'], bridging['lead_ins'], pairs,
             bridging['doses'], bridging['forms'], spec['lines'],
-            spec['min_line_bytes'], spec['max_line_bytes'], spec['seed'])
+            spec['min_line_bytes'], spec['max_line_bytes'], spec['seed'],
+            bridging['paren'])
     except ValueError as exc:
         raise SpecError(str(exc)) from exc
-    sets = bridging['doses'] * spec['lines']
-    measured, audit, integrity = _check_bridging_pairs_text(
-        lines, pairs, sets, spec['min_line_bytes'], spec['max_line_bytes'])
-    mega = br.measure_megalines_pairs(
-        lines, pairs, bridging['filter_terms'],
-        bridging['filter_prefix_chars'], bridging['truncation_chars'])
-    expected_per_pair = [{br.config_label(config): bridging['doses']
-                          for config in br.pair_configs(pair)}
-                         for pair in pairs]
-    expected_links = (2 * len(br.CANONICAL_CONFIGS) * len(pairs)
-                      * bridging['doses'])
-    for row in mega['per_line']:
-        if row['link_total'] != expected_links:
-            raise SpecError(f'line {row["line"]}: link total '
-                            f'{row["link_total"]} != {expected_links} '
-                            '(injected or missing links)')
-        for pair_index in range(len(pairs)):
-            if row['per_pair'][pair_index]['per_config'] != \
-                    expected_per_pair[pair_index]:
-                raise SpecError(f'line {row["line"]}: pair {pair_index} '
-                                f'{len(br.CANONICAL_CONFIGS)}-config coverage '
-                                'mismatch')
-        if row['filter_term'] is None:
-            raise SpecError(f'line {row["line"]}: no filter term inside the '
-                            f'first {bridging["filter_prefix_chars"]} chars')
-        if not row['complete_pair_in_window']:
-            raise SpecError(f'line {row["line"]}: no complete LINK-pair inside '
-                            f'the first {bridging["filter_prefix_chars"]} chars')
-        if not row['first_four_links_in_truncation']:
-            raise SpecError(f'line {row["line"]}: the first four LINKs do not '
-                            f'all end inside the probable truncation window '
-                            f'(the first {bridging["truncation_chars"]} chars)')
+    _check_megaline_delivery_shape(lines, plan, bridging)
     stats = br.carrier_stats(lines, _goop_baseline_lines(base))
     extra = {'megaline': {'filter_terms': list(bridging['filter_terms']),
                           'filter_prefix_chars': bridging['filter_prefix_chars'],
                           'truncation_chars': bridging['truncation_chars'],
                           'min_line_bytes': spec['min_line_bytes'],
                           'max_line_bytes': spec['max_line_bytes'],
-                          'pairs': [dict(pair) for pair in pairs],
-                          **mega}}
-    return lines, _bridging_info(bridging, plan, measured, audit, integrity,
-                                 stats, extra)
+                          'pairs': [dict(pair) for pair in pairs]}}
+    return lines, _bridging_info(bridging, plan, stats, extra)
 
 
 def _compose_megalines(spec, base):
-    """Megaline pipeline: a full BRIDGING per line, hard-fail per-line integrity.
+    """Megaline pipeline: a full BRIDGING per line.
 
-    Beyond _check_bridging_text: every line carries all 9 canonical configs
-    at `doses`, the filter echo sits inside the window of EVERY line, every
-    window holds a complete LINK-pair (dose integrity), and the first four
-    LINKs of EVERY line end inside the probable truncation window
-    (truncation_chars; the front-packing fallback property).
+    Dose-counting audit deleted (2026-10-15 ruling); surviving checks:
+    spec validation, the compose fit, and _check_megaline_delivery_shape.
     """
     bridging = spec['bridging']
     _anchor_gate(bridging, base)
@@ -653,45 +586,17 @@ def _compose_megalines(spec, base):
         lines, plan = br.compose_megalines(
             bridging['carriers'], bridging['lead_ins'], bridging['words'],
             bridging['doses'], bridging['forms'], spec['lines'],
-            spec['min_line_bytes'], spec['max_line_bytes'], spec['seed'])
+            spec['min_line_bytes'], spec['max_line_bytes'], spec['seed'],
+            bridging['paren'])
     except ValueError as exc:
         raise SpecError(str(exc)) from exc
-    sets = bridging['doses'] * spec['lines']
-    measured, audit, integrity = _check_bridging_text(
-        lines, bridging['words'], sets, spec['min_line_bytes'],
-        spec['max_line_bytes'])
-    mega = br.measure_megalines(lines, bridging['words'],
-                                bridging['filter_terms'],
-                                bridging['filter_prefix_chars'],
-                                bridging['truncation_chars'])
-    expected_per_line = {br.config_label(config): bridging['doses']
-                         for config in br.CANONICAL_CONFIGS}
-    for row in mega['per_line']:
-        if row['per_config'] != expected_per_line:
-            raise SpecError(f'line {row["line"]}: per-line '
-                            f'{len(br.CANONICAL_CONFIGS)}-config coverage mismatch: '
-                            f'{row["per_config"]}')
-        if row['filter_term'] is None:
-            raise SpecError(f'line {row["line"]}: no filter term inside the first '
-                            f'{bridging["filter_prefix_chars"]} chars (the v13 '
-                            'visibility lesson; the lead-in owns the echo)')
-        if not row['complete_pair_in_window']:
-            raise SpecError(f'line {row["line"]}: no complete LINK-pair inside the '
-                            f'first {bridging["filter_prefix_chars"]} chars '
-                            '(dose integrity)')
-        if not row['first_four_links_in_truncation']:
-            raise SpecError(f'line {row["line"]}: the first four LINKs do not all '
-                            f'end inside the probable truncation window (the '
-                            f'first {bridging["truncation_chars"]} chars; '
-                            'front-packing is the fallback property)')
+    _check_megaline_delivery_shape(lines, plan, bridging)
     stats = br.carrier_stats(lines, _goop_baseline_lines(base))
     extra = {'megaline': {'filter_terms': list(bridging['filter_terms']),
                           'filter_prefix_chars': bridging['filter_prefix_chars'],
                           'truncation_chars': bridging['truncation_chars'],
-                          'min_line_bytes': spec['min_line_bytes'],
-                          **mega}}
-    return lines, _bridging_info(bridging, plan, measured, audit, integrity,
-                                 stats, extra)
+                          'min_line_bytes': spec['min_line_bytes']}}
+    return lines, _bridging_info(bridging, plan, stats, extra)
 
 
 def _goop_baseline_lines(base):
