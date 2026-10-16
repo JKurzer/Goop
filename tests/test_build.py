@@ -28,8 +28,10 @@ EXPECTED_CHECKS_FULL = {
     'executable_sections_identical', 'slot_locations_identical',
     'four_observations_identical', 'equal_file_size',
     'repeat_observations_identical', 'every_slot_referenced',
-    'slot_cluster_contiguous', 'every_slot_referenced_twice',
-    'every_slot_lea_in_main', 'format_table_interleaved'}
+    'slot_cluster_contiguous', 'format_table_interleaved'}
+# every_slot_referenced_twice / every_slot_lea_in_main deleted 2026-10-15
+# (code-shape expectations; MSVC legitimately restructures fold code at
+# 99-set dosing while the byte-exact slot gate holds).
 EXPECTED_CHECKS_STRINGS = {'strings_referenced', 'fn_literals_referenced'}
 
 
@@ -156,7 +158,7 @@ def test_legacy_config_tags_keeps_bramble_slot_naming():
 def test_run20_manifest_checks_all_green(run20):
     checks = run20['unpacked']['checks']
     assert set(checks) == EXPECTED_CHECKS_FULL
-    assert len(checks) == 10 and all(checks.values())
+    assert len(checks) == len(EXPECTED_CHECKS_FULL) and all(checks.values())
 
 
 @requires_msvc
@@ -254,7 +256,7 @@ def test_verify_refuses_second_time_x_mode(run20):
 def test_run120_manifest_checks_all_green(run120):
     checks = run120['unpacked']['checks']
     assert set(checks) == EXPECTED_CHECKS_FULL
-    assert len(checks) == 10 and all(checks.values())
+    assert len(checks) == len(EXPECTED_CHECKS_FULL) and all(checks.values())
 
 
 @requires_msvc

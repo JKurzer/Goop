@@ -32,8 +32,17 @@ V7_PAIRS = [{'anchor': 'initialization', 'target': 'team', 'destination': 'mans'
              'destination': 'team'},
             {'anchor': 'initialization', 'target': 'slot',
              'destination': 'remove'}]
+# v8 is a BYTE-EXACT expansion of v7 by design (owner ruling 2026-10-15:
+# 'expand on the existing payloads'; same trigram sets, same candidate
+# bytes — the significantly-increased dosing lives in the v8 build spec:
+# fn_literals 99 sets + the cargo strings, which carry v7's own string
+# material). Pinning v8 to v7's sha keeps the expansion honest forever.
+V8_SPEC = ROOT / 'specs' / 'payload_conformant_v8_meg.json'
+V8_SHA256 = V7_SHA256
+V8_PAIRS = V7_PAIRS
 ARMS = ((V6_SPEC, V6_SHA256, V6_PAIRS, 2, (2100, 2700)),
-        (V7_SPEC, V7_SHA256, V7_PAIRS, 2, (2100, 2700)))
+        (V7_SPEC, V7_SHA256, V7_PAIRS, 2, (2100, 2700)),
+        (V8_SPEC, V8_SHA256, V8_PAIRS, 2, (2100, 2700)))
 
 
 def run_compose(tmp_path, spec_file):
@@ -48,8 +57,9 @@ def run_compose(tmp_path, spec_file):
 
 
 def test_arms_compose_byte_exact(tmp_path):
-    for spec, sha, *_ in ARMS:
-        code, data, _ = run_compose(tmp_path / sha[:6], spec)
+    for index, (spec, sha, *_) in enumerate(ARMS):
+        # index-keyed dirs: v8 shares v7's sha BY DESIGN (byte-exact expansion)
+        code, data, _ = run_compose(tmp_path / str(index), spec)
         assert code == 0
         assert pl.sha256(data) == sha
 
