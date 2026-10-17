@@ -137,14 +137,14 @@ class V14FixtureTests(unittest.TestCase):
 
 class PromptFileTests(unittest.TestCase):
     def test_prompt_files_keep_placeholders(self):
-        for name in ('natural.md', 'reduced.md', 'functional.md'):
+        for name in ('natural.md', 'reduced.md', 'functional.md', 'compile.md'):
             template = goop_fire.load_prompt(name)
             self.assertIn('{cell}', template)
             self.assertIn('{python}', template)
 
     def test_render_substitutes_cell_and_python(self):
         cell_dir = Path('C:/x/runs/arm/cells/RunA')
-        for name in ('natural.md', 'reduced.md', 'functional.md'):
+        for name in ('natural.md', 'reduced.md', 'functional.md', 'compile.md'):
             rendered = goop_fire.render_prompt(goop_fire.load_prompt(name), cell_dir)
             self.assertIn(str(cell_dir), rendered)
             self.assertIn(sys.executable, rendered)
@@ -155,6 +155,7 @@ class PromptFileTests(unittest.TestCase):
         self.assertNotIn('VERDICT', goop_fire.load_prompt('reduced.md'))
         self.assertIn('# replacement.py', goop_fire.load_prompt('functional.md'))
         self.assertIn('standalone Python 3', goop_fire.load_prompt('functional.md'))
+        self.assertIn('// replacement.cpp', goop_fire.load_prompt('compile.md'))
 
     def test_escape_and_missing_refused(self):
         for bad in ('../README.md', '..\\README.md', 'nope.md',
