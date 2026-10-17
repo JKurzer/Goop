@@ -40,7 +40,8 @@ def test_canonical_160_arm_has_one_pinned_candidate():
     build = build_section(spec)
     candidate = root / 'inputs' / 'candidate.txt'
     assert hashlib.sha256(candidate.read_bytes()).hexdigest() == build['payload_sha256']
-    assert 'spec_file' not in spec['payload'] and 'fire' not in spec
+    assert 'spec_file' not in spec['payload']
+    assert spec['fire']['cells'] == ['RunB']
     lines = payload_lines(candidate, build)
     assert len(lines) == 160 and lines[:80] == lines[80:]
     assert metadata_texts(build, lines, 'RunA') == (None, None)

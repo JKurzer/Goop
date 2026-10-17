@@ -31,7 +31,7 @@ from gooplib import GoopError
 from gooplib.specs import (build_section, candidate_digest, candidate_path,
                            load_spec, payload_lines)
 
-REVIEWER = 'code-puppy-763566'
+REVIEWER = 'code-puppy-48cac1'
 PREREG_NAME = 'PREREG.md'
 
 

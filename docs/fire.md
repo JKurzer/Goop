@@ -31,6 +31,11 @@ spec.json fire section (unknown keys refused):
   now names the machine-pinned rizin suite instead.)
 - Credentials: OPENAI_API_KEY from HKCU\Environment (winreg), env fallback;
   NO_COLOR=1, PYTHONIOENCODING=utf-8. No credential, no launch.
+- REA child processes only: `CONTEXT_PINS` points to
+  `prompts/rea-empty-pins.json` (`[]`). The launcher checks that file before
+  launching, overrides any inherited pin state only in the child's copied
+  environment, and leaves global pins and all other agents untouched.
+  Historical A/B conditions remain as recorded; future REA fires default off.
 
 ## Outputs (all 'x'-mode writes; nothing is ever overwritten)
 

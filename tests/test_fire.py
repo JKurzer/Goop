@@ -11,6 +11,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 GOOP = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(GOOP / 'tools'))
@@ -41,10 +42,12 @@ class FakeRunner:
     def __init__(self, script):
         self.script = script  # cell -> (returncode, raw_log_text, usage_dict|None)
         self.calls = []
+        self.environments = []
 
     def __call__(self, command, cwd, env, stdout, stderr):
         cell = Path(cwd).name
         self.calls.append(cell)
+        self.environments.append(dict(env))
         returncode, raw, usage = self.script[cell]
         stdout.write(raw.encode('utf-8'))
         if usage is not None:
@@ -237,12 +240,39 @@ class EndToEndFakeFireTests(unittest.TestCase):
                                  'RunB': (0, raw_with_calls(2), usage(2))})
             self.assertEqual(fire(run, fire_spec, ['RunA', 'RunB'], runner), 0)
             self.assertEqual(runner.calls, ['RunA', 'RunB'])
+            for child_env in runner.environments:
+                state = Path(child_env['CONTEXT_PINS'])
+                self.assertEqual(json.loads(state.read_text(encoding='utf-8')), [])
             prompt = (run / 'reports/prompt_RunA.txt').read_text(encoding='utf-8')
             self.assertIn(str(run / 'cells' / 'RunA'), prompt)
             self.assertIn(sys.executable, prompt)
             status = json.loads((run / 'reports/status_RunA.json').read_text())
             self.assertEqual(status['log_tool_calls'], 3)
             self.assertNotIn('aborted', status)
+
+    def test_inherited_pins_overridden_only_in_rea_child(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            run, fire_spec = make_run(Path(temporary))
+            parent_env = {'CONTEXT_PINS': 'parent-pins.json', 'OTHER': 'untouched'}
+            runner = FakeRunner({'RunA': (0, raw_with_calls(1), usage(1))})
+            self.assertEqual(goop_fire.fire_cells(
+                run, fire_spec, ['RunA'], 'reports', executable='fake',
+                env=parent_env, run_fn=runner), 0)
+            self.assertEqual(parent_env['CONTEXT_PINS'], 'parent-pins.json')
+            self.assertEqual(runner.environments[0]['OTHER'], 'untouched')
+            self.assertEqual(json.loads(Path(
+                runner.environments[0]['CONTEXT_PINS']).read_text()), [])
+
+    def test_missing_empty_state_refuses_before_launch_or_output(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            run, fire_spec = make_run(Path(temporary))
+            runner = FakeRunner({'RunA': (0, raw_with_calls(1), usage(1))})
+            with patch.object(goop_fire, 'REA_EMPTY_PINS',
+                              Path(temporary) / 'absent.json'):
+                with self.assertRaisesRegex(RuntimeError, 'REA pin state'):
+                    fire(run, fire_spec, ['RunA'], runner)
+            self.assertEqual(runner.calls, [])
+            self.assertFalse((run / 'reports').exists())
 
     def test_provider_death_stops_before_next_cell(self):
         with tempfile.TemporaryDirectory() as temporary:

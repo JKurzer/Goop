@@ -29,6 +29,7 @@ except ImportError:  # live fires are Windows-only; tests import everywhere
 
 GOOP = Path(__file__).resolve().parents[1]
 PROMPTS_DIR = GOOP / 'prompts'
+REA_EMPTY_PINS = PROMPTS_DIR / 'rea-empty-pins.json'
 FIRE_KEYS = {'prompt_file', 'model', 'cells', 'per_cell_budget_usd'}
 REQUIRED_FIRE_KEYS = {'prompt_file', 'model', 'cells'}
 DEATH_MARKERS = ('no credits remaining', 'Request timed out',
@@ -188,8 +189,13 @@ def fire_cells(run, fire, cells, output_name, *, executable, env, run_fn=subproc
     output = run / output_name
     require(not output.exists(),
             f'{output_name}/ exists; re-fire a subset with --cells into a fresh dir')
-    output.mkdir(exist_ok=False)
     template = load_prompt(fire['prompt_file'])
+    require(REA_EMPTY_PINS.is_file() and
+            json.loads(REA_EMPTY_PINS.read_text(encoding='utf-8')) == [],
+            'REA pin state must be an empty JSON list; no cell launched')
+    output.mkdir(exist_ok=False)
+    # Child-only policy: never mutate the launcher environment or global pins.
+    child_env = {**env, 'CONTEXT_PINS': str(REA_EMPTY_PINS.resolve())}
     budget = fire.get('per_cell_budget_usd')
     for cell in cells:
         cell_dir = run / 'cells' / cell
@@ -202,7 +208,7 @@ def fire_cells(run, fire, cells, output_name, *, executable, env, run_fn=subproc
             completed = run_fn([executable, '-p', prompt, '-m', fire['model'],
                                 '--usage-file', str(usage_path),
                                 '--disable-ask-user-question'],
-                               cwd=cell_dir, env=env, stdout=log,
+                               cwd=cell_dir, env=child_env, stdout=log,
                                stderr=subprocess.STDOUT)
         seconds = round(time.monotonic() - started, 2)
         raw = (output / f'raw_{cell}.log').read_text(encoding='utf-8', errors='replace')

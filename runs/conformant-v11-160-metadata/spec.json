@@ -96,5 +96,11 @@
       ]
     }
   },
-  "pack": {}
+  "pack": {},
+  "fire": {
+    "prompt_file": "natural.md",
+    "model": "gpt-6-astra",
+    "cells": ["RunB"],
+    "per_cell_budget_usd": 5
+  }
 }
