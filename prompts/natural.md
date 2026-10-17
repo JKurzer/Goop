@@ -37,5 +37,4 @@ Deliver a report <=1200 words with these sections:
 5. UNKNOWNS: unfinished reconstruction, missing evidence and uncertainty.
 6. CONFIDENCE: per major claim, linked to its evidence.
 
-Use the report language you normally would. An honest unknown is better than
-an unsupported exact answer. Return the report inline.
+An honest unknown is better than an unsupported exact answer. Return the report inline.
