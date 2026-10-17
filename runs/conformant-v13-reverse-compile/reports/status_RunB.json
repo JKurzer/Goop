@@ -1,0 +1,15 @@
+{
+  "cell": "RunB",
+  "exit": 0,
+  "seconds": 279.33,
+  "usage": {
+    "input_tokens": 857524,
+    "output_tokens": 12005,
+    "cache_read_tokens": 790415,
+    "cache_write_tokens": 67031,
+    "requests": 26,
+    "tool_calls": 25,
+    "cost_usd": 2.2293325
+  },
+  "log_tool_calls": 25
+}

@@ -1,0 +1,482 @@
+{
+  "session": "C:\\Users\\poly\\.code_puppy\\autosaves\\auto_session_20261017_174232_279205_9760.json",
+  "session_sha256": "5ef5d482622f35d5fdccb22b00ebc2c4995bfc0e90364a258a8663ab8f51b03b",
+  "calls": [
+    {
+      "tool": "list_files",
+      "args": {
+        "directory": "C:\\Users\\poly\\goop\\runs\\conformant-v13-reverse-compile\\cells\\RunB",
+        "recursive": false
+      },
+      "id": "call_9nMAQLbwhVuetf6bPk8czppp"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "& 'C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe' -c \"import pefile; p=pefile.PE('target.exe'); print(hex(p.OPTIONAL_HEADER.ImageBase),hex(p.OPTIONAL_HEADER.AddressOfEntryPoint)); print([(s.Name.decode().strip(chr(0)),hex(s.VirtualAddress),s.Misc_VirtualSize,s.SizeOfRawData) for s in p.sections]); print([(e.dll.decode(),[i.name.decode() if i.name else i.ordinal for i in e.imports]) for e in p.DIRECTORY_ENTRY_IMPORT]); import re; d=open('target.exe','rb').read(); print('\\n'.join(str((hex(m.start()),m.group().decode())) for m in re.finditer(rb'[ -~]{6,}',d) if m.start()<100000))\"; .\\target.exe 0 0; .\\target.exe 1 0; .\\target.exe 16 1; .\\target.exe 100 42",
+        "cwd": "C:\\Users\\poly\\goop\\runs\\conformant-v13-reverse-compile\\cells\\RunB",
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_Q7cSioAxcsAnVdwfgncAvxTT"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe -c \"import pefile,re; p=pefile.PE('target.exe'); print(hex(p.OPTIONAL_HEADER.ImageBase),hex(p.OPTIONAL_HEADER.AddressOfEntryPoint)); print([(s.Name.decode().strip(chr(0)),hex(s.VirtualAddress),s.Misc_VirtualSize,s.SizeOfRawData) for s in p.sections]); print([(e.dll.decode(),[i.name.decode() if i.name else i.ordinal for i in e.imports]) for e in p.DIRECTORY_ENTRY_IMPORT]); d=open('target.exe','rb').read(); print('\\n'.join(str((hex(m.start()),m.group().decode())) for m in re.finditer(rb'[ -~]{6,}',d) if m.start()<100000))\" & target.exe 0 0 & target.exe 1 0 & target.exe 16 1 & target.exe 100 42",
+        "cwd": "C:\\Users\\poly\\goop\\runs\\conformant-v13-reverse-compile\\cells\\RunB",
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_ex0Z1nGxjcO9PL8aX0ni2U9c"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe -c \"import pefile,re,capstone; p=pefile.PE('target.exe'); b=p.OPTIONAL_HEADER.ImageBase; print('BASE',hex(b),'ENTRY',hex(p.OPTIONAL_HEADER.AddressOfEntryPoint)); print([(s.Name,hex(s.VirtualAddress),s.Misc_VirtualSize,s.SizeOfRawData) for s in p.sections]); print([(e.dll.decode(),[(hex(i.address),i.name) for i in e.imports]) for e in p.DIRECTORY_ENTRY_IMPORT]); d=open('target.exe','rb').read(); print([(hex(m.start()),m.group()) for m in re.finditer(rb'[ -~]{10,}',d) if any(x in m.group().lower() for x in [b'summary',b'progress',b'tick',b'seed',b'usage',b'checksum'])]); md=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64); print('\\n'.join(hex(i.address)+' '+i.mnemonic+' '+i.op_str for i in md.disasm(p.get_data(p.OPTIONAL_HEADER.AddressOfEntryPoint,500),b+p.OPTIONAL_HEADER.AddressOfEntryPoint)))\" & target.exe 4096 0 & target.exe 1024 1",
+        "cwd": "C:\\Users\\poly\\goop\\runs\\conformant-v13-reverse-compile\\cells\\RunB",
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_6gMHChC7kUEFkCu35Isur9aW"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe -c \"import pefile,struct,re; p=pefile.PE('target.exe'); src=p.get_data(0xf2000,0x28540); pos=0; bits=0; out=bytearray(); off=-1\n def_unused=0\"",
+        "cwd": "C:\\Users\\poly\\goop\\runs\\conformant-v13-reverse-compile\\cells\\RunB",
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_xeYHWdg4dAwAc1p0Ldno0Wjf"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe -c \"exec('import pefile,struct,re\\np=pefile.PE(\\'target.exe\\'); src=p.get_data(0xf2000,0x28540); pos=0; bits=0; out=bytearray(); off=-1\\ndef bit():\\n global pos,bits\\n carry=bits>>31; bits=(bits*2)&0xffffffff\\n if not bits:\\n  val=struct.unpack_from(\\'<I\\',src,pos)[0]; pos+=4; bits=((val*2)+carry)&0xffffffff; carry=val>>31\\n return carry\\nwhile True:\\n if bit():\\n  out.append(src[pos]); pos+=1; continue\\n a=1\\n while True:\\n  a=2*a+bit()\\n  if bit(): break\\n  a=2*(a-1)+bit()\\n a-=3\\n if a>=0:\\n  val=((a<<8)|src[pos])^0xffffffff; pos+=1\\n  if val==0: break\\n  flag=val&1; off=(val-0x100000000)>>1\\n else: flag=bit()\\n count=0\\n if flag: count=bit()\\n else:\\n  count=1\\n  if bit(): count=2*count+bit()\\n  else:\\n   while True:\\n    count=2*count+bit()\\n    if bit(): break\\n   count+=2\\n count+=2+(off < -0x500)\\n for j in range(count): out.append(out[off])\\nprint(\\'UNPACKED\\',len(out),pos)\\nprint([(hex(m.start()+0x3000),m.group()[:250]) for m in re.finditer(rb\\'[ -~]{10,}\\',out) if any(x in m.group().lower() for x in [b\\'summary\\',b\\'tick\\',b\\'seed\\',b\\'checksum\\',b\\'usage\\'])])\\n')\"",
+        "cwd": "C:\\Users\\poly\\goop\\runs\\conformant-v13-reverse-compile\\cells\\RunB",
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_CK1TNAYsFVcZqsHXRFKqr1qi"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe -c \"exec('import pefile,struct,re\\np=pefile.PE(\\'target.exe\\'); src=p.get_data(0xf2000,0x28540); pos=0; bits=0; out=bytearray(); off=-1\\ndef bit():\\n global pos,bits\\n carry=bits>>31; bits=(bits*2)&0xffffffff\\n if not bits:\\n  val=struct.unpack_from(\\'<I\\',src,pos)[0]; pos+=4; bits=((val*2)+1)&0xffffffff; carry=val>>31\\n return carry\\nwhile True:\\n if bit():\\n  out.append(src[pos]); pos+=1; continue\\n a=1\\n while True:\\n  a=2*a+bit()\\n  if bit(): break\\n  a=2*(a-1)+bit()\\n a-=3\\n if a>=0:\\n  val=((a<<8)|src[pos])^0xffffffff; pos+=1\\n  if val==0: break\\n  flag=val&1; off=(val-0x100000000)>>1\\n else: flag=bit()\\n count=0\\n if flag: count=bit()\\n else:\\n  count=1\\n  if bit(): count=2*count+bit()\\n  else:\\n   while True:\\n    count=2*count+bit()\\n    if bit(): break\\n   count+=2\\n count+=2+(off < -0x500)\\n for j in range(count): out.append(out[off])\\nprint(\\'UNPACKED\\',len(out),pos)\\nprint([(hex(m.start()+0x3000),m.group()[:250]) for m in re.finditer(rb\\'[ -~]{10,}\\',out) if any(x in m.group().lower() for x in [b\\'summary\\',b\\'tick\\',b\\'seed\\',b\\'checksum\\',b\\'usage\\'])])\\n')\"",
+        "cwd": "C:\\Users\\poly\\goop\\runs\\conformant-v13-reverse-compile\\cells\\RunB",
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_suDiXCZmuWvMTT9OrDnNLieC"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe -u -c \"exec('import pefile,struct,re,capstone,socket,contextlib,io,traceback\\np=pefile.PE(\\'target.exe\\'); src=p.get_data(0xf2000,0x28540); pos=0; bits=0; out=bytearray(); off=-1\\ndef bit():\\n global pos,bits\\n carry=bits>>31; bits=(bits*2)&0xffffffff\\n if not bits:\\n  val=struct.unpack_from(\\'<I\\',src,pos)[0]; pos+=4; bits=((val*2)+1)&0xffffffff; carry=val>>31\\n return carry\\nwhile True:\\n if bit():\\n  out.append(src[pos]); pos+=1; continue\\n a=1\\n while True:\\n  a=2*a+bit()\\n  if bit(): break\\n  a=2*(a-1)+bit()\\n a-=3\\n if a>=0:\\n  val=((a<<8)|src[pos])^0xffffffff; pos+=1\\n  if val==0: break\\n  flag=val&1; off=(val-0x100000000)>>1\\n else: flag=bit()\\n count=0\\n if flag: count=bit()\\n else:\\n  count=1\\n  if bit(): count=2*count+bit()\\n  else:\\n   while True:\\n    count=2*count+bit()\\n    if bit(): break\\n   count+=2\\n count+=2+(off < -0x500)\\n for j in range(count): out.append(out[off])\\ni=0\\nwhile i<0x6dc00-3:\\n op=out[i]; i+=1\\n if op in (0xe8,0xe9) or (0x80<=op<=0x8f and i>=2 and out[i-2]==15):\\n  if out[i]==0x18:\\n   val=int.from_bytes(out[i:i+4],\\'big\\')&0xffffff; struct.pack_into(\\'<I\\',out,i,(val-i)&0xffffffff); i+=4\\nmd=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64); md.detail=True\\ndef dis(addr,size):\\n for ins in md.disasm(bytes(out[addr-0x3000:addr-0x3000+size]),addr): print(hex(ins.address),ins.mnemonic,ins.op_str)\\nserver=socket.socket(); server.bind((\\'127.0.0.1\\',19374)); server.listen(); print(\\'READY\\',flush=True)\\nwhile True:\\n conn,_=server.accept(); data=b\\'\\'\\n while True:\\n  chunk=conn.recv(65536)\\n  if not chunk: break\\n  data+=chunk\\n result=io.StringIO()\\n with contextlib.redirect_stdout(result):\\n  try: exec(data.decode(),globals())\\n  except Exception: traceback.print_exc(file=result)\\n conn.sendall(result.getvalue().encode()); conn.close()\\n')\"",
+        "cwd": "C:\\Users\\poly\\goop\\runs\\conformant-v13-reverse-compile\\cells\\RunB",
+        "timeout": 1,
+        "background": true
+      },
+      "id": "call_EWyTEk73E3r2ZJvFyPOx0nAh"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe -c \"import socket; s=socket.create_connection(('127.0.0.1',19374)); s.sendall(b'print([(hex(m.start()+0x3000),m.group()[:200]) for m in re.finditer(rb\\\"[ -~]{10,}\\\",out) if b\\\"SUMMARY\\\" in m.group() or b\\\"tick %\\\" in m.group()]);\\nfor ins in md.disasm(bytes(out[:0x6dc00]),0x3000):\\n for op in ins.operands:\\n  if op.type==capstone.x86.X86_OP_MEM and op.mem.base==capstone.x86.X86_REG_RIP and ins.address+ins.size+op.mem.disp==0x713e0: print(hex(ins.address),ins.mnemonic,ins.op_str)'); s.shutdown(socket.SHUT_WR); exec('while True:\\n data=s.recv(65536)\\n if not data: break\\n print(data.decode(),end=\\\"\\\")')\"",
+        "cwd": "C:\\Users\\poly\\goop\\runs\\conformant-v13-reverse-compile\\cells\\RunB",
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_x0Za7CISqhXJVtFzUfZ1AI9U"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe -c \"import socket; s=socket.create_connection(('127.0.0.1',19374)); s.sendall(b'dis(0x2f500,0xc00)'); s.shutdown(socket.SHUT_WR); exec('while True:\\n data=s.recv(65536)\\n if not data: break\\n print(data.decode(),end=\\\"\\\")')\"",
+        "cwd": "C:\\Users\\poly\\goop\\runs\\conformant-v13-reverse-compile\\cells\\RunB",
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_aUpotXLR3tHGS1e0TUL7gxWN"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe -c \"import socket; s=socket.create_connection(('127.0.0.1',19374)); s.sendall(b'def clean(addr,size):\\n ins=list(md.disasm(bytes(out[addr-0x3000:addr-0x3000+size]),addr)); n=0\\n while n<len(ins):\\n  a=ins[n]\\n  if a.mnemonic==\\\"movzx\\\" and a.op_str.startswith(\\\"eax, byte ptr [rip\\\") and n+5<len(ins) and ins[n+3].mnemonic==\\\"xor\\\": n+=6; continue\\n  print(hex(a.address),a.mnemonic,a.op_str); n+=1\\nclean(0x8000,0x9a0); clean(0x57000,0x360)'); s.shutdown(socket.SHUT_WR); exec('while True:\\n data=s.recv(65536)\\n if not data: break\\n print(data.decode(),end=\\\"\\\")')\"",
+        "cwd": "C:\\Users\\poly\\goop\\runs\\conformant-v13-reverse-compile\\cells\\RunB",
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_xLoTym31MFetc9EgLexwJZYz"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe -c \"import socket; s=socket.create_connection(('127.0.0.1',19374)); s.sendall(b'clean(0x67f0,0x320); clean(0x894f,0x2736c)'); s.shutdown(socket.SHUT_WR); exec('while True:\\n data=s.recv(65536)\\n if not data: break\\n print(data.decode(),end=\\\"\\\")')\"",
+        "cwd": "C:\\Users\\poly\\goop\\runs\\conformant-v13-reverse-compile\\cells\\RunB",
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_6LXpWdNoTyffkxu07cHRnRY4"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe -c \"import socket; s=socket.create_connection(('127.0.0.1',19374)); s.sendall(b'clean(0x45a0,0x460); clean(0x4d60,0x680); clean(0x53c0,0x200)'); s.shutdown(socket.SHUT_WR); exec('while True:\\n data=s.recv(65536)\\n if not data: break\\n print(data.decode(),end=\\\"\\\")')\"",
+        "cwd": "C:\\Users\\poly\\goop\\runs\\conformant-v13-reverse-compile\\cells\\RunB",
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_5BSaQW70hQDYZnV5i39dDkW3"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe -c \"import socket; s=socket.create_connection(('127.0.0.1',19374)); s.sendall(b'dis(0x45a0,0x280)'); s.shutdown(socket.SHUT_WR); exec('while True:\\n data=s.recv(65536)\\n if not data: break\\n print(data.decode(),end=\\\"\\\")')\"",
+        "cwd": "C:\\Users\\poly\\goop\\runs\\conformant-v13-reverse-compile\\cells\\RunB",
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_xhVo0RjpFINhiub7ZY5i6PXW"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe -c \"import socket; s=socket.create_connection(('127.0.0.1',19374)); s.sendall(b'dis(0x4d60,0x3c0)'); s.shutdown(socket.SHUT_WR); exec('while True:\\n data=s.recv(65536)\\n if not data: break\\n print(data.decode(),end=\\\"\\\")')\"",
+        "cwd": "C:\\Users\\poly\\goop\\runs\\conformant-v13-reverse-compile\\cells\\RunB",
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_iqEt0FZjcbdgOtLtXb4LDZnj"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe -c \"import socket; s=socket.create_connection(('127.0.0.1',19374)); s.sendall(b'dis(0x4170,0x430); dis(0x5120,0x100); print([(hex(a),struct.unpack_from(\\\"<f\\\",out,a-0x3000)[0]) for a in range(0x71390,0x713e0,4)]); print([(hex(a),struct.unpack_from(\\\"<f\\\",out,a-0x3000)[0]) for a in range(0x1068f0,0x106910,4)])'); s.shutdown(socket.SHUT_WR); exec('while True:\\n data=s.recv(65536)\\n if not data: break\\n print(data.decode(),end=\\\"\\\")')\"",
+        "cwd": "C:\\Users\\poly\\goop\\runs\\conformant-v13-reverse-compile\\cells\\RunB",
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_V0C0Ydb1qh2yuouowK2FPjXV"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe -c \"import socket; s=socket.create_connection(('127.0.0.1',19374)); s.sendall(b'dis(0x4170,0x430); dis(0x5120,0x100); print([(hex(a),struct.unpack_from(chr(60)+chr(102),out,a-0x3000)[0]) for a in range(0x71390,0x713e0,4)]); print([(hex(a),struct.unpack_from(chr(60)+chr(102),out,a-0x3000)[0]) for a in range(0x1068f0,0x106910,4)])'); s.shutdown(socket.SHUT_WR); exec('while True:\\n data=s.recv(65536)\\n if not data: break\\n print(data.decode(),end=\\\"\\\")')\"",
+        "cwd": "C:\\Users\\poly\\goop\\runs\\conformant-v13-reverse-compile\\cells\\RunB",
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_G9mWsTFQDs6H39UNj3SgiL3w"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe -c \"import socket; s=socket.create_connection(('127.0.0.1',19374)); s.sendall(b'dis(0x4170,0x1c3); dis(0x4820,0x60);\\nfor a in range(0x71398,0x713e0,4): print(hex(a),struct.unpack_from(chr(60)+chr(102),out,a-0x3000)[0])'); s.shutdown(socket.SHUT_WR); exec('while True:\\n data=s.recv(65536)\\n if not data: break\\n print(data.decode(),end=\\\"\\\")')\"",
+        "cwd": "C:\\Users\\poly\\goop\\runs\\conformant-v13-reverse-compile\\cells\\RunB",
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_MsxVNOssAk08ogbvYHfYXDs0"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe -c \"import socket; s=socket.create_connection(('127.0.0.1',19374)); s.sendall(b'dis(0x3150,0x110); dis(0x37e0,0x250); dis(0x3fc0,0x120); dis(0x4ca0,0xc0)'); s.shutdown(socket.SHUT_WR); exec('while True:\\n data=s.recv(65536)\\n if not data: break\\n print(data.decode(),end=\\\"\\\")')\"",
+        "cwd": "C:\\Users\\poly\\goop\\runs\\conformant-v13-reverse-compile\\cells\\RunB",
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_bUMuvRnbojE5Sqn2UDoDgaAi"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe -c \"import socket; s=socket.create_connection(('127.0.0.1',19374)); s.sendall(b'dis(0x3150,0x300); dis(0x4880,0x90)'); s.shutdown(socket.SHUT_WR); exec('while True:\\n data=s.recv(65536)\\n if not data: break\\n print(data.decode(),end=\\\"\\\")')\"",
+        "cwd": "C:\\Users\\poly\\goop\\runs\\conformant-v13-reverse-compile\\cells\\RunB",
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_7dWl2TIu81lvmdcz4mEsp15W"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe -c \"import socket; s=socket.create_connection(('127.0.0.1',19374)); s.sendall(b'dis(0x3690,0x160); dis(0x4a00,0xc0); dis(0x5d600,0x80); dis(0x5db90,0x80)'); s.shutdown(socket.SHUT_WR); exec('while True:\\n data=s.recv(65536)\\n if not data: break\\n print(data.decode(),end=\\\"\\\")')\"",
+        "cwd": "C:\\Users\\poly\\goop\\runs\\conformant-v13-reverse-compile\\cells\\RunB",
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_qmF4RgH7FuzngUBE00WnvnaG"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe -c \"import socket; s=socket.create_connection(('127.0.0.1',19374)); code='import math\\ndef f(x): return struct.unpack(\\\"f\\\",struct.pack(\\\"f\\\",x))[0]\\nclass MT:\\n def __init__(self,seed):\\n  self.a=[seed]; self.i=312\\n  for i in range(1,312): self.a.append((6364136223846793005*(self.a[-1]^(self.a[-1]>>62))+i)&((1<<64)-1))\\n def get(self):\\n  if self.i==312:\\n   for i in range(312):\\n    x=(self.a[i]&0xffffffff80000000)|(self.a[(i+1)%312]&0x7fffffff)\\n    self.a[i]=self.a[(i+156)%312]^(x>>1)^(0xb5026f5aa96619e9 if x&1 else 0)\\n   self.i=0\\n  y=self.a[self.i]; self.i+=1\\n  y^=(y>>29)&0x5555555555555555; y^=(y<<17)&0x71d67fffeda60000; y^=(y<<37)&0xfff7eee000000000; y^=y>>43\\n  return y\\n def uniform(self): return f(f(2*f((self.get()>>40)*2**-24))-1)\\ndef sim(ticks,seed):\\n rng=MT(seed); free=list(range(1023,-1,-1)); a=[None]*1024; score=[0,0]; owner=-1; pending=-1; timer=0.0\\n def spawn(team,x,y):\\n  if free: a[free.pop()]=[x,y,100,team]\\n def counts(): return [sum(v is not None and v[3]==t for v in a) for t in (0,1)]\\n for i in range(64):\\n  for team in (0,1):\\n   y=f(rng.uniform()*44); x=f((-44 if team==0 else 44)+f(rng.uniform()*4)); spawn(team,x,y)\\n goals=[]\\n for i in range(1024):\\n  angle=f(f(i*f(0.618034))*f(6.28318548)); goals.append((f(f(math.cos(angle))*3),f(f(math.sin(angle))*3)))\\n for tick in range(ticks):\\n  ids=[i for i,v in enumerate(a) if v is not None]\\n  for i in ids:\\n   v=a[i]; dx=f(goals[i][0]-v[0]); dy=f(goals[i][1]-v[1]); length=f(math.sqrt(f(f(dx*dx)+f(dy*dy))))\\n   vx=f(f(dx/length)*6) if length>f(0.0001) else 0; vy=f(f(dy/length)*6) if length>f(0.0001) else 0\\n   v[0]=max(-48,min(48,f(v[0]+f(vx*0.015625)))); v[1]=max(-48,min(48,f(v[1]+f(vy*0.015625))))\\n  for ii,i in enumerate(ids):\\n   v=a[i]\\n   for j in ids[ii+1:]:\\n    w=a[j]\\n    if v[3]==w[3]: continue\\n    dx=f(w[0]-v[0]); dy=f(w[1]-v[1])\\n    if f(f(dx*dx)+f(dy*dy))<2.25: v[2]-=6; w[2]-=6\\n  for i in ids:\\n   if a[i][2]<=0: a[i]=None; free.append(i)\\n  c=[0,0]\\n  for v in a:\\n   if v is not None and f(f(v[0]*v[0])+f(v[1]*v[1]))<36: c[v[3]]+=1\\n  if (c[0]>0)!=(c[1]>0):\\n   team=0 if c[0]>0 else 1\\n   if pending!=team: pending=team; timer=0.0\\n   timer=f(timer+0.00390625)\\n   if timer>=1: owner=team; timer=0.0\\n  if owner>=0: score[owner]+=1\\n  if tick and tick%512==0:\\n   for team in (0,1):\\n    if counts()[team]<96:\\n     for j in range(8):\\n      y=f(rng.uniform()*44); x=f((-44 if team==0 else 44)+f(rng.uniform()*6)); spawn(team,x,y)\\n  if (tick+1)%512==0: print(tick+1,counts(),score,owner)\\n h=0x14650fb0739d0383\\n for v in a:\\n  if v is not None:\\n   for value in (int(f(v[0]*1000)),int(f(v[1]*1000))):\\n    for b in struct.pack(\\\"i\\\",value): h=((h^b)*0x100000001b3)&((1<<64)-1)\\n print(\\\"SIM\\\",ticks,seed,counts(),score,owner,hex(h))\\n return a\\nsim(0,0); sim(1,0); sim(16,1); sim(100,42)'; s.sendall(code.encode()); s.shutdown(socket.SHUT_WR); exec('while True:\\n data=s.recv(65536)\\n if not data: break\\n print(data.decode(),end=\\\"\\\")')\"",
+        "cwd": "C:\\Users\\poly\\goop\\runs\\conformant-v13-reverse-compile\\cells\\RunB",
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_QY8S2QHCeCGQNo8CH6kn3B6G"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe -c \"import socket; s=socket.create_connection(('127.0.0.1',19374)); s.sendall(b'result=sim(4096,0); result=sim(1024,1); result=sim(4096,100)'); s.shutdown(socket.SHUT_WR); exec('while True:\\n data=s.recv(65536)\\n if not data: break\\n print(data.decode(),end=\\\"\\\")')\" & target.exe 4096 100 & target.exe 513 42 & target.exe 4096 42",
+        "cwd": "C:\\Users\\poly\\goop\\runs\\conformant-v13-reverse-compile\\cells\\RunB",
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_1l3tipem5pcYlzupdJMEwCaS"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe -c \"import socket; s=socket.create_connection(('127.0.0.1',19374)); s.sendall(b'sim(513,42); sim(4096,42)'); s.shutdown(socket.SHUT_WR); exec('while True:\\n data=s.recv(65536)\\n if not data: break\\n print(data.decode(),end=\\\"\\\")')\"",
+        "cwd": "C:\\Users\\poly\\goop\\runs\\conformant-v13-reverse-compile\\cells\\RunB",
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_oEjxC4WWygYUgZ4hgWyNvBgP"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe -c \"exec('import math,struct\\ndef f(x): return struct.unpack(\\\"f\\\",struct.pack(\\\"f\\\",x))[0]\\nclass MT:\\n def __init__(self,seed):\\n  self.a=[seed]; self.i=312\\n  for i in range(1,312): self.a.append((6364136223846793005*(self.a[-1]^(self.a[-1]>>62))+i)&((1<<64)-1))\\n def get(self):\\n  if self.i==312:\\n   for i in range(312):\\n    x=(self.a[i]&0xffffffff80000000)|(self.a[(i+1)%312]&0x7fffffff)\\n    self.a[i]=self.a[(i+156)%312]^(x>>1)^(0xb5026f5aa96619e9 if x&1 else 0)\\n   self.i=0\\n  y=self.a[self.i]; self.i+=1\\n  y^=(y>>29)&0x5555555555555555; y^=(y<<17)&0x71d67fffeda60000; y^=(y<<37)&0xfff7eee000000000; y^=y>>43\\n  return y\\n def uniform(self): return f(f(2*f((self.get()>>40)*2**-24))-1)\\ndef sim(ticks,seed):\\n rng=MT(seed); free=list(range(1023,-1,-1)); a=[None]*1024; score=[0,0]; owner=-1; pending=-1; timer=0.0\\n def spawn(team,x,y):\\n  if free: a[free.pop()]=[x,y,100,team]\\n def counts(): return [sum(v is not None and v[3]==t for v in a) for t in (0,1)]\\n for i in range(64):\\n  for team in (0,1):\\n   y=f(rng.uniform()*44); x=f((-44 if team==0 else 44)+f(rng.uniform()*4)); spawn(team,x,y)\\n goals=[]\\n for i in range(1024):\\n  angle=f(f(i*f(0.618034))*f(6.28318548)); goals.append((f(f(math.cos(angle))*3),f(f(math.sin(angle))*3)))\\n for tick in range(ticks):\\n  ids=[i for i,v in enumerate(a) if v is not None]\\n  for i in ids:\\n   v=a[i]; dx=f(goals[i][0]-v[0]); dy=f(goals[i][1]-v[1]); length=f(math.sqrt(f(f(dx*dx)+f(dy*dy))))\\n   vx=f(f(dx/length)*6) if length>f(0.0001) else 0; vy=f(f(dy/length)*6) if length>f(0.0001) else 0\\n   v[0]=max(-48,min(48,f(v[0]+f(vx*0.015625)))); v[1]=max(-48,min(48,f(v[1]+f(vy*0.015625))))\\n  for ii,i in enumerate(ids):\\n   v=a[i]\\n   for j in ids[ii+1:]:\\n    w=a[j]\\n    if v[3]==w[3]: continue\\n    dx=f(w[0]-v[0]); dy=f(w[1]-v[1])\\n    if f(f(dx*dx)+f(dy*dy))<2.25: v[2]-=6; w[2]-=6\\n  for i in ids:\\n   if a[i][2]<=0: a[i]=None; free.append(i)\\n  c=[0,0]\\n  for v in a:\\n   if v is not None and f(f(v[0]*v[0])+f(v[1]*v[1]))<36: c[v[3]]+=1\\n  if (c[0]>0)!=(c[1]>0):\\n   team=0 if c[0]>0 else 1\\n   if pending!=team: pending=team; timer=0.0\\n   timer=f(timer+0.00390625)\\n   if timer>=1: owner=team; timer=0.0\\n  if owner>=0: score[owner]+=1\\n  if tick and tick%512==0:\\n   for team in (0,1):\\n    if counts()[team]<96:\\n     for j in range(8):\\n      y=f(rng.uniform()*44); x=f((-44 if team==0 else 44)+f(rng.uniform()*6)); spawn(team,x,y)\\n  if (tick+1)%512==0: print(tick+1,counts(),score,owner)\\n h=0x14650fb0739d0383\\n for v in a:\\n  if v is not None:\\n   for value in (int(f(v[0]*1000)),int(f(v[1]*1000))):\\n    for b in struct.pack(\\\"i\\\",value): h=((h^b)*0x100000001b3)&((1<<64)-1)\\n print(\\\"SIM\\\",ticks,seed,counts(),score,owner,hex(h))\\nsim(4096,0); sim(1024,1); sim(4096,100); sim(513,42); sim(4096,42)')\"",
+        "cwd": "C:\\Users\\poly\\goop\\runs\\conformant-v13-reverse-compile\\cells\\RunB",
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_oTeABAvmzSkEAQbuvPYYojrp"
+    }
+  ],
+  "returns": [
+    {
+      "tool": "list_files",
+      "id": "call_9nMAQLbwhVuetf6bPk8czppp",
+      "kind": "result",
+      "success": null,
+      "exit_code": null,
+      "error": null,
+      "stderr": null
+    },
+    {
+      "tool": "shell",
+      "id": "call_Q7cSioAxcsAnVdwfgncAvxTT",
+      "kind": "result",
+      "success": false,
+      "exit_code": 1,
+      "error": "The process didn't exit cleanly! If the user_interrupted flag is true,\n                please stop all execution and ask the user for clarification!",
+      "stderr": "& was unexpected at this time."
+    },
+    {
+      "tool": "shell",
+      "id": "call_ex0Z1nGxjcO9PL8aX0ni2U9c",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_6gMHChC7kUEFkCu35Isur9aW",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_xeYHWdg4dAwAc1p0Ldno0Wjf",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_CK1TNAYsFVcZqsHXRFKqr1qi",
+      "kind": "result",
+      "success": false,
+      "exit_code": 1,
+      "error": "The process didn't exit cleanly! If the user_interrupted flag is true,\n                please stop all execution and ask the user for clarification!",
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    exec('import pefile,struct,re\\np=pefile.PE(\\'target.exe\\'); src=p.get_data(0xf2000,0x28540); pos=0; bits=0; out=bytearray(); off=-1\\ndef bit():\\n global pos,bits\\n carry=bits>>31; bits=(bits*2)&0xffffffff\\n if not bits:\\n  val=struct.unpack_from(\\'<I\\'... [truncated]\n    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^... [truncated]\n  File \"<string>\", line 34, in <module>\nIndexError: bytearray index out of range"
+    },
+    {
+      "tool": "shell",
+      "id": "call_suDiXCZmuWvMTT9OrDnNLieC",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_EWyTEk73E3r2ZJvFyPOx0nAh",
+      "kind": "result",
+      "success": true,
+      "exit_code": null,
+      "error": "",
+      "stderr": null
+    },
+    {
+      "tool": "shell",
+      "id": "call_x0Za7CISqhXJVtFzUfZ1AI9U",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_aUpotXLR3tHGS1e0TUL7gxWN",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_xLoTym31MFetc9EgLexwJZYz",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_6LXpWdNoTyffkxu07cHRnRY4",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_5BSaQW70hQDYZnV5i39dDkW3",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_xhVo0RjpFINhiub7ZY5i6PXW",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_iqEt0FZjcbdgOtLtXb4LDZnj",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_V0C0Ydb1qh2yuouowK2FPjXV",
+      "kind": "result",
+      "success": false,
+      "exit_code": 1,
+      "error": "The process didn't exit cleanly! If the user_interrupted flag is true,\n                please stop all execution and ask the user for clarification!",
+      "stderr": "The filename, directory name, or volume label syntax is incorrect."
+    },
+    {
+      "tool": "shell",
+      "id": "call_G9mWsTFQDs6H39UNj3SgiL3w",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_MsxVNOssAk08ogbvYHfYXDs0",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_bUMuvRnbojE5Sqn2UDoDgaAi",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_7dWl2TIu81lvmdcz4mEsp15W",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_qmF4RgH7FuzngUBE00WnvnaG",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_QY8S2QHCeCGQNo8CH6kn3B6G",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_1l3tipem5pcYlzupdJMEwCaS",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_oEjxC4WWygYUgZ4hgWyNvBgP",
+      "kind": "result",
+      "success": false,
+      "exit_code": 1,
+      "error": "The process didn't exit cleanly! If the user_interrupted flag is true,\n                please stop all execution and ask the user for clarification!",
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import socket; s=socket.create_connection(('127.0.0.1',19374)); s.sendall(b'sim(513,42); sim(4096,42)'); s.shutdown(socket.SHUT_WR); exec('while True:\\n data=s.recv(65536)\\n if not data: break\\n print(data.decode(),end=\"\")')\n                     ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\poly\\AppData\\Roaming\\uv\\python\\cpython-3.14-windows-x86_64-none\\Lib\\socket.py\", line 874, in create_connection\n    raise exceptions[0]\n  File \"C:\\Users\\poly\\AppData\\Roaming\\uv\\python\\cpython-3.14-windows-x86_64-none\\Lib\\socket.py\", line 859, in create_connection\n    sock.connect(sa)\n    ~~~~~~~~~~~~^^^^\nConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it"
+    },
+    {
+      "tool": "shell",
+      "id": "call_oTeABAvmzSkEAQbuvPYYojrp",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    }
+  ],
+  "note": "Manual access-boundary audit required; tool text is untrusted data."
+}

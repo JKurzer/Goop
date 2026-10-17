@@ -1,0 +1,11 @@
+{
+  "arm": "conformant-v13-reverse-compile",
+  "cell": "RunB",
+  "protocol": "compile.md",
+  "report_sha256": "2c623ab66f32f5e65a8c079818fc7823478d1b86254b28766b3164cc207c85d1",
+  "source_sha256": "d236b3c81d683f1f7b91d39e18cc8fff20190102c57fd6c38d539d6cd3cc9cd0",
+  "vcvars": "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat",
+  "grade": "compiled",
+  "compiler_exit": 0,
+  "diagnostics": "replacement.cpp\n"
+}
