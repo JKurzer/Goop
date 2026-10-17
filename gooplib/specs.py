@@ -35,10 +35,12 @@ parameters (goop rule 2: zero magic numbers in utilities):
                 is functionally one dose (gooplib/exports.py).
 - fn_literals:  optional function-literals vector (owner 2026-10-15: "just
                 shoving them as string literals into some functions"). Same
-                shape as exports; N x 18 named const char arrays carrying
-                the LINKs as plain bigram strings, each referenced inline
-                inside main's tick loop and checksum loop (volatile reads
-                into the inert sink; output unchanged).
+                words/sets shape as exports; optionally add
+                `links_per_literal: 2` or `4` to keep complete two-LINK
+                configs inside independently visible <=120-byte strings.
+                Without that key, the historical one-LINK layout remains
+                reproducible. Arrays are referenced in both loops via
+                volatile reads into the inert sink; output unchanged.
 
 The MSVC toolchain is an environment pin: GOOP_VCVARS must name the
 vcvars64.bat to use; the utility asserts the pinned file exists.
@@ -50,8 +52,8 @@ import re
 from pathlib import Path
 
 from gooplib import GoopError
-from gooplib.exports import (EXPORT_ROLES, validate_export_words,
-                             validate_pairs)
+from gooplib.exports import (EXPORT_ROLES, block_texts,
+                             validate_export_words, validate_pairs)
 
 SPEC_NAME = 'spec.json'
 VCVARS_ENV = 'GOOP_VCVARS'
@@ -111,9 +113,15 @@ def _link_block(value, where):
     _require(isinstance(sets, int) and not isinstance(sets, bool)
              and 1 <= sets <= 99,
              f'build.{where}.sets must be an integer in [1, 99]')
+    grouped = where == 'fn_literals' and 'links_per_literal' in value
+    extra = {'links_per_literal'} if grouped else set()
+    if grouped:
+        _require(type(value['links_per_literal']) is int
+                 and value['links_per_literal'] in (2, 4),
+                 'build.fn_literals.links_per_literal must be 2 or 4')
     if 'pairs' in value:
-        _require(set(value) == {'sets', 'pairs'},
-                 f"build.{where} with 'pairs' must hold only 'sets' and 'pairs'")
+        _require(set(value) == {'sets', 'pairs'} | extra,
+                 f"build.{where} with 'pairs' has unexpected keys")
         raw_pairs = value['pairs']
         _require(isinstance(raw_pairs, list) and 1 <= len(raw_pairs) <= 3,
                  f'build.{where}.pairs must be a list of 1-3 pair objects')
@@ -123,13 +131,21 @@ def _link_block(value, where):
                      f'{list(EXPORT_ROLES)}')
         pairs = validate_pairs([{role: pair[role] for role in EXPORT_ROLES}
                                 for pair in raw_pairs])
-        return {'sets': sets, 'pairs': pairs}
-    _require(set(value) == {'sets', *EXPORT_ROLES},
+        normalized = {'sets': sets, 'pairs': pairs}
+        if grouped:
+            normalized['links_per_literal'] = value['links_per_literal']
+            block_texts(normalized)  # reject strings too long for one row
+        return normalized
+    _require(set(value) == {'sets', *EXPORT_ROLES} | extra,
              f"build.{where} must be {{'sets', *{list(EXPORT_ROLES)}}} or "
              "{'sets', 'pairs'}")
-    return {'sets': sets,
-            'words': validate_export_words(
-                {role: value[role] for role in EXPORT_ROLES})}
+    normalized = {'sets': sets,
+                  'words': validate_export_words(
+                      {role: value[role] for role in EXPORT_ROLES})}
+    if grouped:
+        normalized['links_per_literal'] = value['links_per_literal']
+        block_texts(normalized)  # reject strings too long for one row
+    return normalized
 
 
 def _strings_block(value):

@@ -9,13 +9,17 @@ gooplib.specs.build_section, and the visibility measure. Cargo-string
 tests live in test_strings.py; end-to-end build/pack assertions live in
 test_build.py (skipped without a pinned toolchain).
 """
+import re
+
 import pytest
 
+from gooplib import NATIVE_SRC
 from gooplib import bridging as br
 from gooplib import GoopError
 from gooplib.exports import (block_leaf_words, block_texts, count_visible,
                              link_texts, names_digest, validate_export_words,
                              validate_pairs)
+from gooplib.native_build import build_pair, inject_fn_literals
 from gooplib.specs import build_section
 
 WORDS = {'anchor': 'hainish', 'target': 'delete', 'destination': 'file'}
@@ -84,6 +88,43 @@ def test_block_dispatch_matches_direct_calls():
         link_texts(WORDS, 1) + link_texts(pair2, 1)
 
 
+def test_grouped_literals_preserve_configs_and_clear_two_link_floor():
+    for bundle_size, expected_count in ((2, 9), (4, 5)):
+        block = {'sets': 2, 'words': WORDS,
+                 'links_per_literal': bundle_size}
+        texts = block_texts(block)
+        assert len(texts) == 2 * expected_count
+        assert [link for text in texts for link in text.split(' | ')] == \
+            link_texts(WORDS, 2)
+        assert {len(text.split(' | ')) for text in texts} == \
+            ({2} if bundle_size == 2 else {2, 4})
+        assert all(len(text.encode('ascii')) <= 120 for text in texts)
+    # A lone adjacent bigram cannot masquerade as a delivered bundle.
+    assert count_visible(block_texts({'sets': 1, 'words': WORDS,
+                                      'links_per_literal': 4}),
+                         'hainish delete') == {'distinct': 0, 'occurrences': 0}
+
+
+def test_grouped_literals_emit_as_one_named_c_string():
+    block = {'sets': 1, 'words': WORDS, 'links_per_literal': 4}
+    texts = block_texts(block)
+    source = (NATIVE_SRC / 'main.cpp').read_text(encoding='utf-8')
+    emitted = inject_fn_literals(source, texts)
+    arrays = re.findall(r'extern "C" const char bramble_lit_\d+\[\] = "([^"]+)";',
+                        emitted)
+    assert arrays == texts
+    assert all(len(array.split(' | ')) >= 2 for array in arrays)
+
+
+def test_grouped_literals_never_cross_pairs():
+    pair2 = {'anchor': 'hainish', 'target': 'checksum', 'destination': 'delete'}
+    block = {'sets': 1, 'pairs': [WORDS, pair2], 'links_per_literal': 4}
+    texts = block_texts(block)
+    assert len(texts) == 10
+    assert [link for text in texts for link in text.split(' | ')] == \
+        link_texts(WORDS, 1) + link_texts(pair2, 1)
+
+
 def test_block_dispatch_raw_flat_shape():
     """The raw run-spec flat triple (every pre-pairs arm) must not crash
     the scorer's visibility path (the e5f60f7 regression class)."""
@@ -125,6 +166,27 @@ def make_spec(fn_literals=None):
 def test_build_section_fn_literals_roundtrip():
     build = build_section(make_spec({'sets': 20, **WORDS}))
     assert build['fn_literals'] == {'sets': 20, 'words': WORDS}
+
+
+def test_build_section_grouped_fn_literals_and_invalid_groupings():
+    raw = {'sets': 2, **WORDS, 'links_per_literal': 4}
+    assert build_section(make_spec(raw))['fn_literals'] == \
+        {'sets': 2, 'words': WORDS, 'links_per_literal': 4}
+    for value in (0, 1, 3, 5, True, '4'):
+        with pytest.raises(GoopError, match='links_per_literal'):
+            build_section(make_spec({**raw, 'links_per_literal': value}))
+    long_words = {'anchor': 'h' * 70, 'target': 'd' * 70,
+                  'destination': 'f' * 70}
+    with pytest.raises(GoopError, match='120 bytes'):
+        build_section(make_spec({'sets': 1, **long_words,
+                                 'links_per_literal': 4}))
+
+
+def test_new_build_refuses_legacy_one_link_literals_before_writing(tmp_path):
+    spec = make_spec({'sets': 1, **WORDS})
+    with pytest.raises(GoopError, match='one-LINK function literals'):
+        build_pair(tmp_path / 'not-created', spec)
+    assert not (tmp_path / 'not-created').exists()
 
 
 def test_build_section_fn_literals_absent():

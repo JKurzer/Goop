@@ -86,6 +86,28 @@ def link_texts_pairs(pairs, sets):
     return texts
 
 
+def bundled_link_texts(words, sets, links_per_literal):
+    """Keep whole canonical two-LINK configs together in each C string.
+
+    Four LINKs are preferred; an odd final config has two. Never carry a
+    config into a different literal, set, or pair. Cap each string so a
+    scanner's address/ANSI decorations fit the 256-character output row.
+    """
+    links = link_texts(words, sets)
+    if links_per_literal not in (2, 4) or isinstance(links_per_literal, bool):
+        raise GoopError('fn_literals.links_per_literal must be 2 or 4')
+    texts = []
+    links_per_set = len(br.CANONICAL_CONFIGS) * 2
+    for set_start in range(0, len(links), links_per_set):
+        one_set = links[set_start:set_start + links_per_set]
+        for start in range(0, len(one_set), links_per_literal):
+            text = ' | '.join(one_set[start:start + links_per_literal])
+            if len(text.encode('ascii')) > 120:
+                raise GoopError('fn_literals grouped string exceeds 120 bytes')
+            texts.append(text)
+    return texts
+
+
 def _block_words(block, where):
     """The word material of an exports/fn_literals block, any shape:
     normalized ('words' / 'pairs') or the raw run-spec flat triple
@@ -102,8 +124,13 @@ def _block_words(block, where):
 
 
 def block_texts(block):
-    """link_texts for a fn_literals block of any shape (normalized or raw)."""
+    """Function-literal strings in canonical order; grouping is opt-in."""
     kind, words = _block_words(block, 'fn_literals')
+    if 'links_per_literal' in block:
+        pairs = words if kind == 'pairs' else [words]
+        return [text for pair in pairs
+                for text in bundled_link_texts(pair, block['sets'],
+                                               block['links_per_literal'])]
     if kind == 'pairs':
         return link_texts_pairs(words, block['sets'])
     return link_texts(words, block['sets'])

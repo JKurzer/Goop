@@ -335,7 +335,7 @@ def test_run20x_strings_checks_green(run20x):
 @requires_msvc
 def test_run20x_fn_literals_match_spec(run20x):
     texts = block_texts(RUN20X['fn_literals'])
-    assert len(texts) == 36  # 1 set x 2 pairs x 18 canonical links
+    assert len(texts) == 10  # 1 set x 2 pairs x (4 four-LINK + 1 two-LINK)
     manifest_fn = run20x['unpacked']['fn_literals']
     assert manifest_fn['count'] == len(texts)
     for cell in RUN20X['doses']:

@@ -164,9 +164,10 @@ def inject_strings(main_cpp, entries):
 
 def inject_fn_literals(main_cpp, texts):
     """Function literals (owner 2026-10-15): link strings shoved into the
-    function bodies an analyst re-reads. Each LINK occurrence is a named
+    function bodies an analyst re-reads. Each supplied string is a named
     const char array (named, so string pooling cannot fold duplicates
-    away), and each gets a volatile-read touch inline inside BOTH the
+    away); a grouped string carries 2-4 LINKs. Each gets a volatile-read
+    touch inline inside BOTH the
     tick loop and the checksum loop. The sink is the inert provenance
     fold's: never printed, never branched on; output is unchanged.
     """
@@ -701,6 +702,9 @@ def build_pair(run_dir, spec):
     Raises GoopError on any integrity or isolation failure.
     """
     build = build_section(spec)
+    if build['fn_literals'] and 'links_per_literal' not in build['fn_literals']:
+        raise GoopError('one-LINK function literals are retired for new builds; '
+                        'set build.fn_literals.links_per_literal to 2 or 4')
     run_dir = Path(run_dir).resolve()
     candidate = candidate_path(run_dir, build)
     if candidate_digest(candidate) != build['payload_sha256']:
