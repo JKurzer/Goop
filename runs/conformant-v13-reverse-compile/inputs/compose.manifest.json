@@ -1,0 +1,9 @@
+{
+  "recipe": "inputs/compose.json",
+  "source_run": "runs/conformant-v11-160-metadata",
+  "source_spec_sha256": "e41fc9b23d37abfbb5ab5fe69bf0be2ac32bb97d616fda5bea12b505c18a979c",
+  "source_candidate_sha256": "018b428aaefc5f6c2c16881343e6c8f9314c31a72b221c17266c5a469d32934b",
+  "candidate_replacements": 2880,
+  "candidate_sha256": "21ca462e8065182a9b35b574c591506063d78d19c5227dc6afccc3bd66f42684",
+  "spec_sha256": "cc077d93eafc97e82a9863573346404f80ed08f91a9d59e4fc94435daa6842bd"
+}
