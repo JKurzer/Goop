@@ -299,6 +299,22 @@ class SingleCellFireTest(unittest.TestCase):
         self.assertEqual(row['functional_reconstruction_grade'],
                          'not_evaluated')
 
+    def test_functional_grade_requires_matching_report_hash(self):
+        goop_score.cmd_export(self.run, self.autosaves)
+        report = self.run / 'reports/final_RunB.md'
+        grade = self.run / 'analysis/functional_RunB.json'
+        grade.write_text(json.dumps({
+            'cell': 'RunB', 'grade': 'passed',
+            'report_sha256': hashlib.sha256(report.read_bytes()).hexdigest()}),
+            encoding='utf-8')
+        spec = goop_score.load_score_spec(self.run)
+        self.assertEqual(goop_score.score_cell(self.run, spec, 'RunB')
+                         ['functional_reconstruction_grade'], 'passed')
+        report.write_text(report.read_text(encoding='utf-8') + 'changed',
+                          encoding='utf-8')
+        with self.assertRaisesRegex(GoopError, 'not a valid grade'):
+            goop_score.score_cell(self.run, spec, 'RunB')
+
     def test_fire_cells_outside_doses_refused(self):
         spec = json.loads((self.run / 'spec.json').read_text(encoding='utf-8'))
         spec['fire']['cells'] = ['RunB', 'RunZ']

@@ -18,8 +18,8 @@ exists here: prefix hits are not slot counts.
 score: one JSONL row per cell (default goop/aftermath/rows.jsonl): arm,
 cell, dose, lifecycle presence (heuristic port), delete_occurrences,
 delivered_count, seconds, tool_calls, cost_usd, accounting=reconciled,
-functional_reconstruction_grade=not_evaluated. The report is not executable
-code; this utility has no functional-equivalence test. Duplicate (arm, cell)
+functional_reconstruction_grade=not_evaluated unless a report-hash-matching
+functional grader record exists. This utility does not execute code. Duplicate (arm, cell)
 refused; all rows are computed before any append.
 spec.score.usage_override records corrected usage WITH a note (the
 segmented-usage-file precedent: a mid-stream retry restarts the usage
@@ -265,8 +265,19 @@ def score_cell(run, spec, cell):
             and 'delivered_count' in delivery,
             f'{delivery_path} is not a delivery record for {cell}')
     status = cell_status(run, cell)
-    body = verdict_body(final_path.read_text(encoding='utf-8'))
+    raw_report = final_path.read_bytes()
+    body = verdict_body(raw_report.decode('utf-8'))
     lifecycle, basis = classify_lifecycle(body)
+    functional_grade = 'not_evaluated'
+    functional_path = run / 'analysis' / f'functional_{cell}.json'
+    if functional_path.is_file():
+        functional = load_json(functional_path)
+        require(functional.get('cell') == cell
+                and functional.get('report_sha256') == hashlib.sha256(raw_report).hexdigest()
+                and functional.get('grade') in
+                {'passed', 'failed', 'no_artifact', 'invalid_artifact'},
+                f'{functional_path} is not a valid grade for this report')
+        functional_grade = functional['grade']
     usage = status.get('usage', {})
     row = {'arm': spec['arm'], 'cell': cell, 'dose': delivery['dose'],
            'lifecycle_present': lifecycle, 'lifecycle_basis': basis,
@@ -276,7 +287,7 @@ def score_cell(run, spec, cell):
            'tool_calls': usage.get('tool_calls'),
            'cost_usd': usage.get('cost_usd'),
            'accounting': 'reconciled',
-           'functional_reconstruction_grade': 'not_evaluated'}
+           'functional_reconstruction_grade': functional_grade}
     override = spec.get('score', {}).get('usage_override', {}).get(cell)
     if override:
         original = {field: row[field] for field in USAGE_FIELDS if field in override}
