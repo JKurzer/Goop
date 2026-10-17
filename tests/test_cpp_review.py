@@ -35,4 +35,5 @@ def test_four_sources_match_compiler_inputs_and_shared_target_formats():
         code = source.decode('utf-8')
         assert 'cp owner %d team progress' in code
         assert 'SUMMARY teleology progress team ticks=' in code
+        assert len(re.findall(r'\bteleology\b', code)) == 1
         assert not re.search(r'\b(reverse|remove)\b', code)
