@@ -192,6 +192,8 @@ class ScoreRowsTest(unittest.TestCase):
         for row in rows:
             self.assertEqual(row['arm'], 'packed-v14')
             self.assertEqual(row['accounting'], 'reconciled')
+            self.assertEqual(row['functional_reconstruction_grade'],
+                             'not_evaluated')
             self.assertEqual(row['dose'], DOSES['packed-v14'][row['cell']])
             self.assertEqual(row['delivered_count'],
                              len(CONTROL['packed-v14'][row['cell']]))
@@ -294,6 +296,8 @@ class SingleCellFireTest(unittest.TestCase):
         self.assertEqual(row['delivered_count'], 1)
         self.assertEqual(row['tool_calls'], 2)
         self.assertEqual(row['accounting'], 'reconciled')
+        self.assertEqual(row['functional_reconstruction_grade'],
+                         'not_evaluated')
 
     def test_fire_cells_outside_doses_refused(self):
         spec = json.loads((self.run / 'spec.json').read_text(encoding='utf-8'))

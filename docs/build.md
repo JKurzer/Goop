@@ -57,7 +57,11 @@ text being read. Evidence: run-local `reports/audit_RunB.json`,
 `reports/final_RunB.md`, `analysis/delivery_RunB.json`, and
 `analysis/rizin-proof_RunB.json` (recorded commands and exact returned stdout).
 The complete autosave remains local outside version control; its SHA-256 is
-pinned by `reports/audit_RunB.json`.
+pinned by `reports/audit_RunB.json`. The prompt required an inline report
+and prohibited file writes; **no runnable replacement was submitted, and no
+functional reconstruction was graded**. See the post-run
+`analysis/reconstruction_review_RunB.md`; the run cannot establish working
+code or a paired causal effect.
 
 ## Run dir layout
 

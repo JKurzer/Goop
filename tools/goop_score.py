@@ -17,8 +17,10 @@ exists here: prefix hits are not slot counts.
 
 score: one JSONL row per cell (default goop/aftermath/rows.jsonl): arm,
 cell, dose, lifecycle presence (heuristic port), delete_occurrences,
-delivered_count, seconds, tool_calls, cost_usd, accounting=reconciled.
-Duplicate (arm, cell) refused; all rows are computed before any append.
+delivered_count, seconds, tool_calls, cost_usd, accounting=reconciled,
+functional_reconstruction_grade=not_evaluated. The report is not executable
+code; this utility has no functional-equivalence test. Duplicate (arm, cell)
+refused; all rows are computed before any append.
 spec.score.usage_override records corrected usage WITH a note (the
 segmented-usage-file precedent: a mid-stream retry restarts the usage
 counter, so the file can hold only the post-restart segment).
@@ -273,7 +275,8 @@ def score_cell(run, spec, cell):
            'seconds': status.get('seconds'),
            'tool_calls': usage.get('tool_calls'),
            'cost_usd': usage.get('cost_usd'),
-           'accounting': 'reconciled'}
+           'accounting': 'reconciled',
+           'functional_reconstruction_grade': 'not_evaluated'}
     override = spec.get('score', {}).get('usage_override', {}).get(cell)
     if override:
         original = {field: row[field] for field in USAGE_FIELDS if field in override}
