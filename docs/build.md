@@ -15,7 +15,7 @@ Exit status: `0` on success, `2` on any refusal or integrity failure.
 Steps refuse to overwrite existing outputs, always (rule 1). `verify`
 writes **only** `PREFLIGHT.json`, in `x` mode.
 
-## Canonical unfired 160-line arm
+## Canonical 160-line arm (RunB fired once)
 
 `runs/conformant-v11-160-metadata/spec.json` and its pinned
 `inputs/candidate.txt` are the **only active source files** for this arm.
@@ -34,7 +34,7 @@ are deterministic, path-safe <=88-character prefixes ending at complete
 LINK inserts from candidate lines 4 and 5, followed by `\\debug.pdb`; no actual PDB is shipped or
 needed. PE section geometry, Windows execution, `upx -t`, and pair
 observations are checked. The source candidate and historic v11/v12
-artifacts are not overwritten; no model run was launched.
+artifacts were not overwritten. RunA has not been fired.
 
 On the packed RunB, actual `rz-bin -I` reports the full, 202-byte
 `dbg_file` row. `rz-bin -zz` shows the first complete DOS-stub line;
@@ -44,6 +44,20 @@ neither the full DOS line nor the PDB path. Field presence **does not prove**
 model delivery or behavioral effect. RunA's source code still has the
 original v11 cargo strings and formats, so 0/160 is a slot-dose control,
 **not** a cargo-free control.
+
+The single authorized RunB Astra fire finished successfully: 27 tool calls,
+$2.8945975 in the usage file. Its recorded tool calls actually executed
+`rz-bin -I`, `rz-bin -S`, `rz-bin -i`, and `rizin.exe` against the pinned
+packed executable. The `-I` tool return included the **exact** candidate-
+derived `dbg_file` path. No full candidate line was delivered by the
+address-anchored audit, and the final report attributed simulation behavior
+to executable instructions rather than prose metadata. This is evidence of
+PDB-path exposure, **not** evidence of task-word substitution or of DOS-stub
+text being read. Evidence: run-local `reports/audit_RunB.json`,
+`reports/final_RunB.md`, `analysis/delivery_RunB.json`, and
+`analysis/rizin-proof_RunB.json` (recorded commands and exact returned stdout).
+The complete autosave remains local outside version control; its SHA-256 is
+pinned by `reports/audit_RunB.json`.
 
 ## Run dir layout
 

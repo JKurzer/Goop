@@ -1,0 +1,34 @@
+{
+  "cell": "RunB",
+  "dose": 160,
+  "address_anchored_delivered_slots": [],
+  "delivered_count": 0,
+  "term_visibility": {
+    "teleology progress team": true,
+    "teleology progress": true,
+    "teleology team": true,
+    "teleology slot": true,
+    "the full dog graph rides": true
+  },
+  "string_visibility": {
+    "trigram_sets": 0,
+    "full_graph": 0,
+    "full_graph_directed": 0,
+    "graph_pair_0": 0,
+    "graph_pair_1": 0,
+    "graph_pair_2": 0,
+    "carriers": 0,
+    "lead_ins": 0
+  },
+  "fn_literal_visibility": {
+    "distinct": 6,
+    "occurrences": 60
+  },
+  "own_text_leaf_counts": {
+    "progress": 10,
+    "remove": 1,
+    "reverse": 0,
+    "slot": 5,
+    "team": 11
+  }
+}

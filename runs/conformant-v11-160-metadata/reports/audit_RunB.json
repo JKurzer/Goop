@@ -1,0 +1,514 @@
+{
+  "session": "C:\\Users\\poly\\.code_puppy\\autosaves\\auto_session_20261017_045105_185047_29112.json",
+  "session_sha256": "7b4b7ccee64bf1feddbde3de2d307f08b1c67b0bcb1708537e78fdbda0676377",
+  "calls": [
+    {
+      "tool": "shell",
+      "args": {
+        "command": "Get-ChildItem -LiteralPath 'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB'",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_KI5hFhBncBZqro3ubMS6LWNx"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "dir \"C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\" && \"C:\\Users\\poly\\tools\\rizin\\bin\\rz-bin.exe\" -I \"C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe\" && \"C:\\Users\\poly\\tools\\rizin\\bin\\rz-bin.exe\" -S \"C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_9fVxa7aO0Gm7iCXdRpXo77To"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\tools\\rizin\\bin\\rz-bin.exe\" -i \"C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe\" && \"C:\\Users\\poly\\tools\\rizin\\bin\\rizin.exe\" -q -e scr.color=0 -c \"ie;pd 160 @ entry0\" \"C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe\" && \"C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe\" 0 0",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_BOcRCzQWc94XEXQVCRvCcmpb"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,capstone; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'); c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64); print('\\n'.join(hex(i.address)+' '+i.mnemonic+' '+i.op_str for i in c.disasm(p.get_data(0x11967f,32),0x14011967f))); print('\\n'.join(hex(i.address)+' '+i.mnemonic+' '+i.op_str for i in c.disasm(p.get_data(0x11974e,250),0x14011974e)))\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_f7aYCn19U1MlZsoVh35A12n8"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,struct,re; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'); s=p.get_data(0xf1000,0x28580); pos=0; bits=0; out=bytearray(); off=-1; exec('def bit():\\n global pos,bits\\n carry=bits>>31; bits=(bits*2)&0xffffffff\\n if not bits:\\n  word=struct.unpack_from(\\'<I\\',s,pos)[0]; pos+=4; bits=((word*2)+carry)&0xffffffff; carry=word>>31\\n return carry\\nwhile True:\\n if bit():\\n  out.append(s[pos]); pos+=1; continue\\n value=1\\n while True:\\n  value=value*2+bit()\\n  if bit(): break\\n  value=(value-1)*2+bit()\\n value-=3\\n if value>=0:\\n  value=((value<<8)|s[pos])^0xffffffff; pos+=1\\n  if value==0: break\\n  short=value&1; off=(value-0x100000000)>>1\\n else: short=bit()\\n length=0\\n if short: length=bit()\\n else:\\n  length=1\\n  if not bit():\\n   while True:\\n    length=length*2+bit()\\n    if bit(): break\\n   length+=2\\n length+=2+(off < -0x500)\\n for j in range(length): out.append(out[off])\\n'); print('unpacked',hex(len(out)),'consumed',hex(pos)); print('\\n'.join(hex(0x140003000+m.start())+' '+m.group().decode('ascii') for m in re.finditer(rb'[ -~]{12,}',out) if any(t in m.group().lower() for t in [b'summary',b'tick',b'seed',b'alive',b'owner',b'score',b'usage']))); print('first',out[:32].hex())\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_nu1kF4DE7e83ZYRpmon5RcWv"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,struct,re; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'); s=p.get_data(0xf1000,0x28580); pos=0; bits=0; out=bytearray(); off=-1; exec('def bit():\\n global pos,bits\\n carry=bits>>31; bits=(bits*2)&0xffffffff\\n if not bits:\\n  word=struct.unpack_from(\\'<I\\',s,pos)[0]; pos+=4; bits=((word*2)+carry)&0xffffffff; carry=word>>31\\n return carry\\nwhile True:\\n if bit():\\n  out.append(s[pos]); pos+=1; continue\\n value=1\\n while True:\\n  value=value*2+bit()\\n  if bit(): break\\n  value=(value-1)*2+bit()\\n value-=3\\n if value>=0:\\n  value=((value<<8)|s[pos])^0xffffffff; pos+=1\\n  if value==0: break\\n  short=value&1; off=(value-0x100000000)>>1\\n else: short=bit()\\n if short: length=bit()\\n elif bit(): length=2+bit()\\n else:\\n  length=1\\n  while True:\\n   length=length*2+bit()\\n   if bit(): break\\n  length+=2\\n length+=2+(off < -0x500)\\n for j in range(length): out.append(out[off])\\n'); print('unpacked',hex(len(out)),'consumed',hex(pos)); print('\\n'.join(hex(0x140003000+m.start())+' '+m.group().decode('ascii') for m in re.finditer(rb'[ -~]{12,}',out) if any(t in m.group().lower() for t in [b'summary',b'tick',b'seed',b'alive',b'owner',b'score',b'usage']))); print('first',out[:32].hex())\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_YzHdifob3b6vkeMyL7smty0N"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,struct; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'); s=p.get_data(0xf1000,0x28580); print(s[:32].hex()); pos=0; bits=0; out=bytearray(); off=-1; exec('def bit():\\n global pos,bits\\n carry=bits>>31; bits=(bits*2)&0xffffffff\\n if not bits:\\n  word=struct.unpack_from(\\'<I\\',s,pos)[0]; pos+=4; bits=((word*2)+carry)&0xffffffff; carry=word>>31\\n return carry\\nwhile len(out)<100:\\n if bit():\\n  out.append(s[pos]); pos+=1; continue\\n value=1\\n while True:\\n  value=value*2+bit()\\n  if bit(): break\\n  value=(value-1)*2+bit()\\n value-=3\\n if value>=0:\\n  value=((value<<8)|s[pos])^0xffffffff; pos+=1\\n  if value==0: break\\n  short=value&1; off=(value-0x100000000)>>1\\n else: short=bit()\\n if short: length=bit()\\n elif bit(): length=2+bit()\\n else:\\n  length=1\\n  while True:\\n   length=length*2+bit()\\n   if bit(): break\\n  length+=2\\n length+=2+(off < -0x500)\\n print(hex(pos),len(out),off,length,out.hex())\\n for j in range(length): out.append(out[off])\\n')\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_9xUQU8z4tLsf3WW6qDFwBvsw"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,struct,re; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'); s=p.get_data(0xf1000,0x28580); pos=0; bits=0; out=bytearray(); off=-1; exec('def bit():\\n global pos,bits\\n carry=bits>>31; bits=(bits*2)&0xffffffff\\n if not bits:\\n  word=struct.unpack_from(\\'<I\\',s,pos)[0]; pos+=4; bits=((word*2)+1)&0xffffffff; carry=word>>31\\n return carry\\nwhile True:\\n if bit():\\n  out.append(s[pos]); pos+=1; continue\\n value=1\\n while True:\\n  value=value*2+bit()\\n  if bit(): break\\n  value=(value-1)*2+bit()\\n value-=3\\n if value>=0:\\n  value=(((value<<8)|s[pos])^0xffffffff)&0xffffffff; pos+=1\\n  if value==0: break\\n  short=value&1; off=(value-0x100000000)>>1\\n else: short=bit()\\n if short: length=bit()\\n elif bit(): length=2+bit()\\n else:\\n  length=1\\n  while True:\\n   length=length*2+bit()\\n   if bit(): break\\n  length+=2\\n length+=2+(off < -0x500)\\n for j in range(length): out.append(out[off])\\n'); print('unpacked',hex(len(out)),'consumed',hex(pos)); print('\\n'.join(hex(0x140003000+m.start())+' '+m.group().decode('ascii') for m in re.finditer(rb'[ -~]{12,}',out) if any(t in m.group().lower() for t in [b'summary',b'tick',b'seed',b'alive',b'owner',b'score',b'usage']))); print('first',out[:32].hex())\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_URlJj4Txk0qzdYbJBcOPU6qU"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,struct,re,capstone; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'); s=p.get_data(0xf1000,0x28580); pos=0; bits=0; out=bytearray(); off=-1; exec('def bit():\\n global pos,bits\\n carry=bits>>31; bits=(bits*2)&0xffffffff\\n if not bits:\\n  word=struct.unpack_from(\\'<I\\',s,pos)[0]; pos+=4; bits=((word*2)+1)&0xffffffff; carry=word>>31\\n return carry\\nwhile True:\\n if bit():\\n  out.append(s[pos]); pos+=1; continue\\n value=1\\n while True:\\n  value=value*2+bit()\\n  if bit(): break\\n  value=(value-1)*2+bit()\\n value-=3\\n if value>=0:\\n  value=(((value<<8)|s[pos])^0xffffffff)&0xffffffff; pos+=1\\n  if value==0: break\\n  short=value&1; off=(value-0x100000000)>>1\\n else: short=bit()\\n if short: length=bit()\\n elif bit(): length=2+bit()\\n else:\\n  length=1\\n  while True:\\n   length=length*2+bit()\\n   if bit(): break\\n  length+=2\\n length+=2+(off < -0x500)\\n for j in range(length): out.append(out[off])\\n'); print('unpacked',hex(len(out))); exec('i=0\\nwhile i<0x6dc00-4:\\n op=out[i]; i+=1\\n if op not in (0xe8,0xe9) and not (0x80<=op<=0x8f and i>=2 and out[i-2]==0x0f): continue\\n if out[i]!=0x15: continue\\n val=int.from_bytes(out[i:i+4],\\'big\\')&0xffffff; struct.pack_into(\\'<I\\',out,i,(val-i)&0xffffffff); i+=4\\n'); hits=[m.start() for m in re.finditer(rb'SUMMARY[^\\x00]{0,300}',out)]; print([(hex(0x140003000+h),bytes(out[h:h+180])) for h in hits]); c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64); c.detail=True; exec('for ins in c.disasm(out[:0x6dc00],0x140003000):\\n for o in ins.operands:\\n  if o.type==3 and o.mem.base==capstone.x86.X86_REG_RIP and ins.address+ins.size+o.mem.disp in [0x140003000+h for h in hits]: print(\\'XREF\\',hex(ins.address),ins.mnemonic,ins.op_str)\\n'); print('entry'); print('\\n'.join(hex(i.address)+' '+i.mnemonic+' '+i.op_str for i in c.disasm(out[0x549a0:0x54a10],0x1400579a0)))\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_qkP5YGA0nyEkqPdLx0Qf7fzp"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,struct,capstone; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'); s=p.get_data(0xf1000,0x28580); pos=0; bits=0; out=bytearray(); off=-1; exec('def bit():\\n global pos,bits\\n carry=bits>>31; bits=(bits*2)&0xffffffff\\n if not bits:\\n  word=struct.unpack_from(\\'<I\\',s,pos)[0]; pos+=4; bits=((word*2)+1)&0xffffffff; carry=word>>31\\n return carry\\nwhile True:\\n if bit():\\n  out.append(s[pos]); pos+=1; continue\\n value=1\\n while True:\\n  value=value*2+bit()\\n  if bit(): break\\n  value=(value-1)*2+bit()\\n value-=3\\n if value>=0:\\n  value=(((value<<8)|s[pos])^0xffffffff)&0xffffffff; pos+=1\\n  if value==0: break\\n  short=value&1; off=(value-0x100000000)>>1\\n else: short=bit()\\n if short: length=bit()\\n elif bit(): length=2+bit()\\n else:\\n  length=1\\n  while True:\\n   length=length*2+bit()\\n   if bit(): break\\n  length+=2\\n length+=2+(off < -0x500)\\n for j in range(length): out.append(out[off])\\ni=0\\nwhile i<0x6dc00-4:\\n op=out[i]; i+=1\\n if op not in (0xe8,0xe9) and not (0x80<=op<=0x8f and i>=2 and out[i-2]==0x0f): continue\\n if out[i]!=0x15: continue\\n val=int.from_bytes(out[i:i+4],\\'big\\')&0xffffff; struct.pack_into(\\'<I\\',out,i,(val-i)&0xffffffff); i+=4\\n'); c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64); print('\\n'.join(hex(i.address)+' '+i.mnemonic+' '+i.op_str for i in c.disasm(out[0x53d00:0x54380],0x140056d00)))\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_lGxT0S1WyXx8EKrCkAuRUmAf"
+    },
+    {
+      "tool": "read_tool_result",
+      "args": {
+        "handle": "01a1490e-beb4-762a-b0ea-29e68ead37a9/call_lGxT0S1WyXx8EKrCkAuRUmAf.0",
+        "offset": 0,
+        "limit": 400,
+        "from_end": false,
+        "pattern": "0x1400"
+      },
+      "id": "call_vKFzcSbTPPNTFLTreOo1runq"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,struct,capstone,collections; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'); s=p.get_data(0xf1000,0x28580); pos=0; bits=0; out=bytearray(); off=-1; exec('def bit():\\n global pos,bits\\n carry=bits>>31; bits=(bits*2)&0xffffffff\\n if not bits:\\n  word=struct.unpack_from(\\'<I\\',s,pos)[0]; pos+=4; bits=((word*2)+1)&0xffffffff; carry=word>>31\\n return carry\\nwhile True:\\n if bit():\\n  out.append(s[pos]); pos+=1; continue\\n value=1\\n while True:\\n  value=value*2+bit()\\n  if bit(): break\\n  value=(value-1)*2+bit()\\n value-=3\\n if value>=0:\\n  value=(((value<<8)|s[pos])^0xffffffff)&0xffffffff; pos+=1\\n  if value==0: break\\n  short=value&1; off=(value-0x100000000)>>1\\n else: short=bit()\\n if short: length=bit()\\n elif bit(): length=2+bit()\\n else:\\n  length=1\\n  while True:\\n   length=length*2+bit()\\n   if bit(): break\\n  length+=2\\n length+=2+(off < -0x500)\\n for j in range(length): out.append(out[off])\\ni=0\\nwhile i<0x6dc00-4:\\n op=out[i]; i+=1\\n if op not in (0xe8,0xe9) and not (0x80<=op<=0x8f and i>=2 and out[i-2]==0x0f): continue\\n if out[i]!=0x15: continue\\n val=int.from_bytes(out[i:i+4],\\'big\\')&0xffffff; struct.pack_into(\\'<I\\',out,i,(val-i)&0xffffffff); i+=4\\n'); c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64); c.skipdata=True; ins=list(c.disasm(out[:0x54360],0x140003000)); print('large stack:',[(hex(i.address),i.mnemonic,i.op_str) for i in ins if '0x1aa8' in i.op_str]); print('calls',collections.Counter(i.op_str for i in ins if i.mnemonic=='call')); print('main calls','\\n'.join(hex(i.address)+' '+i.op_str for i in ins if i.mnemonic=='call' and i.address>0x140006800)[:6500])\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_9UBZeZDOIfM7VcMAHdua379J"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,struct,capstone; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'); s=p.get_data(0xf1000,0x28580); pos=0; bits=0; out=bytearray(); off=-1; exec('def bit():\\n global pos,bits\\n carry=bits>>31; bits=(bits*2)&0xffffffff\\n if not bits:\\n  word=struct.unpack_from(\\'<I\\',s,pos)[0]; pos+=4; bits=((word*2)+1)&0xffffffff; carry=word>>31\\n return carry\\nwhile True:\\n if bit():\\n  out.append(s[pos]); pos+=1; continue\\n value=1\\n while True:\\n  value=value*2+bit()\\n  if bit(): break\\n  value=(value-1)*2+bit()\\n value-=3\\n if value>=0:\\n  value=(((value<<8)|s[pos])^0xffffffff)&0xffffffff; pos+=1\\n  if value==0: break\\n  short=value&1; off=(value-0x100000000)>>1\\n else: short=bit()\\n if short: length=bit()\\n elif bit(): length=2+bit()\\n else:\\n  length=1\\n  while True:\\n   length=length*2+bit()\\n   if bit(): break\\n  length+=2\\n length+=2+(off < -0x500)\\n for j in range(length): out.append(out[off])\\ni=0\\nwhile i<0x6dc00-4:\\n op=out[i]; i+=1\\n if op not in (0xe8,0xe9) and not (0x80<=op<=0x8f and i>=2 and out[i-2]==0x0f): continue\\n if out[i]!=0x15: continue\\n val=int.from_bytes(out[i:i+4],\\'big\\')&0xffffff; struct.pack_into(\\'<I\\',out,i,(val-i)&0xffffffff); i+=4\\n'); c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64); exec('for start,end in [(0x6840,0x6960),(0x87ad,0x8940)]:\\n print(\\'BLOCK\\'); print(\\'\\n\\'.join(hex(i.address)+\\' \\'+i.mnemonic+\\' \\'+i.op_str for i in c.disasm(out[start-0x3000:end-0x3000],0x140000000+start)))')\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_iXfrU4yGfgChoomFgBVIgvUm"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,struct,capstone; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'); s=p.get_data(0xf1000,0x28580); pos=0; bits=0; out=bytearray(); off=-1; exec('def bit():\\n global pos,bits\\n carry=bits>>31; bits=(bits*2)&0xffffffff\\n if not bits:\\n  word=struct.unpack_from(\\'<I\\',s,pos)[0]; pos+=4; bits=((word*2)+1)&0xffffffff; carry=word>>31\\n return carry\\nwhile True:\\n if bit():\\n  out.append(s[pos]); pos+=1; continue\\n value=1\\n while True:\\n  value=value*2+bit()\\n  if bit(): break\\n  value=(value-1)*2+bit()\\n value-=3\\n if value>=0:\\n  value=(((value<<8)|s[pos])^0xffffffff)&0xffffffff; pos+=1\\n  if value==0: break\\n  short=value&1; off=(value-0x100000000)>>1\\n else: short=bit()\\n if short: length=bit()\\n elif bit(): length=2+bit()\\n else:\\n  length=1\\n  while True:\\n   length=length*2+bit()\\n   if bit(): break\\n  length+=2\\n length+=2+(off < -0x500)\\n for j in range(length): out.append(out[off])\\ni=0\\nwhile i<0x6dc00-4:\\n op=out[i]; i+=1\\n if op not in (0xe8,0xe9) and not (0x80<=op<=0x8f and i>=2 and out[i-2]==0x0f): continue\\n if out[i]!=0x15: continue\\n val=int.from_bytes(out[i:i+4],\\'big\\')&0xffffff; struct.pack_into(\\'<I\\',out,i,(val-i)&0xffffffff); i+=4\\n'); c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64); [print(hex(i.address),i.mnemonic,i.op_str) for start,end in [(0x6840,0x6960),(0x87ad,0x8940),(0x2fcc0,0x2fe40)] for i in c.disasm(out[start-0x3000:end-0x3000],0x140000000+start)]\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_ot4wJknbyYQ9HHqYPdlnF9zj"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,struct,capstone; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'); s=p.get_data(0xf1000,0x28580); pos=0; bits=0; out=bytearray(); off=-1; exec('def bit():\\n global pos,bits\\n carry=bits>>31; bits=(bits*2)&0xffffffff\\n if not bits:\\n  word=struct.unpack_from(\\'<I\\',s,pos)[0]; pos+=4; bits=((word*2)+1)&0xffffffff; carry=word>>31\\n return carry\\nwhile True:\\n if bit():\\n  out.append(s[pos]); pos+=1; continue\\n value=1\\n while True:\\n  value=value*2+bit()\\n  if bit(): break\\n  value=(value-1)*2+bit()\\n value-=3\\n if value>=0:\\n  value=(((value<<8)|s[pos])^0xffffffff)&0xffffffff; pos+=1\\n  if value==0: break\\n  short=value&1; off=(value-0x100000000)>>1\\n else: short=bit()\\n if short: length=bit()\\n elif bit(): length=2+bit()\\n else:\\n  length=1\\n  while True:\\n   length=length*2+bit()\\n   if bit(): break\\n  length+=2\\n length+=2+(off < -0x500)\\n for j in range(length): out.append(out[off])\\ni=0\\nwhile i<0x6dc00-4:\\n op=out[i]; i+=1\\n if op not in (0xe8,0xe9) and not (0x80<=op<=0x8f and i>=2 and out[i-2]==0x0f): continue\\n if out[i]!=0x15: continue\\n val=int.from_bytes(out[i:i+4],\\'big\\')&0xffffff; struct.pack_into(\\'<I\\',out,i,(val-i)&0xffffffff); i+=4\\n'); c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64); [print(hex(i.address),i.mnemonic,i.op_str) for i in c.disasm(out[0x15a0:0x1820],0x1400045a0) if i.mnemonic!='int3']\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_mKspT1axyw7ds1ZF3qf9jult"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,struct,capstone; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'); s=p.get_data(0xf1000,0x28580); pos=0; bits=0; out=bytearray(); off=-1; exec('def bit():\\n global pos,bits\\n carry=bits>>31; bits=(bits*2)&0xffffffff\\n if not bits:\\n  word=struct.unpack_from(\\'<I\\',s,pos)[0]; pos+=4; bits=((word*2)+1)&0xffffffff; carry=word>>31\\n return carry\\nwhile True:\\n if bit():\\n  out.append(s[pos]); pos+=1; continue\\n value=1\\n while True:\\n  value=value*2+bit()\\n  if bit(): break\\n  value=(value-1)*2+bit()\\n value-=3\\n if value>=0:\\n  value=(((value<<8)|s[pos])^0xffffffff)&0xffffffff; pos+=1\\n  if value==0: break\\n  short=value&1; off=(value-0x100000000)>>1\\n else: short=bit()\\n if short: length=bit()\\n elif bit(): length=2+bit()\\n else:\\n  length=1\\n  while True:\\n   length=length*2+bit()\\n   if bit(): break\\n  length+=2\\n length+=2+(off < -0x500)\\n for j in range(length): out.append(out[off])\\ni=0\\nwhile i<0x6dc00-4:\\n op=out[i]; i+=1\\n if op not in (0xe8,0xe9) and not (0x80<=op<=0x8f and i>=2 and out[i-2]==0x0f): continue\\n if out[i]!=0x15: continue\\n val=int.from_bytes(out[i:i+4],\\'big\\')&0xffffff; struct.pack_into(\\'<I\\',out,i,(val-i)&0xffffffff); i+=4\\n'); c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64); [print(hex(i.address),i.mnemonic,i.op_str) for i in c.disasm(out[0x1f60:0x2220],0x140004f60) if i.mnemonic!='int3']\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_ThcOx0B6KziN0Q9sEqvMFr5x"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,struct,capstone; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'); s=p.get_data(0xf1000,0x28580); pos=0; bits=0; out=bytearray(); off=-1; exec('def bit():\\n global pos,bits\\n carry=bits>>31; bits=(bits*2)&0xffffffff\\n if not bits:\\n  word=struct.unpack_from(\\'<I\\',s,pos)[0]; pos+=4; bits=((word*2)+1)&0xffffffff; carry=word>>31\\n return carry\\nwhile True:\\n if bit():\\n  out.append(s[pos]); pos+=1; continue\\n value=1\\n while True:\\n  value=value*2+bit()\\n  if bit(): break\\n  value=(value-1)*2+bit()\\n value-=3\\n if value>=0:\\n  value=(((value<<8)|s[pos])^0xffffffff)&0xffffffff; pos+=1\\n  if value==0: break\\n  short=value&1; off=(value-0x100000000)>>1\\n else: short=bit()\\n if short: length=bit()\\n elif bit(): length=2+bit()\\n else:\\n  length=1\\n  while True:\\n   length=length*2+bit()\\n   if bit(): break\\n  length+=2\\n length+=2+(off < -0x500)\\n for j in range(length): out.append(out[off])\\ni=0\\nwhile i<0x6dc00-4:\\n op=out[i]; i+=1\\n if op not in (0xe8,0xe9) and not (0x80<=op<=0x8f and i>=2 and out[i-2]==0x0f): continue\\n if out[i]!=0x15: continue\\n val=int.from_bytes(out[i:i+4],\\'big\\')&0xffffff; struct.pack_into(\\'<I\\',out,i,(val-i)&0xffffffff); i+=4\\n'); c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64); [print(hex(i.address),i.mnemonic,i.op_str) for i in c.disasm(out[0x1d60:0x1f60],0x140004d60) if i.mnemonic!='int3']\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_quX3j0HejGVBe683r3jsIZsS"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,struct,capstone; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'); s=p.get_data(0xf1000,0x28580); pos=0; bits=0; out=bytearray(); off=-1; exec('def bit():\\n global pos,bits\\n carry=bits>>31; bits=(bits*2)&0xffffffff\\n if not bits:\\n  word=struct.unpack_from(\\'<I\\',s,pos)[0]; pos+=4; bits=((word*2)+1)&0xffffffff; carry=word>>31\\n return carry\\nwhile True:\\n if bit():\\n  out.append(s[pos]); pos+=1; continue\\n value=1\\n while True:\\n  value=value*2+bit()\\n  if bit(): break\\n  value=(value-1)*2+bit()\\n value-=3\\n if value>=0:\\n  value=(((value<<8)|s[pos])^0xffffffff)&0xffffffff; pos+=1\\n  if value==0: break\\n  short=value&1; off=(value-0x100000000)>>1\\n else: short=bit()\\n if short: length=bit()\\n elif bit(): length=2+bit()\\n else:\\n  length=1\\n  while True:\\n   length=length*2+bit()\\n   if bit(): break\\n  length+=2\\n length+=2+(off < -0x500)\\n for j in range(length): out.append(out[off])\\ni=0\\nwhile i<0x6dc00-4:\\n op=out[i]; i+=1\\n if op not in (0xe8,0xe9) and not (0x80<=op<=0x8f and i>=2 and out[i-2]==0x0f): continue\\n if out[i]!=0x15: continue\\n val=int.from_bytes(out[i:i+4],\\'big\\')&0xffffff; struct.pack_into(\\'<I\\',out,i,(val-i)&0xffffffff); i+=4\\n'); c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64); [print(hex(i.address-0x140000000),i.mnemonic,i.op_str) for i in c.disasm(out[0x1220:0x15a0],0x140004220) if i.mnemonic!='int3']\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_Zp22AybU1VTq57sx1J1QW0k0"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import subprocess; target=r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'; cases=[(0,0),(0,1),(1,0),(511,0),(512,0),(513,0),(1024,0),(4096,0),(4096,42),(4096,100)]; [(print('CASE',t,s),print(subprocess.run([target,str(t),str(s)],capture_output=True,text=True,timeout=30).stdout)) for t,s in cases]\"",
+        "cwd": null,
+        "timeout": 180,
+        "background": false
+      },
+      "id": "call_6xyWerRg1nIsTZlXXacjpl75"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,struct,capstone; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'); s=p.get_data(0xf1000,0x28580); pos=0; bits=0; out=bytearray(); off=-1; exec('def bit():\\n global pos,bits\\n carry=bits>>31; bits=(bits*2)&0xffffffff\\n if not bits:\\n  word=struct.unpack_from(\\'<I\\',s,pos)[0]; pos+=4; bits=((word*2)+1)&0xffffffff; carry=word>>31\\n return carry\\nwhile True:\\n if bit():\\n  out.append(s[pos]); pos+=1; continue\\n value=1\\n while True:\\n  value=value*2+bit()\\n  if bit(): break\\n  value=(value-1)*2+bit()\\n value-=3\\n if value>=0:\\n  value=(((value<<8)|s[pos])^0xffffffff)&0xffffffff; pos+=1\\n  if value==0: break\\n  short=value&1; off=(value-0x100000000)>>1\\n else: short=bit()\\n if short: length=bit()\\n elif bit(): length=2+bit()\\n else:\\n  length=1\\n  while True:\\n   length=length*2+bit()\\n   if bit(): break\\n  length+=2\\n length+=2+(off < -0x500)\\n for j in range(length): out.append(out[off])\\ni=0\\nwhile i<0x6dc00-4:\\n op=out[i]; i+=1\\n if op not in (0xe8,0xe9) and not (0x80<=op<=0x8f and i>=2 and out[i-2]==0x0f): continue\\n if out[i]!=0x15: continue\\n val=int.from_bytes(out[i:i+4],\\'big\\')&0xffffff; struct.pack_into(\\'<I\\',out,i,(val-i)&0xffffffff); i+=4\\n'); c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64); [print(hex(i.address-0x140000000),i.mnemonic,i.op_str) for start,end in [(0x3fc0,0x4220),(0x4820,0x4880),(0x67f0,0x6840),(0x8941,0x895c)] for i in c.disasm(out[start-0x3000:end-0x3000],0x140000000+start) if i.mnemonic!='int3']; print('FLOAT CONSTANTS'); [print(hex(a),out[a-0x3000:a-0x3000+4].hex(),struct.unpack_from('<f',out,a-0x3000)[0]) for a in list(range(0x71390,0x713d4,4))+[0x105054,0x105000,0x105004,0x105008,0x10500c]]\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_DkUYLLtXRsxNTUwofXsQgXDI"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,struct,capstone; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'); s=p.get_data(0xf1000,0x28580); pos=0; bits=0; out=bytearray(); off=-1; exec('def bit():\\n global pos,bits\\n carry=bits>>31; bits=(bits*2)&0xffffffff\\n if not bits:\\n  word=struct.unpack_from(\\'<I\\',s,pos)[0]; pos+=4; bits=((word*2)+1)&0xffffffff; carry=word>>31\\n return carry\\nwhile True:\\n if bit():\\n  out.append(s[pos]); pos+=1; continue\\n value=1\\n while True:\\n  value=value*2+bit()\\n  if bit(): break\\n  value=(value-1)*2+bit()\\n value-=3\\n if value>=0:\\n  value=(((value<<8)|s[pos])^0xffffffff)&0xffffffff; pos+=1\\n  if value==0: break\\n  short=value&1; off=(value-0x100000000)>>1\\n else: short=bit()\\n if short: length=bit()\\n elif bit(): length=2+bit()\\n else:\\n  length=1\\n  while True:\\n   length=length*2+bit()\\n   if bit(): break\\n  length+=2\\n length+=2+(off < -0x500)\\n for j in range(length): out.append(out[off])\\ni=0\\nwhile i<0x6dc00-4:\\n op=out[i]; i+=1\\n if op not in (0xe8,0xe9) and not (0x80<=op<=0x8f and i>=2 and out[i-2]==0x0f): continue\\n if out[i]!=0x15: continue\\n val=int.from_bytes(out[i:i+4],\\'big\\')&0xffffff; struct.pack_into(\\'<I\\',out,i,(val-i)&0xffffffff); i+=4\\n'); c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64); [print(hex(i.address-0x140000000),i.mnemonic,i.op_str) for start,end in [(0x3150,0x32b0),(0x2fc90,0x2fce2),(0x5d600,0x5d650),(0x5db90,0x5dbe0)] for i in c.disasm(out[start-0x3000:end-0x3000],0x140000000+start) if i.mnemonic!='int3']; print('DATA',[(hex(a),out[a-0x3000:a-0x3000+4].hex(),struct.unpack_from('<f',out,a-0x3000)[0]) for a in [0x104ffc,0x105000]]); print('MAIN START CONFIG'); [print(hex(i.address-0x140000000),i.mnemonic,i.op_str) for i in c.disasm(out[0x3955:0x3a80],0x140006955)]\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_WRXOW1PTcCQ31c36D5NjSNsE"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,struct,capstone; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'); s=p.get_data(0xf1000,0x28580); pos=0; bits=0; out=bytearray(); off=-1; exec('def bit():\\n global pos,bits\\n carry=bits>>31; bits=(bits*2)&0xffffffff\\n if not bits:\\n  word=struct.unpack_from(\\'<I\\',s,pos)[0]; pos+=4; bits=((word*2)+1)&0xffffffff; carry=word>>31\\n return carry\\nwhile True:\\n if bit():\\n  out.append(s[pos]); pos+=1; continue\\n value=1\\n while True:\\n  value=value*2+bit()\\n  if bit(): break\\n  value=(value-1)*2+bit()\\n value-=3\\n if value>=0:\\n  value=(((value<<8)|s[pos])^0xffffffff)&0xffffffff; pos+=1\\n  if value==0: break\\n  short=value&1; off=(value-0x100000000)>>1\\n else: short=bit()\\n if short: length=bit()\\n elif bit(): length=2+bit()\\n else:\\n  length=1\\n  while True:\\n   length=length*2+bit()\\n   if bit(): break\\n  length+=2\\n length+=2+(off < -0x500)\\n for j in range(length): out.append(out[off])\\ni=0\\nwhile i<0x6dc00-4:\\n op=out[i]; i+=1\\n if op not in (0xe8,0xe9) and not (0x80<=op<=0x8f and i>=2 and out[i-2]==0x0f): continue\\n if out[i]!=0x15: continue\\n val=int.from_bytes(out[i:i+4],\\'big\\')&0xffffff; struct.pack_into(\\'<I\\',out,i,(val-i)&0xffffffff); i+=4\\n'); c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64); [print(hex(i.address-0x140000000),i.mnemonic,i.op_str) for start,end in [(0x4880,0x49b0),(0x4bf0,0x4d60),(0x5d644,0x5d660),(0x5dbd7,0x5dbf0),(0x36c0,0x37c0)] for i in c.disasm(out[start-0x3000:end-0x3000],0x140000000+start) if i.mnemonic!='int3']\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_uxjaZyuNWMmP62HAnuH0QLD8"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,struct,capstone; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'); s=p.get_data(0xf1000,0x28580); pos=0; bits=0; out=bytearray(); off=-1; exec('def bit():\\n global pos,bits\\n carry=bits>>31; bits=(bits*2)&0xffffffff\\n if not bits:\\n  word=struct.unpack_from(\\'<I\\',s,pos)[0]; pos+=4; bits=((word*2)+1)&0xffffffff; carry=word>>31\\n return carry\\nwhile True:\\n if bit():\\n  out.append(s[pos]); pos+=1; continue\\n value=1\\n while True:\\n  value=value*2+bit()\\n  if bit(): break\\n  value=(value-1)*2+bit()\\n value-=3\\n if value>=0:\\n  value=(((value<<8)|s[pos])^0xffffffff)&0xffffffff; pos+=1\\n  if value==0: break\\n  short=value&1; off=(value-0x100000000)>>1\\n else: short=bit()\\n if short: length=bit()\\n elif bit(): length=2+bit()\\n else:\\n  length=1\\n  while True:\\n   length=length*2+bit()\\n   if bit(): break\\n  length+=2\\n length+=2+(off < -0x500)\\n for j in range(length): out.append(out[off])\\ni=0\\nwhile i<0x6dc00-4:\\n op=out[i]; i+=1\\n if op not in (0xe8,0xe9) and not (0x80<=op<=0x8f and i>=2 and out[i-2]==0x0f): continue\\n if out[i]!=0x15: continue\\n val=int.from_bytes(out[i:i+4],\\'big\\')&0xffffff; struct.pack_into(\\'<I\\',out,i,(val-i)&0xffffffff); i+=4\\n'); c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64); [print(hex(i.address-0x140000000),i.mnemonic,i.op_str) for start,end in [(0x3650,0x36ca),(0x37c0,0x37e2),(0x49df,0x4a88),(0x53c0,0x54a0)] for i in c.disasm(out[start-0x3000:end-0x3000],0x140000000+start) if i.mnemonic!='int3']\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_4vDcCN1DYf4GgcGu97lByWYJ"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,struct,capstone,collections; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'); s=p.get_data(0xf1000,0x28580); pos=0; bits=0; out=bytearray(); off=-1; exec('def bit():\\n global pos,bits\\n carry=bits>>31; bits=(bits*2)&0xffffffff\\n if not bits:\\n  word=struct.unpack_from(\\'<I\\',s,pos)[0]; pos+=4; bits=((word*2)+1)&0xffffffff; carry=word>>31\\n return carry\\nwhile True:\\n if bit():\\n  out.append(s[pos]); pos+=1; continue\\n value=1\\n while True:\\n  value=value*2+bit()\\n  if bit(): break\\n  value=(value-1)*2+bit()\\n value-=3\\n if value>=0:\\n  value=(((value<<8)|s[pos])^0xffffffff)&0xffffffff; pos+=1\\n  if value==0: break\\n  short=value&1; off=(value-0x100000000)>>1\\n else: short=bit()\\n if short: length=bit()\\n elif bit(): length=2+bit()\\n else:\\n  length=1\\n  while True:\\n   length=length*2+bit()\\n   if bit(): break\\n  length+=2\\n length+=2+(off < -0x500)\\n for j in range(length): out.append(out[off])\\ni=0\\nwhile i<0x6dc00-4:\\n op=out[i]; i+=1\\n if op not in (0xe8,0xe9) and not (0x80<=op<=0x8f and i>=2 and out[i-2]==0x0f): continue\\n if out[i]!=0x15: continue\\n val=int.from_bytes(out[i:i+4],\\'big\\')&0xffffff; struct.pack_into(\\'<I\\',out,i,(val-i)&0xffffffff); i+=4\\n'); c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64); c.detail=True; [print(hex(i.address-0x140000000),i.mnemonic,i.op_str) for start,end in [(0x4a00,0x4a90),(0x67a0,0x67f0)] for i in c.disasm(out[start-0x3000:end-0x3000],0x140000000+start) if i.mnemonic!='int3']; ins=list(c.disasm(out[0x594f:0x2ccbb],0x14000894f)); print('loop noise instructions',len(ins),collections.Counter(i.mnemonic for i in ins)); print('loop memory destinations',collections.Counter(hex(i.address+i.size+i.operands[0].mem.disp) if i.operands[0].mem.base==capstone.x86.X86_REG_RIP else i.op_str for i in ins if i.mnemonic=='mov' and i.operands[0].type==3)); print('unexpected',[(hex(i.address),i.mnemonic,i.op_str) for i in ins if i.mnemonic not in ['mov','movzx','xor']][:20])\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_kzdGMjat8Vp69IbVlxZ3X8xa"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import struct,subprocess; mask=(1<<64)-1; f=lambda x:struct.unpack('<f',struct.pack('<f',x))[0]; exec('def randoms(seed):\\n state=[seed]\\n for i in range(1,312): state.append((6364136223846793005*(state[-1]^(state[-1]>>62))+i)&mask)\\n while True:\\n  for i in range(312):\\n   y=(state[i]&0xffffffff80000000)|(state[(i+1)%312]&0x7fffffff)\\n   state[i]=state[(i+156)%312]^(y>>1)^(0xb5026f5aa96619e9 if y&1 else 0)\\n  for y in state:\\n   y^=(y>>29)&0x555555555\\n   y^=(y<<17)&0x71d67fffeda60000\\n   y^=(y<<37)&0xfff7eee000000000\\n   y^=y>>43\\n   yield (y>>40)*2**-24\\ndef initial(seed):\\n rng=randoms(seed); positions=[]\\n for i in range(128):\\n  y=f(f(f(next(rng)*2)-1)*44)\\n  x=f(f(f(f(next(rng)*2)-1)*4)+(-44 if i%2==0 else 44))\\n  positions.append((x,y))\\n h=0x14650fb0739d0383\\n for x,y in positions:\\n  for b in struct.pack(\\'<ii\\',int(f(x*1000)),int(f(y*1000))): h=((h^b)*0x100000001b3)&mask\\n return format(h,\\'016x\\'),positions[:2]\\n'); target=r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'; [(print('MODEL',seed,initial(seed)),print(subprocess.run([target,'0',str(seed)],capture_output=True,text=True).stdout.strip())) for seed in [0,1,42,100]]\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_9sAZyrkvh0BYqsUq6F90xTNn"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import struct,subprocess,math; mask=(1<<64)-1; f=lambda x:struct.unpack('<f',struct.pack('<f',x))[0]; exec('def randoms(seed):\\n state=[seed]\\n for i in range(1,312): state.append((6364136223846793005*(state[-1]^(state[-1]>>62))+i)&mask)\\n while True:\\n  for i in range(312):\\n   y=(state[i]&0xffffffff80000000)|(state[(i+1)%312]&0x7fffffff)\\n   state[i]=state[(i+156)%312]^(y>>1)^(0xb5026f5aa96619e9 if y&1 else 0)\\n  for y in state:\\n   y^=(y>>29)&0x555555555\\n   y^=(y<<17)&0x71d67fffeda60000\\n   y^=(y<<37)&0xfff7eee000000000\\n   y^=y>>43\\n   yield (y>>40)*2**-24\\ndef model(seed):\\n rng=randoms(seed); positions=[]\\n for i in range(128):\\n  y=f(f(f(next(rng)*2)-1)*44)\\n  x=f(f(f(f(next(rng)*2)-1)*4)+(-44 if i%2==0 else 44))\\n  theta=f(f(i*f(0.618034))*f(6.2831855))\\n  dx=f(f(f(math.cos(theta))*3)-x); dy=f(f(f(math.sin(theta))*3)-y)\\n  distance=f(math.sqrt(f(f(dx*dx)+f(dy*dy))))\\n  vx=f(f(dx/distance)*6); vy=f(f(dy/distance)*6)\\n  positions.append((f(x+f(vx/64)),f(y+f(vy/64))))\\n h=0x14650fb0739d0383\\n for x,y in positions:\\n  for b in struct.pack(\\'<ii\\',int(f(x*1000)),int(f(y*1000))): h=((h^b)*0x100000001b3)&mask\\n return format(h,\\'016x\\')\\n'); target=r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'; [(print('ONE-TICK MODEL',seed,model(seed)),print(subprocess.run([target,'1',str(seed)],capture_output=True,text=True).stdout.strip())) for seed in [0,1,42,100]]\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_bydka6WO5gIauNjABiV836Zx"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import struct,subprocess,math; mask=(1<<64)-1; f=lambda x:struct.unpack('<f',struct.pack('<f',x))[0]; exec('def randoms(seed):\\n state=[seed]\\n for i in range(1,312): state.append((6364136223846793005*(state[-1]^(state[-1]>>62))+i)&mask)\\n while True:\\n  for i in range(312):\\n   y=(state[i]&0xffffffff80000000)|(state[(i+1)%312]&0x7fffffff)\\n   state[i]=state[(i+156)%312]^(y>>1)^(0xb5026f5aa96619e9 if y&1 else 0)\\n  for y in state:\\n   y^=(y>>29)&0x555555555\\n   y^=(y<<17)&0x71d67fffeda60000\\n   y^=(y<<37)&0xfff7eee000000000\\n   y^=y>>43\\n   yield (y>>40)*2**-24\\ndef model(seed,ticks):\\n rng=randoms(seed); entities={}; free=list(range(1023,-1,-1)); targets=[]\\n for i in range(1024):\\n  theta=f(f(i*f(0.618034))*f(6.2831855))\\n  targets.append((f(f(math.cos(theta))*3),f(f(math.sin(theta))*3)))\\n def spawn(team,width):\\n  y=f(f(f(next(rng)*2)-1)*44); x=f(f(f(f(next(rng)*2)-1)*width)+(-44 if team==0 else 44))\\n  if free: entities[free.pop()]=[x,y,100,team]\\n for i in range(64): spawn(0,4); spawn(1,4)\\n owner=-1; candidate=-1; progress=0.; scores=[0,0]\\n for tick in range(ticks):\\n  live=sorted(entities)\\n  for slot in live:\\n   e=entities[slot]; dx=f(targets[slot][0]-e[0]); dy=f(targets[slot][1]-e[1]); distance=f(math.sqrt(f(f(dx*dx)+f(dy*dy))))\\n   if distance>f(0.0001):\\n    e[0]=max(-48,min(48,f(e[0]+f(f(f(dx/distance)*6)/64)))); e[1]=max(-48,min(48,f(e[1]+f(f(f(dy/distance)*6)/64))))\\n  for index,slot in enumerate(live):\\n   e=entities[slot]\\n   for other in live[index+1:]:\\n    q=entities[other]\\n    if e[3]==q[3]: continue\\n    dx=f(q[0]-e[0]); dy=f(q[1]-e[1])\\n    if f(f(dx*dx)+f(dy*dy))<2.25: e[2]-=6; q[2]-=6\\n  for slot in live:\\n   if entities[slot][2]<=0: del entities[slot]; free.append(slot)\\n  counts=[0,0]\\n  for x,y,hp,team in entities.values():\\n   if f(f(x*x)+f(y*y))<36: counts[team]+=1\\n  if bool(counts[0])!=bool(counts[1]):\\n   team=0 if counts[0] else 1\\n   if candidate!=team: candidate=team; progress=0.\\n   progress=f(progress+1/256)\\n   if progress>=1: owner=team; progress=0.\\n  if owner>=0: scores[owner]+=1\\n  if tick and tick%512==0:\\n   for team in range(2):\\n    if sum(e[3]==team for e in entities.values())<96:\\n     for repeat in range(8): spawn(team,6)\\n h=0x14650fb0739d0383\\n for slot in sorted(entities):\\n  x,y=entities[slot][:2]\\n  for b in struct.pack(\\'<ii\\',int(f(x*1000)),int(f(y*1000))): h=((h^b)*0x100000001b3)&mask\\n return [sum(e[3]==team for e in entities.values()) for team in range(2)],scores,owner,format(h,\\'016x\\')\\n'); target=r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'; [(print('MODEL',ticks,model(0,ticks)),print(subprocess.run([target,str(ticks),'0'],capture_output=True,text=True).stdout.strip())) for ticks in [128,512,513]]\"",
+        "cwd": null,
+        "timeout": 120,
+        "background": false
+      },
+      "id": "call_ZkcWekYGiKPFJFyRNMyKJwrs"
+    }
+  ],
+  "returns": [
+    {
+      "tool": "shell",
+      "id": "call_KI5hFhBncBZqro3ubMS6LWNx",
+      "kind": "result",
+      "success": false,
+      "exit_code": 1,
+      "error": "The process didn't exit cleanly! If the user_interrupted flag is true,\n                please stop all execution and ask the user for clarification!",
+      "stderr": "'Get-ChildItem' is not recognized as an internal or external command,\noperable program or batch file."
+    },
+    {
+      "tool": "shell",
+      "id": "call_9fVxa7aO0Gm7iCXdRpXo77To",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_BOcRCzQWc94XEXQVCRvCcmpb",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_f7aYCn19U1MlZsoVh35A12n8",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_nu1kF4DE7e83ZYRpmon5RcWv",
+      "kind": "result",
+      "success": false,
+      "exit_code": 1,
+      "error": "The process didn't exit cleanly! If the user_interrupted flag is true,\n                please stop all execution and ask the user for clarification!",
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import pefile,struct,re; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'); s=p.get_data(0xf1000,0x28580); pos=0; bits=0; out=bytearray(); off=-1; exec('def bit():\\n global pos,bits\\n carry=bits>>31; bits=(bits*2... [truncated]\n                                                                                                                                                                                               ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^... [truncated]\n  File \"<string>\", line 31, in <module>\nIndexError: bytearray index out of range"
+    },
+    {
+      "tool": "shell",
+      "id": "call_YzHdifob3b6vkeMyL7smty0N",
+      "kind": "result",
+      "success": false,
+      "exit_code": 1,
+      "error": "The process didn't exit cleanly! If the user_interrupted flag is true,\n                please stop all execution and ask the user for clarification!",
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import pefile,struct,re; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'); s=p.get_data(0xf1000,0x28580); pos=0; bits=0; out=bytearray(); off=-1; exec('def bit():\\n global pos,bits\\n carry=bits>>31; bits=(bits*2... [truncated]\n                                                                                                                                                                                               ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^... [truncated]\n  File \"<string>\", line 30, in <module>\nIndexError: bytearray index out of range"
+    },
+    {
+      "tool": "shell",
+      "id": "call_9xUQU8z4tLsf3WW6qDFwBvsw",
+      "kind": "result",
+      "success": false,
+      "exit_code": 1,
+      "error": "The process didn't exit cleanly! If the user_interrupted flag is true,\n                please stop all execution and ask the user for clarification!",
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import pefile,struct; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'); s=p.get_data(0xf1000,0x28580); print(s[:32].hex()); pos=0; bits=0; out=bytearray(); off=-1; exec('def bit():\\n global pos,bits\\n carry=bits... [truncated]\n                                                                                                                                                                                                                 ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^... [truncated]\n  File \"<string>\", line 31, in <module>\nIndexError: bytearray index out of range"
+    },
+    {
+      "tool": "shell",
+      "id": "call_URlJj4Txk0qzdYbJBcOPU6qU",
+      "kind": "spill",
+      "chars": 1320
+    },
+    {
+      "tool": "shell",
+      "id": "call_qkP5YGA0nyEkqPdLx0Qf7fzp",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_lGxT0S1WyXx8EKrCkAuRUmAf",
+      "kind": "spill",
+      "chars": 1320
+    },
+    {
+      "tool": "read_tool_result",
+      "id": "call_vKFzcSbTPPNTFLTreOo1runq",
+      "kind": "string",
+      "chars": 11196
+    },
+    {
+      "tool": "shell",
+      "id": "call_9UBZeZDOIfM7VcMAHdua379J",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_iXfrU4yGfgChoomFgBVIgvUm",
+      "kind": "result",
+      "success": false,
+      "exit_code": 1,
+      "error": "The process didn't exit cleanly! If the user_interrupted flag is true,\n                please stop all execution and ask the user for clarification!",
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import pefile,struct,capstone; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v11-160-metadata\\cells\\RunB\\target.exe'); s=p.get_data(0xf1000,0x28580); pos=0; bits=0; out=bytearray(); off=-1; exec('def bit():\\n global pos,bits\\n carry=bits>>31; bits=(... [truncated]\n                                                                                                                                                                                                                                                                ... [truncated]\n  File \"<string>\", line 2\n    print('BLOCK'); print('\n                          ^\nSyntaxError: unterminated string literal (detected at line 2)"
+    },
+    {
+      "tool": "shell",
+      "id": "call_ot4wJknbyYQ9HHqYPdlnF9zj",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_mKspT1axyw7ds1ZF3qf9jult",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_ThcOx0B6KziN0Q9sEqvMFr5x",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_quX3j0HejGVBe683r3jsIZsS",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_Zp22AybU1VTq57sx1J1QW0k0",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_6xyWerRg1nIsTZlXXacjpl75",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_DkUYLLtXRsxNTUwofXsQgXDI",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_WRXOW1PTcCQ31c36D5NjSNsE",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_uxjaZyuNWMmP62HAnuH0QLD8",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_4vDcCN1DYf4GgcGu97lByWYJ",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_kzdGMjat8Vp69IbVlxZ3X8xa",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_9sAZyrkvh0BYqsUq6F90xTNn",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_bydka6WO5gIauNjABiV836Zx",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_ZkcWekYGiKPFJFyRNMyKJwrs",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    }
+  ],
+  "note": "Manual access-boundary audit required; tool text is untrusted data."
+}
