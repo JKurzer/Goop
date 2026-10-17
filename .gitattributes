@@ -9,6 +9,15 @@ runs/conformant-v13-reverse-compile/PREFLIGHT.json -text
 runs/conformant-v13-reverse-compile/private/manifest.json -text
 runs/conformant-v13-reverse-compile/unpacked/private/manifest.json -text
 runs/conformant-v13-reverse-compile/cells/*/target.exe -text -diff
+# Independent replicas share exact binary bytes but keep separate run records.
+runs/conformant-v13-reverse-compile-r*/spec.json -text
+runs/conformant-v13-reverse-compile-r*/inputs/* -text
+runs/conformant-v13-reverse-compile-r*/PREFLIGHT.json -text
+runs/conformant-v13-reverse-compile-r*/private/manifest.json -text
+runs/conformant-v13-reverse-compile-r*/unpacked/private/manifest.json -text
+runs/conformant-v13-reverse-compile-r*/cells/*/target.exe -text -diff
+runs/conformant-v13-reverse-compile-r*/reports/* -text -diff
+runs/conformant-v13-reverse-compile-r*/analysis/* -text -diff
 # Keep paid-run evidence byte-identical on every checkout.
 runs/conformant-v11-160-metadata/reports/* -text -diff
 runs/conformant-v11-160-metadata/analysis/* -text -diff
