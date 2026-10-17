@@ -43,6 +43,8 @@ def links_in_rows(events, candidate_lines, pairs):
                              'slot_start': row[:start].strip()[:40],
                              'candidate_prefix': prefix[:35],
                              'link_occurrences': len(links),
+                             'meets_minimum_two_links': len(links) >= 2,
+                             'meets_preferred_four_links': len(links) >= 4,
                              'distinct_directed_links': len(set(links)),
                              'directed_links': sorted(set('>'.join(link) for link in links)),
                              'pairs_with_both_anchor_links': pair_names,
@@ -82,6 +84,10 @@ def audit(run):
             name for row in rows for name in row['pairs_with_both_anchor_links']).items())),
         'candidate_rows_with_all_three_pairs':
             sum(len(row['pairs_with_both_anchor_links']) == len(pairs) for row in rows),
+        'candidate_rows_with_at_least_two_links':
+            sum(row['meets_minimum_two_links'] for row in rows),
+        'candidate_rows_with_at_least_four_links':
+            sum(row['meets_preferred_four_links'] for row in rows),
         'candidate_rows_with_at_least_four_distinct_links':
             sum(row['distinct_directed_links'] >= 4 for row in rows),
         'rows': rows,
