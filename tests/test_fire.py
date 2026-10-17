@@ -21,12 +21,11 @@ V14_REPORTS = ARCHIVE / 'eval/native/runs/packed-v14/reports'
 
 
 def make_run(root, cells=('RunA', 'RunB'), fire_overrides=None):
-    """A synthetic goop run dir: spec.json + staged cells (fake target/helper)."""
+    """A synthetic goop run dir: spec.json + staged cells (fake target)."""
     run = root / 'run'
     for cell in cells:
         cell_dir = run / 'cells' / cell
         cell_dir.mkdir(parents=True)
-        (cell_dir / 'pe_inspect.py').write_text('# helper\n', encoding='utf-8')
         (cell_dir / 'target.exe').write_bytes(b'MZ fake target')
     fire = {'prompt_file': 'reduced.md', 'model': 'gpt-test',
             'cells': list(cells), 'per_cell_budget_usd': 3}

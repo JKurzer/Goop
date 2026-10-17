@@ -181,8 +181,6 @@ def fire_cells(run, fire, cells, output_name, *, executable, env, run_fn=subproc
     """The fire loop. run_fn is injectable so tests never touch a provider."""
     for cell in cells:
         cell_dir = run / 'cells' / cell
-        require((cell_dir / 'pe_inspect.py').is_file(),
-                f'{cell}: requires current helper staging; do not mutate an old cell')
         require((cell_dir / 'target.exe').is_file(),
                 f'{cell}: target.exe missing; build the pair first')
     blocked = [cell for cell in cells if cell in completed_cells(run)]

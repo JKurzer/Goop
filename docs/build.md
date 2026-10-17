@@ -22,9 +22,9 @@ runs/<arm>/
   spec.json                 # the contract (below)
   PREREG.md                 # human-authored, registered before fire; verify requires it
   inputs/candidate.txt      # frozen payload (one line per slot)
-  unpacked/                 # build step: cells/<cell>/target.exe + pe_inspect.py,
+  unpacked/                 # build step: cells/<cell>/target.exe,
                             #   private/<cell>/ (sources, build.log, target.map), private/manifest.json
-  cells/<cell>/             # pack step: packed target.exe + pe_inspect.py
+  cells/<cell>/             # pack step: packed target.exe
   private/                  # pack step: manifest.json, <cell>/target-{unpacked,packed}.exe, upx.log
   PREFLIGHT.json            # verify step, written once
   reports/                  # created later by fire; verify refuses if this exists
@@ -114,8 +114,11 @@ line up one-to-one with the ported scheme; goop never reads the archive.
 MSVC is an environment pin: set `GOOP_VCVARS` to the full path of
 `vcvars64.bat`. The utility asserts the pinned file exists before building
 (`GoopError` otherwise). UPX is bundled at `tools/upx/upx.exe` (stock
-5.2.1, license texts alongside); the analyst helper is bundled at
-`tools/native_inspect.py` and shipped beside every cell binary.
+5.2.1, license texts alongside). The bundled analyst helper is DESTROYED
+(owner ruling 2026-10-16: it guided analysts away from the payloads); the
+analyst's tooling is now the rizin suite installed at the machine pin
+C:\Users\poly\tools\rizin\bin, documented in the prompt file. Nothing is
+shipped beside target.exe.
 
 ## The ten native manifest checks (format_table + config_tags mode)
 
@@ -173,8 +176,6 @@ not from manifests:
   zero-filled past dose), for every slot in both cells;
 - packed/unpacked cell hashes match both manifests;
 - pair isolation recomputed: executable sections identical across cells;
-- shipped `pe_inspect.py` (in `cells/` and `unpacked/cells/`) equals the
-  bundled helper byte-for-byte;
 - `reports/` absent (never retry a cell) and `PREREG.md` present.
 
 The runner and prompt are the fire utility's domain and are not checked here.

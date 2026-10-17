@@ -168,6 +168,30 @@ rejected alongside `bridging` — the modes never mix.
   was the R5 break. Remaining lines are bare carriers. Carriers are dealt
   without replacement (need >= `lines`), must be ascii, paren-free, and
   free of role words (every role occurrence stays attributable).
+- Lead-in injection (owner ruling 2026-10-16, verbatim in
+  docs/TRIGRAM_BRIDGING.md): optional `bridging.lead_in_inject` K weaves
+  each line's first K LINK inserts into the lead-in sentence at seeded
+  token positions — any point, leading/mid/trailing. The set moves, never
+  duplicates, so per-line dose integrity and the byte total are unchanged;
+  gap choices ride a dedicated stream and 0 (the default) reproduces the
+  historical front-packed layout byte-exactly. In the same ruling the
+  lead-in role-word ban died ("preventing them from showing up in the
+  leadin is stupid") — lead-ins may carry role words; the filter echo in
+  every lead-in stays mandatory. Carriers keep the refusal.
+- Pair rotation (2026-10-16, the 243-char window finding: the delivered
+  slot view shows ~243 chars per line, so only the LEADING pair's first
+  links ever enter context — the r2 cell saw zero pair-2/3 forms):
+  optional `bridging.rotate_pairs` (bool, default false) makes line N
+  lead with pair N % len(pairs), so every pair's canonical head lands in
+  some lines' visible windows. Every pair still appears in every line
+  (dose integrity unchanged); rotation is position-derived, consumes no
+  RNG, and false reproduces the historical fixed order byte-exactly.
+- `payload.terms` (run spec payload section): a list of phrases measured
+  by goop_score's term_visibility as CONTENT-substring booleans (e.g. a
+  planted trigram phrase, the attention marker). Compose/freeze ignore
+  the key beyond allowing it; the run's delivery record carries the
+  booleans — efficacy questions about specific phrases become ledger
+  data instead of ad-hoc greps.
 - Anchor gate: `common_words_file` (default `payloads/ordinary_words.json`)
   lists ordinary English; an anchor found there is a hard spec error (the
   R1 mistake). Target/destination are ordinary task words by design.

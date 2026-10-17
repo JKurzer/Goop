@@ -203,7 +203,8 @@ def compose_megalines(carriers, lead_ins, words, doses, forms, line_count,
 
 
 def compose_megalines_pairs(carriers, lead_ins, pairs, doses, forms,
-                            line_count, min_bytes, max_bytes, seed, paren=False):
+                            line_count, min_bytes, max_bytes, seed, paren=False,
+                            lead_inject=0, rotate_pairs=False):
     """One complete BRIDGING per pair per line, the sets packed front.
 
     The megaline trick: every line independently carries the full 9-config
@@ -222,6 +223,27 @@ def compose_megalines_pairs(carriers, lead_ins, pairs, doses, forms,
     max_bytes is held back for later lines. The whole artifact is a pure
     function of the arguments. Returns (lines, plan) with one plan row
     per line.
+
+    lead_inject (owner ruling 2026-10-16, verbatim in
+    docs/TRIGRAM_BRIDGING.md: "allow the trigram LINKS to be injected at
+    any point in the sentence. preventing them from showing up in the
+    leadin is stupid."): the first `lead_inject` LINK inserts of each line
+    are WOVEN into the lead-in sentence at seeded token positions (any
+    point — leading, mid, trailing) instead of riding in the trailing
+    block. The set moves; it is never duplicated, so per-line dose
+    integrity and the byte total are unchanged. Gap choices come off a
+    dedicated stream (`f'{seed}:lead_inject'`), and 0 (the default)
+    reproduces the historical layout byte-exactly.
+
+    rotate_pairs (2026-10-16, the 243-char window finding: the delivered
+    slot view shows ~243 chars per line, so only the LEADING pair's first
+    links ever enter the analyst's context - the r2 cell saw zero pair-2/3
+    forms): when true, line `position` leads with pair `position %
+    len(pairs)`, so every pair's canonical head lands in some lines'
+    visible windows. Every pair still appears in every line (dose
+    integrity is unchanged); rotation is position-derived, consumes no
+    RNG, and False (the default) keeps the historical fixed order,
+    byte-exact. The plan's 'pair' fields keep the original indices.
     """
     if not pairs:
         raise ValueError('need at least one pair')
@@ -242,7 +264,11 @@ def compose_megalines_pairs(carriers, lead_ins, pairs, doses, forms,
     if len(lead_ins) < line_count:
         raise ValueError(f'lead-ins are dealt without replacement: '
                          f'{len(lead_ins)} < {line_count} lines')
+    per_line = len(CANONICAL_CONFIGS) * 2 * len(pairs) * doses
+    if not 0 <= lead_inject <= per_line:
+        raise ValueError(f'lead_inject must be in [0, {per_line}] ({lead_inject})')
     rng = random.Random(seed)
+    inject_rng = random.Random(f'{seed}:lead_inject')
     lead_deal = list(range(len(lead_ins)))
     rng.shuffle(lead_deal)
     carrier_deal = list(range(len(carriers)))
@@ -254,8 +280,11 @@ def compose_megalines_pairs(carriers, lead_ins, pairs, doses, forms,
         lead = lead_ins[lead_index]
         pieces, inserts, config_ends = [lead], [], []
         cursor = len(lead)
+        order = ([(position + k) % len(pairs) for k in range(len(pairs))]
+                 if rotate_pairs else list(range(len(pairs))))
         for dose in range(doses):
-            for pair_index, pair in enumerate(pairs):
+            for pair_index in order:
+                pair = pairs[pair_index]
                 for config_index, config in enumerate(CANONICAL_CONFIGS):
                     for link in config:
                         form = rng.choice(forms)
@@ -270,6 +299,37 @@ def compose_megalines_pairs(carriers, lead_ins, pairs, doses, forms,
                                         'text': text, 'start': start,
                                         'end': cursor})
                     config_ends.append(cursor)
+        if lead_inject:
+            # Weave the first lead_inject inserts into the lead-in at seeded
+            # token positions; the rest trail as before. Offsets and
+            # config_ends are recomputed against the woven head, so the
+            # plan's start/end marks stay honest for the delivery checks.
+            head, rest = inserts[:lead_inject], inserts[lead_inject:]
+            tokens = lead.split(' ')
+            size = len(tokens) + lead_inject
+            chosen = set(inject_rng.sample(range(size), lead_inject))
+            pieces, cursor = [], -1
+            token_iter, head_iter = iter(tokens), iter(head)
+            for slot in range(size):
+                if slot in chosen:
+                    insert = next(head_iter)
+                    pieces.append(insert['text'])
+                    cursor += 1
+                    insert['start'] = cursor
+                    cursor += len(insert['text'])
+                    insert['end'] = cursor
+                else:
+                    token = next(token_iter)
+                    pieces.append(token)
+                    cursor += 1 + len(token)
+            for insert in rest:
+                pieces.append(insert['text'])
+                cursor += 1
+                insert['start'] = cursor
+                cursor += len(insert['text'])
+                insert['end'] = cursor
+            config_ends = [inserts[2 * i + 1]['end']
+                           for i in range(len(config_ends))]
         line = ' '.join(pieces)
         body_bytes = len(line.encode('utf-8'))
         if body_bytes > max_bytes:
@@ -291,7 +351,8 @@ def compose_megalines_pairs(carriers, lead_ins, pairs, doses, forms,
             deck.appendleft(index)
         lines.append(line)
         plan.append({'line': position, 'lead_in_index': lead_index,
-                     'lead_in': lead, 'inserts': inserts,
+                     'lead_in': lead, 'lead_inject': lead_inject,
+                     'pair_order': order, 'inserts': inserts,
                      'config_ends': config_ends, 'carrier_indices': used,
                      'bytes': len(line.encode('utf-8'))})
     return lines, plan

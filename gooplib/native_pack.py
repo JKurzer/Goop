@@ -18,7 +18,7 @@ from pathlib import Path
 
 import pefile
 
-from gooplib import HELPER, UPX, GoopError
+from gooplib import UPX, GoopError
 from gooplib.specs import PROBES, build_section, candidate_path, payload_lines
 
 # A payload line must be at least this long to serve as a hiding needle:
@@ -72,7 +72,6 @@ def pack_pair(run_dir, spec):
         if test.returncode:
             raise GoopError(f'UPX integrity test failed for {cell}')
         shutil.copyfile(packed, public / 'target.exe')
-        shutil.copyfile(HELPER, public / 'pe_inspect.py')
         observations = []
         for ticks, seed in PROBES:
             run = subprocess.run([str(public / 'target.exe'), str(ticks), str(seed)],

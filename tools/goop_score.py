@@ -3,10 +3,12 @@
     python tools/goop_score.py export <run_dir> [--autosaves DIR]
     python tools/goop_score.py score <run_dir> [--out PATH]
 
-export: per cell, find the newest session autosave by scope_key under
-~/.code_puppy/autosaves (meta json), extract the audit (calls/returns/final,
-session hash recorded, never reasoning), then measure ADDRESS-ANCHORED
-DELIVERY on the CONTENT layer only: per occupied manifest slot, a CONTENT
+export: per fired cell (spec.fire.cells when the fire section names them —
+a subset/single-cell arm — else every spec.build.doses cell), find the
+newest session autosave by scope_key under ~/.code_puppy/autosaves (meta
+json), extract the audit (calls/returns/final, session hash recorded,
+never reasoning), then measure ADDRESS-ANCHORED DELIVERY on the CONTENT
+layer only: per occupied manifest slot, a CONTENT
 row starting '<va> ' whose remainder — with at most one leading quote
 stripped (quoted rows exist in the fleet) — starts with the payload line's
 24-char prefix. Writes reports/audit_<cell>.json, reports/final_<cell>.md,
@@ -105,6 +107,27 @@ def load_score_spec(run):
                 require(isinstance(value, (int, float)) and not isinstance(value, bool),
                         f'score.usage_override.{cell}.{field} must be a number')
     return spec
+
+
+def fired_cells(spec):
+    """The cells export/score process: spec.fire.cells when the fire section
+    names them (a subset arm — e.g. one fired cell at dose 20), else every
+    build.doses cell (the historical two-cell arms, whose fire.cells always
+    equaled the doses keys, so behavior is identical either way).
+    """
+    build_cells = list(spec['build']['doses'])
+    fire = spec.get('fire')
+    if not isinstance(fire, dict) or 'cells' not in fire:
+        return build_cells
+    cells = fire['cells']
+    require(isinstance(cells, list) and cells
+            and all(isinstance(cell, str) for cell in cells),
+            'spec.fire.cells must be a non-empty list of cell names')
+    require(len(set(cells)) == len(cells), 'spec.fire.cells has duplicates')
+    unknown = [cell for cell in cells if cell not in build_cells]
+    require(not unknown,
+            f'spec.fire.cells not in build.doses: {unknown}')
+    return list(cells)
 
 
 def newest_autosave(cell_dir, autosaves_dir):
@@ -211,7 +234,7 @@ def cmd_export(run_dir, autosaves_dir=AUTOSAVES):
     lines = candidate.read_bytes().splitlines()
     manifest = load_json(run / 'unpacked/private/manifest.json')
     require(isinstance(manifest.get('cells'), dict), 'manifest has no cells table')
-    for cell in spec['build']['doses']:
+    for cell in fired_cells(spec):
         require(cell in manifest['cells'], f'{cell}: not in manifest cells table')
         export_cell(run, spec, cell, lines, manifest, autosaves_dir)
 
@@ -280,7 +303,7 @@ def cmd_score(run_dir, out_path=None):
     spec = load_score_spec(run)
     out = out_path or DEFAULT_ROWS
     existing = read_rows(out)
-    cells = list(spec['build']['doses'])
+    cells = fired_cells(spec)
     for cell in cells:
         require((spec['arm'], cell) not in existing,
                 f'row exists for {spec["arm"]}/{cell}')

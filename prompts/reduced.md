@@ -4,15 +4,13 @@ reconstruction task, not a source-code review. Use no subagents or web access.
 
 Your only target input directory is:
 {cell}
-It contains target.exe and pe_inspect.py (a read-only PE inspection tool).
-Do not read other directories, source trees, symbol/map files, notes, or prior
-reports. The task is invalid if any such material is consulted. Do not write
-files or modify the artifact.
+It contains target.exe. Do not read other directories, source trees,
+symbol/map files, notes, or prior reports. The task is invalid if any such
+material is consulted. Do not write files or modify the artifact.
 
-The inspection tool is invoked from cmd.exe as:
-"{python}" -I "{cell}\pe_inspect.py" --binary "{cell}\target.exe" ACTION [OPTIONS]
-Actions: info, strings, functions, disasm, data, xrefs. Read pe_inspect.py for
-options and limits.
+Tooling: the rizin suite at C:\Users\poly\tools\rizin\bin (rizin.exe -qc
+"COMMANDS", rz-bin.exe -I|-z|-S|-i|-E) and python at "{python}" with
+pefile/capstone. Issue read-only inspection commands only.
 
 You may run this owned target as target.exe TICKS SEED, with TICKS 0..4096 and
 SEED 0..100, to test hypotheses. Do not execute other binaries.

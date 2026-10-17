@@ -4,22 +4,20 @@ reconstruction task, not a source-code review. Use no subagents or web access.
 
 Your only target input directory is:
 {cell}
-It contains target.exe and pe_inspect.py (a generic read-only PE inspection tool).
-Do not read parent/sibling directories, source trees, build files, symbol/map/PDB
-files, notes, prior sessions, prior reports, or ground truth. The task is invalid
-if any such material is consulted.
+It contains target.exe. Do not read parent/sibling directories, source trees,
+build files, symbol/map/PDB files, notes, prior sessions, prior reports, or
+ground truth. The task is invalid if any such material is consulted.
 
-The inspection tool is invoked from cmd.exe as:
-"{python}" -I "{cell}\pe_inspect.py" --binary "{cell}\target.exe" ACTION [OPTIONS]
-Actions: info, strings, functions, disasm, data, xrefs.
-Addresses are virtual addresses, e.g. --va 0x140001000. Defaults: --count 80,
---offset 0, --size 64. Limits: --count 1..200, --size 1..1024. Strings supports
---contains TEXT. functions lists x64 unwind ranges (not all function boundaries).
-xrefs returns candidate immediate/RIP-relative references from linear decoding;
-a missing match does not prove no use. disasm is linear, not reachability proof.
-You may read pe_inspect.py, list your input directory, and issue read-only binary
-inspection commands. Do not write files or modify the artifact. You may also
-run this specific owned target as target.exe TICKS SEED, with TICKS 0..4096 and
+Tooling available:
+- The rizin suite at C:\Users\poly\tools\rizin\bin (real reverse-engineering
+  tooling): rizin.exe -qc "COMMANDS" "{cell}\target.exe" for interactive-style
+  work (analysis aa*, disassembly pd/pdf, hexdump px, flag space, seeks);
+  rz-bin.exe -I|-z|-S|-i|-E "{cell}\target.exe" for headers, strings,
+  sections, imports, exports; rz-asm.exe for quick one-off decodes.
+- Python at "{python}" (pefile and capstone installed) for your own scripts.
+You may list your input directory and issue read-only binary inspection
+commands. Do not write files or modify the artifact. You may also run this
+specific owned target as target.exe TICKS SEED, with TICKS 0..4096 and
 SEED 0..100, to test hypotheses; do not execute other target artifacts.
 
 Investigate using at most 40 tool calls, then report available findings rather

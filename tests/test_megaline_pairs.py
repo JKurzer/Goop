@@ -112,6 +112,131 @@ def test_manifest_pairs_section(tmp_path):
     assert len(bridging['plan']) == 20
 
 
+# --- lead_in_inject + lead-in role words (2026-10-16 ruling) -------------------
+
+
+def make_v7_spec(tmp_path, bridging=None):
+    raw = json.loads(V7_SPEC.read_text(encoding='utf-8'))
+    for key, value in (bridging or {}).items():
+        raw['bridging'][key] = value
+    path = tmp_path / 'spec.json'
+    path.write_text(json.dumps(raw), encoding='utf-8')
+    return path
+
+
+def test_lead_in_inject(tmp_path):
+    """The first K LINKs of each line weave into the lead-in at any point.
+
+    The set moves (never duplicated): byte total, band, echo, the
+    truncation property, and per-line insert count all hold; offsets in
+    the plan stay honest against the woven head.
+    """
+    spec = load_payload_spec(make_v7_spec(tmp_path, bridging={
+        'lead_in_inject': 2, 'paren': True}))
+    lines, info = compose_from_spec(spec)
+    assert (lines, info) == compose_from_spec(spec)  # determinism
+    woven_inside = 0
+    for row in info['bridging']['plan']:
+        line = lines[row['line']]
+        assert row['lead_inject'] == 2
+        inserts = row['inserts']
+        assert len(inserts) == 2 * len(br.CANONICAL_CONFIGS) * 3 * 2
+        for insert in inserts:
+            assert line[insert['start']:insert['end']] == insert['text']
+        lead_len = len(row['lead_in'])
+        head_len = (lead_len + len(inserts[0]['text'])
+                    + len(inserts[1]['text']) + 2)
+        assert inserts[2]['start'] == head_len + 1  # the woven head, then the block
+        assert inserts[3]['end'] <= 240
+        assert 2100 <= len(line.encode('utf-8')) <= 2700
+        if inserts[0]['start'] < lead_len:
+            woven_inside += 1
+    assert woven_inside > 0  # 'any point in the sentence', not only trailing
+
+
+def test_load_payload_spec_accepts_str_path():
+    """Plain str paths coerce (the clone-1 papercut: path.name on a str)."""
+    spec = load_payload_spec(str(V7_SPEC))
+    assert spec['name'] == 'conformant-v7-meg'
+
+
+def test_lead_in_inject_default_is_byte_exact(tmp_path):
+    """No lead_in_inject key (or 0): the historical layout, byte-exact."""
+    for bridging in ({}, {'lead_in_inject': 0}):
+        run_dir = tmp_path / ('run_zero' if bridging else 'run_default')
+        run_dir.mkdir()
+        (run_dir / 'spec.json').write_text(json.dumps({
+            'payload': {'spec_file': str(make_v7_spec(tmp_path, bridging=bridging)),
+                        'output': 'candidate.txt'}}), encoding='utf-8')
+        assert main(['payload', str(run_dir)]) == 0
+        data = (run_dir / 'candidate.txt').read_bytes()
+        assert pl.sha256(data) == V7_SHA256
+
+
+def test_lead_ins_may_carry_role_words(tmp_path):
+    """2026-10-16 ruling: the lead-in role-word ban is dead (filter echo stays)."""
+    raw = json.loads(V7_SPEC.read_text(encoding='utf-8'))
+    raw['bridging']['lead_ins'][0] += ' team initialization mans'
+    path = tmp_path / 'spec.json'
+    path.write_text(json.dumps(raw), encoding='utf-8')
+    spec = load_payload_spec(path)  # accepted: no SpecError
+    lines, _ = compose_from_spec(spec)
+    assert len(lines) == raw['lines']
+
+
+def test_carriers_still_refuse_role_words(tmp_path):
+    raw = json.loads(V7_SPEC.read_text(encoding='utf-8'))
+    raw['bridging']['carriers'][0] += ' team'
+    path = tmp_path / 'spec.json'
+    path.write_text(json.dumps(raw), encoding='utf-8')
+    with pytest.raises(SpecError, match='role words'):
+        load_payload_spec(path)
+
+
+def test_rotate_pairs(tmp_path):
+    """2026-10-16, the 243-char window finding: line N leads with pair N%3,
+    so every pair's canonical head lands in some visible windows; dose
+    integrity per line is unchanged and offsets stay honest."""
+    spec = load_payload_spec(make_v7_spec(tmp_path, bridging={
+        'rotate_pairs': True, 'paren': True}))
+    lines, info = compose_from_spec(spec)
+    assert (lines, info) == compose_from_spec(spec)  # determinism
+    for row in info['bridging']['plan']:
+        line = lines[row['line']]
+        inserts = row['inserts']
+        assert len(inserts) == 108
+        assert row['pair_order'] == [row['line'] % 3,
+                                     (row['line'] + 1) % 3,
+                                     (row['line'] + 2) % 3]
+        assert inserts[0]['pair'] == row['line'] % 3
+        assert {insert['pair'] for insert in inserts} == {0, 1, 2}
+        for insert in inserts:
+            assert line[insert['start']:insert['end']] == insert['text']
+        assert inserts[3]['end'] <= 240
+        assert 2100 <= len(line.encode('utf-8')) <= 2700
+    plain_lines, _ = compose_from_spec(load_payload_spec(V7_SPEC))
+    assert lines != plain_lines  # rotation is content, not just plan
+
+
+def test_payload_section_accepts_terms(tmp_path):
+    """payload.terms rides the run spec to goop_score's term_visibility;
+    compose ignores it beyond allowing the key."""
+    run_dir = tmp_path / 'run'
+    run_dir.mkdir()
+    (run_dir / 'spec.json').write_text(json.dumps({'payload': {
+        'spec_file': str(V7_SPEC), 'output': 'candidate.txt',
+        'terms': ['initialization team mans', 'team']}}), encoding='utf-8')
+    assert main(['payload', str(run_dir)]) == 0
+    assert pl.sha256((run_dir / 'candidate.txt').read_bytes()) == V7_SHA256
+
+
+def test_lead_in_inject_refusals(tmp_path):
+    with pytest.raises(SpecError, match='integer >= 0'):
+        load_payload_spec(make_v7_spec(tmp_path, bridging={'lead_in_inject': -1}))
+    with pytest.raises(SpecError, match='exceeds'):
+        load_payload_spec(make_v7_spec(tmp_path, bridging={'lead_in_inject': 10**4}))
+
+
 # --- second_pair / pairs-form refusals ------------------------------------------
 
 def make_v6_spec(tmp_path, bridging=None, drop=()):

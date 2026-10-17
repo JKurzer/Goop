@@ -26,8 +26,9 @@ spec.json fire section (unknown keys refused):
   placeholders (str.format); `{python}` is the interpreter running the utility.
 - `model`, `cells`, `per_cell_budget_usd` — no defaults, no magic numbers;
   everything traces to spec.json.
-- Each cell must hold current helper staging (`cells/<cell>/pe_inspect.py`)
-  and `target.exe`, or the run refuses before spending a cent.
+- Each cell must hold `cells/<cell>/target.exe`, or the run refuses before
+  spending a cent. (The staged helper was destroyed 2026-10-16; the prompt
+  now names the machine-pinned rizin suite instead.)
 - Credentials: OPENAI_API_KEY from HKCU\Environment (winreg), env fallback;
   NO_COLOR=1, PYTHONIOENCODING=utf-8. No credential, no launch.
 

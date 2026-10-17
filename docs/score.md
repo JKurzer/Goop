@@ -13,7 +13,9 @@ bramble is never read at runtime; fixtures only.
 
 ## export <run_dir>
 
-Per cell in `spec.build.doses`:
+Per fired cell — `spec.fire.cells` when the fire section names them (a
+subset/single-cell arm), else every cell in `spec.build.doses` (the
+historical two-cell arms, where the two lists were always equal):
 
 1. **Autosave.** The newest session under `~/.code_puppy/autosaves` whose
    `*_meta.json` `scope_key` equals the resolved `cells/<cell>` path.

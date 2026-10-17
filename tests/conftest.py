@@ -45,7 +45,7 @@ def synthetic_line(index, length, token='gonkulator'):
 
 def make_run(base, name, slots, slot_size, doses, line_length,
              format_table=True, config_tags=True, strings=None,
-             fn_literals=None, attention=None):
+             fn_literals=None, attention=None, formats=None):
     """Materialize a complete run dir (spec + candidate + PREREG), unbuilt."""
     run = base / name
     (run / 'inputs').mkdir(parents=True)
@@ -61,6 +61,8 @@ def make_run(base, name, slots, slot_size, doses, line_length,
         build['fn_literals'] = fn_literals
     if attention is not None:
         build['attention'] = attention
+    if formats is not None:
+        build['formats'] = formats
     spec = {'arm': name,
             'payload': {'path': 'inputs/candidate.txt',
                         'sha256': hashlib.sha256(blob).hexdigest()},

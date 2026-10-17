@@ -13,9 +13,11 @@ native_inspect.py. Verified live:
   (NUL-padded; zero-filled past the cell dose)
 - packed and unpacked cell hashes match both manifests
 - pair isolation recomputed live: executable sections identical across cells
-- shipped helper bytes equal the bundled goop helper, in cells/ and
-  unpacked/cells/
 - reports/ absent (never retry a cell), PREREG.md present (registered first)
+
+(The shipped-helper byte check died with the helper, 2026-10-16: the
+bundled pe_inspect.py was destroyed by owner ruling - real RE tooling
+replaces it, and nothing is shipped beside target.exe anymore.)
 
 The runner and prompt are the fire utility's domain and are not checked here.
 """
@@ -25,7 +27,7 @@ from pathlib import Path
 
 import pefile
 
-from gooplib import HELPER, GoopError
+from gooplib import GoopError
 from gooplib.specs import (build_section, candidate_digest, candidate_path,
                            load_spec, payload_lines)
 
@@ -75,8 +77,6 @@ def preflight(run_dir):
     prereg = run_dir / PREREG_NAME
     require(prereg.is_file() and prereg.stat().st_size > 0,
             f'{PREREG_NAME} must be registered before fire')
-    require(HELPER.is_file(), f'bundled helper missing: {HELPER}')
-    helper_bytes = HELPER.read_bytes()
 
     cells = list(build['doses'])
     sections = {}
@@ -104,15 +104,10 @@ def preflight(run_dir):
                 f'{cell}: unpacked hash mismatch vs packed manifest')
         require(digest(binary) == unpacked['cells'][cell]['sha256'],
                 f'{cell}: unpacked hash mismatch vs native manifest')
-        for helper in (run_dir / 'cells' / cell / 'pe_inspect.py',
-                       run_dir / 'unpacked' / 'cells' / cell / 'pe_inspect.py'):
-            require(helper.is_file() and helper.read_bytes() == helper_bytes,
-                    f'{cell}: shipped helper differs from bundled native_inspect.py')
         record['cells'][cell] = {
             'dose': dose, 'slot_size': build['slot_size'],
             'slot_bytes_verified': True,
             'packed_sha256': digest(fired), 'unpacked_sha256': digest(binary),
-            'helper_sha256': digest(run_dir / 'cells' / cell / 'pe_inspect.py'),
             'packed_bytes': fired.stat().st_size,
             'observations_match_source':
                 packed['cells'][cell]['observations_match_source']}

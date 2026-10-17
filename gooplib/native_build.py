@@ -37,7 +37,7 @@ import pefile
 from capstone import CS_ARCH_X86, CS_MODE_64, Cs
 from capstone.x86 import X86_OP_IMM, X86_OP_MEM, X86_REG_RIP
 
-from gooplib import HELPER, NATIVE_SRC, GoopError
+from gooplib import NATIVE_SRC, GoopError
 from gooplib.exports import block_texts, names_digest
 from gooplib.specs import (ATTENTION_SIZE, DEFAULT_SUMMARY_TEXT,
                            DEFAULT_TICK_TEXT, FMT_SUMMARY_SIZE, FMT_TICK_SIZE,
@@ -494,7 +494,12 @@ def _exposure_checks(output, manifest, build, cells):
             contiguous[cell] = all(high - low == slot_size
                                    for low, high in zip(ordered, ordered[1:]))
         image = cell_path.read_bytes()
-        anchor = image.find(b'SUMMARY ticks=')
+        # The summary literal's image anchor needles the EFFECTIVE format's
+        # literal prefix (up to the first conversion specifier) - the
+        # default needle b'SUMMARY ticks=' silently misses every override
+        # (the adjacency forensics would simply go absent).
+        summary_text = (build.get('formats') or {}).get('summary', SUMMARY_TEXT)
+        anchor = image.find(summary_text.split('%')[0].encode())
         if anchor >= 0:
             anchor_va = base + pe_cell.get_rva_from_offset(anchor)
             adjacency[cell] = {'summary_literal_va': hex(anchor_va),
@@ -566,7 +571,12 @@ def _exposure_checks(output, manifest, build, cells):
                 fmt_info[cell]['attention_va'] = hex(
                     table_va + layout['attention'])
             image = (output / 'cells' / cell / 'target.exe').read_bytes()
-            if b'tick %5d  alive' not in image or b'SUMMARY ticks=%d' not in image:
+            # Needle the EFFECTIVE format texts (a build.formats override is
+            # content too, 2026-10-16 ruling) — full strings, not prefixes.
+            run_formats = build.get('formats') or {}
+            tick_needle = run_formats.get('tick', TICK_TEXT).encode()
+            summary_needle = run_formats.get('summary', SUMMARY_TEXT).encode()
+            if tick_needle not in image or summary_needle not in image:
                 raise GoopError(f'{cell}: format string content not preserved')
         manifest['exposure']['format_table'] = fmt_info
         checks['format_table_interleaved'] = all(
@@ -749,7 +759,6 @@ def build_pair(run_dir, spec):
                     encoding='utf-8')
         _compile(private, vcvars)
         shutil.copyfile(private / 'target.exe', public / 'target.exe')
-        shutil.copyfile(HELPER, public / 'pe_inspect.py')
         binary = (public / 'target.exe').read_bytes()
         pe = pefile.PE(data=binary)
         map_text = (private / 'target.map').read_text()

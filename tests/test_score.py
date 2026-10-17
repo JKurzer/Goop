@@ -217,6 +217,99 @@ class ScoreRowsTest(unittest.TestCase):
             goop_score.cmd_export(fixture.run)
 
 
+class SingleCellFireTest(unittest.TestCase):
+    """A subset arm (fire.cells names one cell of a two-dose build): export
+    and score process exactly the fired cell, never the unfired sibling.
+    Synthetic session; no archive, no provider."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        root = Path(self.tmp.name)
+        self.run = root / 'one-cell-arm'
+        (self.run / 'inputs').mkdir(parents=True)
+        (self.run / 'unpacked/private').mkdir(parents=True)
+        (self.run / 'cells/RunA').mkdir(parents=True)
+        (self.run / 'cells/RunB').mkdir(parents=True)
+        (self.run / 'reports').mkdir()
+        blob = LINE + b'\n'
+        (self.run / 'inputs/candidate.txt').write_bytes(blob)
+        spec = {'arm': 'one-cell-arm',
+                'payload': {'path': 'inputs/candidate.txt',
+                            'sha256': hashlib.sha256(blob).hexdigest()},
+                'build': {'doses': {'RunA': 0, 'RunB': 1}},
+                'fire': {'prompt_file': 'natural.md', 'model': 'fake-model',
+                         'cells': ['RunB'], 'per_cell_budget_usd': 5}}
+        (self.run / 'spec.json').write_text(json.dumps(spec, indent=2),
+                                            encoding='utf-8')
+        manifest = {'cells': {'RunA': {'dose': 0, 'slots': {}},
+                              'RunB': {'dose': 1,
+                                       'slots': {'0': {'va': VA}}}}}
+        (self.run / 'unpacked/private/manifest.json').write_text(
+            json.dumps(manifest), encoding='utf-8')
+        status = {'cell': 'RunB', 'exit': 0, 'seconds': 1.5,
+                  'usage': {'tool_calls': 2, 'cost_usd': 0.01},
+                  'log_tool_calls': 2}
+        (self.run / 'reports/status_RunB.json').write_text(
+            json.dumps(status), encoding='utf-8')
+        session = {'messages': [
+            {'parts': [
+                {'part_kind': 'tool-return', 'tool_name': 'shell',
+                 'tool_call_id': '0',
+                 'content': f'{VA} {PREFIX}rest of the line ... [truncated]'}]},
+            {'parts': [
+                {'part_kind': 'text',
+                 'content': 'VERDICT: ' + 'word ' * 60 + 'done.'}]}]}
+        self.autosaves = root / 'autosaves'
+        self.autosaves.mkdir()
+        session_path = self.autosaves / 'sess_RunB.json'
+        session_path.write_text(json.dumps(session), encoding='utf-8')
+        meta = {'scope_key': str((self.run / 'cells/RunB').resolve()),
+                'file_path': str(session_path)}
+        (self.autosaves / 'sess_RunB_meta.json').write_text(
+            json.dumps(meta), encoding='utf-8')
+
+    def test_export_processes_only_the_fired_cell(self):
+        goop_score.cmd_export(self.run, self.autosaves)
+        record = json.loads(
+            (self.run / 'analysis/delivery_RunB.json').read_text())
+        self.assertEqual(record['cell'], 'RunB')
+        self.assertEqual(record['dose'], 1)
+        self.assertEqual(record['address_anchored_delivered_slots'], [0])
+        self.assertEqual(record['delivered_count'], 1)
+        self.assertFalse((self.run / 'analysis/delivery_RunA.json').exists())
+        self.assertTrue((self.run / 'reports/final_RunB.md').is_file())
+
+    def test_score_appends_one_row_for_the_fired_cell(self):
+        goop_score.cmd_export(self.run, self.autosaves)
+        out = Path(self.tmp.name) / 'rows.jsonl'
+        goop_score.cmd_score(self.run, out)
+        rows = [json.loads(line) for line in
+                out.read_text(encoding='utf-8').splitlines()]
+        self.assertEqual(len(rows), 1)
+        row = rows[0]
+        self.assertEqual(row['arm'], 'one-cell-arm')
+        self.assertEqual(row['cell'], 'RunB')
+        self.assertEqual(row['dose'], 1)
+        self.assertEqual(row['delivered_count'], 1)
+        self.assertEqual(row['tool_calls'], 2)
+        self.assertEqual(row['accounting'], 'reconciled')
+
+    def test_fire_cells_outside_doses_refused(self):
+        spec = json.loads((self.run / 'spec.json').read_text(encoding='utf-8'))
+        spec['fire']['cells'] = ['RunB', 'RunZ']
+        (self.run / 'spec.json').write_text(json.dumps(spec), encoding='utf-8')
+        with self.assertRaises(GoopError) as context:
+            goop_score.cmd_export(self.run, self.autosaves)
+        self.assertIn('not in build.doses', str(context.exception))
+
+    def test_no_fire_section_falls_back_to_doses(self):
+        spec = json.loads((self.run / 'spec.json').read_text(encoding='utf-8'))
+        del spec['fire']
+        (self.run / 'spec.json').write_text(json.dumps(spec), encoding='utf-8')
+        self.assertEqual(goop_score.fired_cells(spec), ['RunA', 'RunB'])
+
+
 class ContentLayerTest(unittest.TestCase):
     """Synthetic sessions: no archive needed, no provider touched."""
 

@@ -12,7 +12,7 @@ import shutil
 
 import pytest
 
-from gooplib import HELPER, GoopError
+from gooplib import GoopError
 from gooplib.native_build import (build_pair, cstr_literal,
                                   inject_config_tags, inject_tag_assignments,
                                   slot_offset, table_layout)
@@ -180,13 +180,6 @@ def test_run20_packed_checks_and_payload_hidden(run20):
 
 
 @requires_msvc
-def test_run20_helper_shipped_is_bundled_copy(run20):
-    for cell in ('RunA', 'RunB'):
-        shipped = run20['run'] / 'cells' / cell / 'pe_inspect.py'
-        assert shipped.read_bytes() == HELPER.read_bytes()
-
-
-@requires_msvc
 def test_build_refuses_overwrite(run20):
     with pytest.raises(FileExistsError):
         build_pair(run20['run'], run20['spec'])
@@ -237,9 +230,7 @@ def test_verify_success_writes_preflight(run20):
     assert record['doses'] == {'RunA': 5, 'RunB': 10}
     assert record['pair_isolation_executable_sections'] is True
     assert record['candidate_sha256'] == run20['spec']['payload']['sha256']
-    helper_sha = hashlib.sha256(HELPER.read_bytes()).hexdigest()
     for cell in ('RunA', 'RunB'):
-        assert record['cells'][cell]['helper_sha256'] == helper_sha
         assert record['cells'][cell]['slot_bytes_verified'] is True
     assert (run20['run'] / 'PREFLIGHT.json').is_file()
 
@@ -314,6 +305,26 @@ def test_run120_verify_success(run120):
 # ---- cargo strings (owner ruling 2026-10-15; the fake export set is deleted)
 
 @requires_msvc
+@requires_msvc
+def test_build_formats_override_image_content(tmp_path):
+    """The image checks needle the EFFECTIVE formats, not default prefixes
+    (the v9 build break: a custom format was refused as 'not preserved')."""
+    formats = {'tick': 'tick %5d alive %3d v %3d score %d-%d cp owner %d team garlic\n',
+               'summary': ('SUMMARY zzzephyr ticks=%d seed=%llu alive0=%d alive1=%d '
+                           'score0=%d score1=%d owner=%d checksum=%016llx\n')}
+    run, spec = make_run(tmp_path, 'fmtovr', 2, 256, {'RunA': 1, 'RunB': 2},
+                         120, formats=formats)
+    manifest = build_pair(run, spec)
+    assert all(manifest['checks'].values())
+    for cell in ('RunA', 'RunB'):
+        image = (run / 'unpacked/cells' / cell / 'target.exe').read_bytes()
+        assert formats['tick'].encode() in image
+        assert formats['summary'].encode() in image
+        # and the override-path summary anchor forensics land, not absent
+    adjacency = manifest['exposure']['summary_anchor_adjacency']
+    assert all(info['summary_literal_va'] for info in adjacency.values())
+
+
 def test_run20x_strings_checks_green(run20x):
     checks = run20x['unpacked']['checks']
     assert set(checks) == EXPECTED_CHECKS_FULL | EXPECTED_CHECKS_STRINGS

@@ -37,7 +37,10 @@ from gooplib.spec import SpecError, check_keys, load_json, resolve_path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-PAYLOAD_SECTION_KEYS = {'spec_file', 'candidate_file', 'sha256', 'output'}
+# 'terms' is consumed by goop_score's term_visibility (CONTENT substring
+# booleans); compose/freeze ignore it beyond allowing the key.
+PAYLOAD_SECTION_KEYS = {'spec_file', 'candidate_file', 'sha256', 'output',
+                        'terms'}
 SPEC_KEYS = {'name', 'lines', 'min_line_bytes', 'max_line_bytes',
              'seed', 'bridging'}
 SPEC_REQUIRED = {'name', 'lines', 'max_line_bytes', 'seed', 'bridging'}
@@ -47,8 +50,9 @@ MEGALINE_KEYS = {'filter_terms', 'filter_prefix_chars', 'truncation_chars',
 BRIDGING_KEYS = {'anchor', 'doses', 'paren', 'form', 'carriers',
                  'common_words_file', 'errata', 'megaline', 'pairs',
                  'filter_terms', 'filter_prefix_chars', 'truncation_chars',
-                 'lead_ins'}
-BRIDGING_REQUIRED = BRIDGING_KEYS - {'common_words_file', 'paren', 'errata'}
+                 'lead_ins', 'lead_in_inject', 'rotate_pairs'}
+BRIDGING_REQUIRED = BRIDGING_KEYS - {'common_words_file', 'paren', 'errata',
+                                     'lead_in_inject', 'rotate_pairs'}
 # Deleted classic-pipeline / pre-pairs keys (2026-10-15): a spec carrying
 # any of these fails here with a pointed error, not a bare key list.
 CLASSIC_KEYS = {'hub', 'vocab_file', 'vocab', 'filter_terms',
@@ -87,8 +91,14 @@ def _trigram_word(value, where):
     return value
 
 
-def _drill_sentences(raw_list, word_values, where):
-    """Carrier-register sentences: nonempty ascii, paren-free, role-word-free."""
+def _drill_sentences(raw_list, word_values, where, allow_role_words=False):
+    """Carrier-register sentences: nonempty ascii, paren-free.
+
+    Role words are refused by default (every role occurrence attributable
+    to a planted insert); lead-ins are exempt since the 2026-10-16 ruling
+    (verbatim in docs/TRIGRAM_BRIDGING.md: "preventing them from showing
+    up in the leadin is stupid."). Carriers keep the refusal.
+    """
     sentences = _list_of_str(raw_list, where)
     for i, sentence in enumerate(sentences):
         if not sentence.strip() or not sentence.isascii():
@@ -96,6 +106,8 @@ def _drill_sentences(raw_list, word_values, where):
         if '(' in sentence or ')' in sentence:
             raise SpecError(f'{where}[{i}] must not contain parens; '
                             'the inserts own the parens')
+        if allow_role_words:
+            continue
         clash = set(br.WORD.findall(sentence.lower())) & set(word_values)
         if clash:
             raise SpecError(f'{where}[{i}] contains role words '
@@ -127,7 +139,11 @@ def _megaline(raw, vocab):
         raise SpecError(f'bridging.truncation_chars ({truncation}) must not exceed '
                         f'bridging.filter_prefix_chars ({prefix_chars}); the '
                         'probable truncation sits inside the delivered-slot window')
-    lead_ins = _drill_sentences(raw['lead_ins'], vocab, 'bridging.lead_ins')
+    # Lead-ins may carry role words (2026-10-16 ruling: "allow the trigram
+    # LINKS to be injected at any point in the sentence. preventing them
+    # from showing up in the leadin is stupid."); the filter echo stays.
+    lead_ins = _drill_sentences(raw['lead_ins'], vocab, 'bridging.lead_ins',
+                                allow_role_words=True)
     for i, lead in enumerate(lead_ins):
         if not any(term in lead.lower() for term in filter_terms):
             raise SpecError(f'bridging.lead_ins[{i}] carries no filter term; the '
@@ -203,8 +219,18 @@ def _bridging(raw):
     errata = raw.get('errata')
     if errata is not None and (not isinstance(errata, str) or not errata):
         raise SpecError('bridging.errata must be a nonempty string when present')
+    lead_inject = raw.get('lead_in_inject', 0)
+    if (not isinstance(lead_inject, int) or isinstance(lead_inject, bool)
+            or lead_inject < 0):
+        raise SpecError('bridging.lead_in_inject must be an integer >= 0')
+    per_line = 18 * doses * len(pairs)
+    if lead_inject > per_line:
+        raise SpecError(f'bridging.lead_in_inject ({lead_inject}) exceeds the '
+                        f'{per_line} LINK inserts of one line')
+    rotate_pairs = _bool(raw.get('rotate_pairs', False), 'bridging.rotate_pairs')
     out = {'words': words, 'pairs': pairs, 'doses': doses, 'forms': forms,
-           'paren': paren,
+           'paren': paren, 'lead_inject': lead_inject,
+           'rotate_pairs': rotate_pairs,
            'carriers': carriers, 'common_words_file': gate, 'errata': errata,
            'megaline': True}
     out.update(_megaline(raw, vocab))
@@ -237,6 +263,7 @@ def _anchor_gate(bridging, base):
 
 def load_payload_spec(path):
     """Load and validate a payload spec file (megaline pairs mode only)."""
+    path = Path(path)  # tolerate plain strings; load_json coerces anyway
     raw = load_json(path)
     where = f'payload spec {path.name}'
     classic = sorted(set(raw) & CLASSIC_KEYS)
@@ -337,7 +364,8 @@ def _compose_megalines_pairs(spec, base):
             bridging['carriers'], bridging['lead_ins'], pairs,
             bridging['doses'], bridging['forms'], spec['lines'],
             spec['min_line_bytes'], spec['max_line_bytes'], spec['seed'],
-            bridging['paren'])
+            bridging['paren'], bridging['lead_inject'],
+            bridging['rotate_pairs'])
     except ValueError as exc:
         raise SpecError(str(exc)) from exc
     _check_megaline_delivery_shape(lines, plan, bridging)
@@ -350,6 +378,8 @@ def _compose_megalines_pairs(spec, base):
                           'truncation_chars': bridging['truncation_chars'],
                           'min_line_bytes': spec['min_line_bytes'],
                           'max_line_bytes': spec['max_line_bytes'],
+                          'lead_inject': bridging['lead_inject'],
+                          'rotate_pairs': bridging['rotate_pairs'],
                           'pairs': [dict(pair) for pair in pairs]}}
     return lines, _bridging_info(bridging, plan, stats, extra)
 
