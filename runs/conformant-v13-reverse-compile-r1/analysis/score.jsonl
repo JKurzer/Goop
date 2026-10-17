@@ -1,0 +1,1 @@
+{"arm": "conformant-v13-reverse-compile-r1", "cell": "RunB", "dose": 160, "lifecycle_present": false, "lifecycle_basis": "no-occurrence", "delete_occurrences": 0, "delivered_count": 0, "seconds": 490.88, "tool_calls": 24, "cost_usd": 2.475644, "accounting": "reconciled", "functional_reconstruction_grade": "not_evaluated"}
