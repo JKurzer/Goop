@@ -38,11 +38,14 @@ from capstone import CS_ARCH_X86, CS_MODE_64, Cs
 from capstone.x86 import X86_OP_IMM, X86_OP_MEM, X86_REG_RIP
 
 from gooplib import NATIVE_SRC, GoopError
+from gooplib.dos_stub import NEUTRAL_TEXT, make_dos_stub
 from gooplib.exports import block_texts, names_digest
+from gooplib.pe_debug import reserved_bytes
 from gooplib.specs import (ATTENTION_SIZE, DEFAULT_SUMMARY_TEXT,
                            DEFAULT_TICK_TEXT, FMT_SUMMARY_SIZE, FMT_TICK_SIZE,
                            PROBES, build_section, candidate_digest,
-                           candidate_path, payload_lines, vcvars_path)
+                           candidate_path, metadata_texts, payload_lines,
+                           vcvars_path)
 
 MODULES = ['entities', 'sim', 'objectives', 'main']
 MAIN_ANCHOR = 'int main(int argc, char** argv) {'
@@ -397,10 +400,16 @@ def reference_census(pe, slot_vas):
     return hits
 
 
-def _compile(private, vcvars):
+def _compile(private, vcvars, dos_stub=None, reserve_bytes=None):
+    stub_option = ''
+    if reserve_bytes is not None:
+        text = dos_stub if dos_stub is not None else NEUTRAL_TEXT
+        (private / 'dos-stub.exe').write_bytes(make_dos_stub(text, reserve_bytes))
+        stub_option = ' /STUB:dos-stub.exe'
     command = (f'call "{vcvars}" >nul && cl /EHsc /O2 /MT /std:c++17 /nologo /W3 '
                '/Fe:target.exe ' + ' '.join(f'{m}.cpp' for m in MODULES)
-               + ' /link /OPT:NOICF /INCREMENTAL:NO /MAP:target.map /Brepro')
+               + ' /link /OPT:NOICF /INCREMENTAL:NO /MAP:target.map /Brepro'
+               + stub_option)
     result = subprocess.run(command, shell=True, cwd=private,
                             capture_output=True, text=True, timeout=180)
     (private / 'build.log').write_text(result.stdout + result.stderr, encoding='utf-8')
@@ -702,6 +711,13 @@ def build_pair(run_dir, spec):
     output = run_dir / 'unpacked'
     output.mkdir(parents=True, exist_ok=False)  # x-mode: never overwrite
     cells = list(build['doses'])
+    metadata = {cell: metadata_texts(build, payloads, cell) for cell in cells}
+    stub_reservation = max(
+        (max(len(stub or NEUTRAL_TEXT), len(NEUTRAL_TEXT))
+         + (reserved_bytes(pdb) if pdb else 0)
+         for stub, pdb in metadata.values()), default=0)
+    if not any(stub or pdb for stub, pdb in metadata.values()):
+        stub_reservation = None
     manifest = {'cells': {}, 'checks': {}, 'source_sha256': {},
                 'slots': build['slots'], 'slot_size': build['slot_size'],
                 'format_table': build['format_table'],
@@ -757,12 +773,16 @@ def build_pair(run_dir, spec):
                                        build['slots'], build['slot_size'],
                                        assignments_in_main=False),
                     encoding='utf-8')
-        _compile(private, vcvars)
+        _compile(private, vcvars, metadata[cell][0], stub_reservation)
         shutil.copyfile(private / 'target.exe', public / 'target.exe')
         binary = (public / 'target.exe').read_bytes()
         pe = pefile.PE(data=binary)
         map_text = (private / 'target.map').read_text()
         slots = _verify_slots(binary, pe, map_text, cell, payloads, dose, build)
+        stub_text = metadata[cell][0]
+        if stub_text is not None:
+            if stub_text.encode('ascii') not in binary[:pe.DOS_HEADER.e_lfanew]:
+                raise GoopError(f'{cell}: linked DOS stub lost the specified text')
         manifest['cells'][cell] = {'dose': dose, 'slots': slots,
                                    'sha256': hashlib.sha256(binary).hexdigest(),
                                    'observations': _smoke_observations(public / 'target.exe'),

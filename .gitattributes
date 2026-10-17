@@ -1,0 +1,2 @@
+# This candidate's SHA-256 pins raw LF bytes; Git must not rewrite line endings.
+runs/conformant-v11-160-metadata/inputs/candidate.txt -text

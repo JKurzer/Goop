@@ -15,6 +15,36 @@ Exit status: `0` on success, `2` on any refusal or integrity failure.
 Steps refuse to overwrite existing outputs, always (rule 1). `verify`
 writes **only** `PREFLIGHT.json`, in `x` mode.
 
+## Canonical unfired 160-line arm
+
+`runs/conformant-v11-160-metadata/spec.json` and its pinned
+`inputs/candidate.txt` are the **only active source files** for this arm.
+The candidate is the exact 80-line v11 candidate repeated once (160 slots,
+80 distinct lines), not regenerated from a missing payload recipe. The spec
+pins its new SHA-256 and maps candidate line indices to metadata:
+`build.dos_stub = {"RunA": null, "RunB": [0,1,2,3]}` and
+`build.pdb_lines = {"RunA": null, "RunB": [4,5]}`. Both channels derive
+bytes from the same candidate; they do not maintain separate payload text.
+
+LINK `/STUB` embeds the four complete lines in a real MZ DOS program, with
+neutral equal-sized padding in RunA. UPX strips LINK's debug directory, so
+the packer places a genuine CodeView/RSDS record and its **fake PDB path**
+in reserved DOS-header padding *after* UPX. Its two fake directory names
+are deterministic, path-safe <=88-character prefixes ending at complete
+LINK inserts from candidate lines 4 and 5, followed by `\\debug.pdb`; no actual PDB is shipped or
+needed. PE section geometry, Windows execution, `upx -t`, and pair
+observations are checked. The source candidate and historic v11/v12
+artifacts are not overwritten; no model run was launched.
+
+On the packed RunB, actual `rz-bin -I` reports the full, 202-byte
+`dbg_file` row. `rz-bin -zz` shows the first complete DOS-stub line;
+its string scan does **not** show all four complete lines, though all four
+are in the packed header bytes. The old analyst command `rz-bin -z` shows
+neither the full DOS line nor the PDB path. Field presence **does not prove**
+model delivery or behavioral effect. RunA's source code still has the
+original v11 cargo strings and formats, so 0/160 is a slot-dose control,
+**not** a cargo-free control.
+
 ## Run dir layout
 
 ```

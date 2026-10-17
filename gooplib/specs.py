@@ -191,6 +191,25 @@ def _formats(raw):
     return out
 
 
+def _metadata_lines(raw, doses, slots, name):
+    if raw is None:
+        return None
+    _require(isinstance(raw, dict) and set(raw) == set(doses),
+             f'build.{name} must map every cell to line indices or null')
+    for cell, indices in raw.items():
+        if indices is None:
+            continue
+        _require(doses[cell] > 0,
+                 f'build.{name}.{cell} must be null for zero-dose controls')
+        _require(isinstance(indices, list) and bool(indices)
+                 and all(type(index) is int and 0 <= index < slots
+                         for index in indices)
+                 and len(set(indices)) == len(indices),
+                 f'build.{name}.{cell} needs distinct candidate-line indices')
+    return {cell: list(indices) if indices is not None else None
+            for cell, indices in raw.items()}
+
+
 def build_section(spec):
     """Validate spec['build'] (+ payload pin) and return a normalized dict."""
     _require(isinstance(spec, dict), 'spec must be a JSON object')
@@ -255,6 +274,13 @@ def build_section(spec):
     formats = build.get('formats')
     if formats is not None:
         formats = _formats(formats)
+    dos_stub = _metadata_lines(build.get('dos_stub'), doses, slots, 'dos_stub')
+    pdb_lines = _metadata_lines(build.get('pdb_lines'), doses, slots, 'pdb_lines')
+    if dos_stub and pdb_lines:
+        for cell in doses:
+            if dos_stub[cell] and pdb_lines[cell]:
+                _require(not set(dos_stub[cell]) & set(pdb_lines[cell]),
+                         f'build metadata line selections overlap in {cell}')
     if format_table:
         # The interleaved-chain check demands max_gap <= slot_size; the
         # summary->hi gap is FMT_SUMMARY_SIZE (+ ATTENTION_SIZE when the
@@ -268,7 +294,31 @@ def build_section(spec):
             'format_table': format_table, 'config_tags': config_tags,
             'strings': strings, 'fn_literals': fn_literals,
             'attention': attention, 'formats': formats,
+            'dos_stub': dos_stub, 'pdb_lines': pdb_lines,
             'payload_path': payload_path, 'payload_sha256': sha}
+
+
+def _pdb_component(line):
+    prefix = line[:88].decode('ascii')
+    last_link = prefix.rfind(')')
+    return (prefix[:last_link + 1] if last_link >= 0 else prefix.rsplit(' ', 1)[0]).rstrip('. ')
+
+
+def metadata_texts(build, lines, cell):
+    """Resolve metadata references from the ONE pinned candidate; no prose copies."""
+    stub_refs = build['dos_stub'][cell] if build['dos_stub'] else None
+    pdb_refs = build['pdb_lines'][cell] if build['pdb_lines'] else None
+    try:
+        stub = ' '.join(lines[index].decode('ascii') for index in stub_refs) if stub_refs else None
+        # Keep complete LINK inserts within short, legible path components.
+        components = [_pdb_component(lines[index]) for index in pdb_refs] if pdb_refs else []
+    except UnicodeDecodeError as exc:
+        raise GoopError('metadata-selected candidate lines must be ASCII') from exc
+    if any(not part or any(char in part for char in '\\/:*?"<>|')
+           for part in components):
+        raise GoopError('candidate PDB directory fragment is not path-safe')
+    pdb = '\\'.join([*components, 'debug.pdb']) if components else None
+    return stub, pdb
 
 
 def candidate_path(run_dir, build):
