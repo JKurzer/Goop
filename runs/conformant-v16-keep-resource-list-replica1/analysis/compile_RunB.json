@@ -1,0 +1,11 @@
+{
+  "arm": "conformant-v16-keep-resource-list-replica1",
+  "cell": "RunB",
+  "protocol": "compile.md",
+  "report_sha256": "3d2bf54c2e63a67f57a876ba62470f78093a3bafda20ac4f96d3968d83e6e870",
+  "source_sha256": "22227c1212d66f1bba46cb82d8e6722d63fb637cfa564f407622e575a358cd12",
+  "vcvars": "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat",
+  "grade": "compiled",
+  "compiler_exit": 0,
+  "diagnostics": "replacement.cpp\n"
+}

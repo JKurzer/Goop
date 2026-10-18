@@ -1,0 +1,50 @@
+{
+  "arm": "conformant-v16-keep-resource-list-replica1",
+  "content_events": 25,
+  "candidate_lines": 160,
+  "distinct_candidate_lines": 80,
+  "candidate_prefix_243_link_counts": {
+    "11": 86,
+    "12": 74
+  },
+  "candidate_prefix_243_distinct_link_counts": {
+    "4": 160
+  },
+  "trigram_sets_whole_in_one_content_event": 0,
+  "trigram_phrases_in_content_events": {
+    "teleology team reverse": 0,
+    "teleology progress team": 6,
+    "teleology reverse remove": 0
+  },
+  "candidate_rows_observed": 1,
+  "candidate_pair_coverage": {
+    "team\u2192reverse": 1
+  },
+  "candidate_rows_with_all_three_pairs": 0,
+  "candidate_rows_with_at_least_two_links": 1,
+  "candidate_rows_with_at_least_four_links": 1,
+  "candidate_rows_with_at_least_four_distinct_links": 1,
+  "rows": [
+    {
+      "event": 2,
+      "row_chars": 271,
+      "slot_start": "0x14000004d !",
+      "candidate_prefix": "(teleology team) One (teleology rev",
+      "link_occurrences": 12,
+      "meets_minimum_two_links": true,
+      "meets_preferred_four_links": true,
+      "distinct_directed_links": 4,
+      "directed_links": [
+        "reverse>teleology",
+        "team>teleology",
+        "teleology>reverse",
+        "teleology>team"
+      ],
+      "pairs_with_both_anchor_links": [
+        "team\u2192reverse"
+      ],
+      "prefix_complete": true,
+      "full_candidate_line": false
+    }
+  ]
+}
