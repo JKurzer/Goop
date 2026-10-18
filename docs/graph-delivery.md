@@ -64,3 +64,22 @@ separate address-anchored slot metric. Reported cost: **$3.7883865 total**.
 No remaining paid attempts were used. Evidence lives under each ignored
 run's `reports/audit_RunB.json` and `analysis/graph_delivery_RunB.json`,
 with event and call provenance in `analysis/POSTRUN.md`.
+
+## Hainish-only derivative (v25, local; no paid run)
+
+The owner requested **one substitution** after the v23/v24 results:
+`teleology` -> `hainish`. `tools/goop_graph_swap.py` derives a *fresh* arm
+from the unchanged, preflighted v22 inputs. It swaps exactly 16,320
+candidate occurrences, updates the hash, spec terms, fn-literal anchors,
+metadata, summary and all graph values, then **reframes** the shorter
+canonical strings. v25 now has 12 rows (190 characters max) and canonical
+lengths 69/805/809 bytes. The source spec, candidate and preflight hashes
+are recorded under `runs/conformant-v25-hainish-rows-local/inputs/source.json`.
+The original run artifacts remain unchanged.
+
+Native build, paired stage and preflight pass. Real shell output at `(0,0)`
+contains all rows; local decoder checks also pass at `(1,1)` and `(4096,1)`.
+Non-graph runtime output at all three probes matches v22 after that one
+word substitution. The audit supports this pinned token change for any
+future saved-session check, but **there is no v25 paid exposure or steering
+result**. No further paid run was launched.

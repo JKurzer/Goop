@@ -10,3 +10,6 @@
    v23 CONTENT event 19 (shell call 21), v24 CONTENT event 17 (shell call 18): each printed PE .rdata containing all 13 complete rows.
    Both canonical graphs (907/911 bytes) recovered byte-exact in each session. Contiguous-literal old gate fails in both; no causal steering claimed.
 9. Live pin_context tool fails (zero-arg function registered with @agent.tool). Plugin directory is protected from file edits; use scripts/pin.py CLI, do not bypass the guard.
+10. User requested teleology -> hainish, not more graph/soup tuning. New v25 local arm derived from v22, replaces 16,320 candidate tokens and all spec graph/metadata tokens.
+    Candidate SHA and graph hashes re-pinned separately; 12 framed rows max 190 chars. Native build/stage/preflight pass, shell probes at 0/0, 1/1, 4096/1 decode exactly.
+    No additional paid run: 2/8 and $3.7883865 remain the reported ledger. Historical v20-v24 runs are untouched.

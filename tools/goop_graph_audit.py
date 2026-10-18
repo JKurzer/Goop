@@ -31,6 +31,16 @@ def audit_run(run):
     if sha(original_bytes) != local_info['source_spec_sha256']:
         raise ValueError('original graph contract changed')
     values = canonical_from_startup(json.loads(original_bytes)['build']['startup_format'])
+    swap = local_info.get('token_swap')
+    if swap is not None:
+        if (set(swap) != {'from', 'to', 'source_graph_sha256'}
+                or swap['from'] != 'teleology' or swap['to'] != 'hainish'):
+            raise ValueError('unsupported graph token substitution')
+        for name in NAMES:
+            if sha(values[name].encode('ascii')) != swap['source_graph_sha256'][name]:
+                raise ValueError(f'{name}: token-swap source hash changed')
+        values = {name: text.replace(swap['from'], swap['to'])
+                  for name, text in values.items()}
     for name in NAMES:
         if sha(values[name].encode('ascii')) != local_info['canonical_sha256'][name]:
             raise ValueError(f'{name}: canonical hash changed')

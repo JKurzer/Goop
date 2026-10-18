@@ -21,18 +21,26 @@ def write_json(path, record):
     path.write_text(json.dumps(record), encoding='utf-8')
 
 
-def specimen(tmp_path, delivered):
+def specimen(tmp_path, delivered, swap=False):
     runs = tmp_path / 'runs'
     original, local, paid = (runs / name for name in ('original', 'local', 'paid'))
     old = ('STARTUP seed trigram_sets=' + VALUES['trigram_sets'] +
            ' full_graph=' + VALUES['full_graph'] +
            ' full_graph_directed=' + VALUES['full_graph_directed'] + '\n')
     write_json(original / 'spec.json', {'build': {'startup_format': old}})
-    frame = frame_graphs(VALUES)
-    write_json(local / 'inputs/source.json', {
+    actual = {key: text.replace('teleology', 'hainish')
+              for key, text in VALUES.items()} if swap else VALUES
+    frame = frame_graphs(actual)
+    provenance = {
         'source_run': original.name, 'source_spec_sha256': sha((original / 'spec.json').read_bytes()),
-        'canonical_sha256': {key: sha(text.encode()) for key, text in VALUES.items()},
-        'framed_sha256': sha(frame.encode())})
+        'canonical_sha256': {key: sha(text.encode()) for key, text in actual.items()},
+        'framed_sha256': sha(frame.encode())}
+    if swap:
+        provenance['token_swap'] = {
+            'from': 'teleology', 'to': 'hainish',
+            'source_graph_sha256': {key: sha(text.encode())
+                                    for key, text in VALUES.items()}}
+    write_json(local / 'inputs/source.json', provenance)
     write_json(paid / 'spec.json', {'build': {'startup_format': frame}})
     write_json(paid / 'inputs/source.json', {'source_run': local.name})
     write_json(paid / 'reports/status_RunB.json',
@@ -62,6 +70,13 @@ def test_paid_gate_reads_content_not_call_arguments(tmp_path, delivered):
     assert (run / 'analysis/graph_delivery_RunB.json').exists()
     with pytest.raises(FileExistsError):
         audit_run(run)
+
+
+def test_swapped_graphs_require_original_hash_and_full_hainish_rows(tmp_path):
+    run, _ = specimen(tmp_path, True, swap=True)
+    result = audit_run(run)
+    assert result['framed_delivered'] is True
+    assert len(result['qualifying_event_indices']) == 1
 
 
 def test_paid_gate_rejects_changed_saved_session(tmp_path):
