@@ -67,6 +67,7 @@ DEFAULT_PAYLOAD_PATH = 'inputs/candidate.txt'
 # not of any run, so they live here rather than in the spec.
 FMT_TICK_SIZE = 64
 FMT_SUMMARY_SIZE = 128
+STARTUP_FORMAT_MAX = 5000  # bounded rows; graph first, then literal filler
 
 # Default output format strings (the re-entrant print channel). Overridable
 # per-run via build.formats (owner 2026-10-16: "if they don't come from a
@@ -307,11 +308,11 @@ def build_section(spec):
     if startup_format is not None:
         _require(isinstance(startup_format, str)
                  and startup_format.endswith('\n')
-                 and len(startup_format) <= 2500
+                 and len(startup_format) <= STARTUP_FORMAT_MAX
                  and all(ch == '\n' or (0x20 <= ord(ch) <= 0x7E and ch != '%')
                          for ch in startup_format),
                  'build.startup_format must be printable ASCII lines ending '
-                 'in newline, <=2500 chars, with no printf conversions')
+                 f'in newline, <={STARTUP_FORMAT_MAX} chars, with no printf conversions')
         rows = startup_format[:-1].split('\n')
         _require(all(row and len(row) <= ROW_LIMIT for row in rows)
                  if len(rows) > 1 else bool(rows[0]),

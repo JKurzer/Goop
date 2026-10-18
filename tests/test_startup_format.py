@@ -4,7 +4,7 @@ import pytest
 
 from gooplib import GoopError, NATIVE_SRC
 from gooplib.native_build import inject_startup_format
-from gooplib.specs import build_section
+from gooplib.specs import STARTUP_FORMAT_MAX, build_section
 
 GRAPH = 'teleology team reverse | teleology progress team | teleology reverse remove'
 FORMAT = f'STARTUP seed {GRAPH}\n'
@@ -26,7 +26,7 @@ def test_startup_format_is_opt_in_and_preserves_complete_graph():
 
 @pytest.mark.parametrize('invalid', [
     'missing newline', 'extra\n\nnewline\n', 'bad %d\n', 'bad\tchar\n',
-    'A' * 2500 + '\n', 'ok\n' + 'A' * 191 + '\n',
+    'A' * STARTUP_FORMAT_MAX + '\n', 'ok\n' + 'A' * 191 + '\n',
 ])
 def test_startup_format_refuses_unsafe_or_overwide_multiline_input(invalid):
     with pytest.raises(GoopError, match='startup_format'):
@@ -38,6 +38,10 @@ def test_multiline_bounded_format_and_legacy_line_still_validate():
     multiline += 'STARTUP seed graph 02/02: reverse remove\n'
     spec = spec_with_format(multiline)
     assert build_section(spec)['startup_format'] == multiline
+    # Multiple <=190-character rows can carry graph then natural filler.
+    larger = ('low-perplexity filler ' * 7 + '\n') * 30
+    assert 2500 < len(larger) < STARTUP_FORMAT_MAX
+    assert build_section(spec_with_format(larger))['startup_format'] == larger
     # Already built v21 uses a long single line; do not invalidate its spec.
     assert build_section(spec_with_format('x' * 1952 + '\n'))['startup_format']
 

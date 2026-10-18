@@ -11,23 +11,34 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from gooplib.graph_delivery import NAMES, graphs_in_content  # noqa: E402
 
 
 def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def clone(source, destination):
+def clone(source, destination, prompt_file='compile.md'):
     runs = (ROOT / 'runs').resolve()
     source, destination = source.resolve(), destination.resolve()
     if (source.parent != runs or destination.parent != runs
             or source == destination or destination.exists()):
         raise ValueError('source and fresh destination must be different runs')
+    if (prompt_file not in {'compile.md', 'natural.md', 'natural-observe.md',
+                            'reduced.md'}
+            or not (ROOT / 'prompts' / prompt_file).is_file()):
+        raise ValueError('unsupported analyst prompt')
     spec_path = source / 'spec.json'
     spec = json.loads(spec_path.read_text(encoding='utf-8'))
     if ('fire' in spec or spec['arm'] != source.name
             or not (source / 'PREFLIGHT.json').is_file()):
         raise ValueError('source must be a preflighted local arm')
+    values = graphs_in_content(spec['build']['startup_format'])
+    if set(values) != set(NAMES):
+        raise ValueError('source must have complete framed startup graphs')
+    graph_lengths = {name: len(values[name]) for name in NAMES}
     preflight = json.loads((source / 'PREFLIGHT.json').read_text(encoding='utf-8'))
     candidate = source / 'inputs/candidate.txt'
     if sha(candidate) != preflight['candidate_sha256']:
@@ -38,7 +49,7 @@ def clone(source, destination):
             raise ValueError(f'{cell}: staged executable changed')
     next_spec = copy.deepcopy(spec)
     next_spec['arm'] = destination.name
-    next_spec['fire'] = {'prompt_file': 'compile.md', 'model': 'gpt-6-astra',
+    next_spec['fire'] = {'prompt_file': prompt_file, 'model': 'gpt-6-astra',
                          'cells': ['RunB'], 'per_cell_budget_usd': 5}
     provenance = {'source_run': source.name, 'source_spec_sha256': sha(spec_path),
                   'source_preflight_sha256': sha(source / 'PREFLIGHT.json'),
@@ -56,23 +67,29 @@ def clone(source, destination):
         stream.write(json.dumps(provenance, indent=2) + '\n')
     (destination / 'PREREG.md').write_text(
         '# Single RunB graph-row exposure attempt\n\n'
-        'User authorized up to eight new paid runs; launch ONE RunB in this '
-        'fresh arm. The $5 per-cell threshold is POST-HOC, not a provider '
-        'spending cap. No automatic retry. The primary gate is BOTH canonical '
-        '907/911-byte graphs reconstructed from complete numbered rows in '
-        'the same saved tool-return CONTENT event. No command echo, local '
-        'binary scan, stitched sessions, or boolean-only result counts. '
-        'Audit actual usage and saved session before considering another run.\n',
+        f'Analyst prompt: {prompt_file}. Launch ONE RunB; prior paid runs remain '
+        'untouched. The $5 per-cell '
+        'threshold is POST-HOC, not a provider spending cap. No retry. '
+        'Graph-delivery gate: each canonical value, lengths '
+        f'{graph_lengths}, reconstructed '
+        'from complete numbered rows in ONE saved tool-return CONTENT event. '
+        'No command echo, local scan, stitched sessions, or boolean check '
+        'counts. Score word adoption outside copied startup and code literals '
+        'separately; a copied graph is NOT steering. Inspect session and '
+        'actual cost before any further paid run.\n',
         encoding='utf-8')
     print(json.dumps({'arm': destination.name, 'source': source.name,
+                      'prompt_file': prompt_file,
                       'RunB_sha256': provenance['staged_sha256']['RunB'],
                       'preflight_required': True}, indent=2))
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 3:
-        raise SystemExit('usage: goop_graph_clone.py <local-run> <fresh-run>')
+    if len(sys.argv) not in (3, 4):
+        raise SystemExit('usage: goop_graph_clone.py <local-run> <fresh-run> '
+                         '[compile.md|natural.md|natural-observe.md|reduced.md]')
     try:
-        clone(Path(sys.argv[1]), Path(sys.argv[2]))
+        clone(Path(sys.argv[1]), Path(sys.argv[2]),
+              sys.argv[3] if len(sys.argv) == 4 else 'compile.md')
     except (OSError, ValueError, KeyError) as exc:
         raise SystemExit(f'REFUSED: {exc}') from exc
