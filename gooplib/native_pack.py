@@ -20,7 +20,8 @@ import pefile
 
 from gooplib import UPX, GoopError
 from gooplib.pe_debug import add_pdb_hint
-from gooplib.literal_resources import resources_match, unique_bundles
+from gooplib.literal_resources import (keep_resource_option, resources_match,
+                                       unique_bundles)
 from gooplib.specs import (PROBES, build_section, candidate_path,
                            metadata_texts, payload_lines)
 
@@ -69,7 +70,7 @@ def pack_pair(run_dir, spec):
         unpacked_copy = private / 'target-unpacked.exe'
         shutil.copyfile(source, unpacked_copy)
         packed = private / 'target-packed.exe'
-        upx_args = (['--compress-resources=0'] if resources else []) + \
+        upx_args = ([keep_resource_option(len(resources))] if resources else []) + \
                    ['-o', str(packed), str(unpacked_copy)]
         result = _run_upx(upx_args)
         if result.returncode:
