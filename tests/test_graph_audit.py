@@ -5,6 +5,7 @@ import json
 import pytest
 
 from gooplib.graph_delivery import frame_graphs
+from gooplib.pair_graph import pair_graph_values
 from tools.goop_graph_audit import audit_run
 
 VALUES = {'trigram_sets': 'teleology team reverse | teleology progress team',
@@ -41,8 +42,12 @@ def specimen(tmp_path, delivered, swap=False):
             'source_graph_sha256': {key: sha(text.encode())
                                     for key, text in VALUES.items()}}
     write_json(local / 'inputs/source.json', provenance)
+    write_json(local / 'spec.json', {'build': {'startup_format': frame}})
     write_json(paid / 'spec.json', {'build': {'startup_format': frame}})
-    write_json(paid / 'inputs/source.json', {'source_run': local.name})
+    write_json(paid / 'inputs/source.json', {
+        'source_run': local.name,
+        'source_spec_sha256': sha((local / 'spec.json').read_bytes()),
+    })
     write_json(paid / 'reports/status_RunB.json',
                {'exit': 0, 'usage': {'cost_usd': 1.5}})
     session = {'messages': [{'parts': [
@@ -84,3 +89,68 @@ def test_paid_gate_rejects_changed_saved_session(tmp_path):
     session.write_bytes(session.read_bytes() + b' ')
     with pytest.raises(ValueError, match='differs'):
         audit_run(run)
+
+
+def derived_specimen(tmp_path):
+    runs = tmp_path / 'runs'
+    base, local, paid = (runs / name for name in ('base', 'aligned', 'paid'))
+    source_frame = frame_graphs(VALUES)
+    filler = 'All that is done (hainish and file) is done.\n'
+    base_startup = source_frame + filler
+    write_json(base / 'spec.json', {'build': {'startup_format': base_startup}})
+    write_json(base / 'PREFLIGHT.json', {'ok': True})
+    (base / 'inputs').mkdir(parents=True)
+    (base / 'inputs/candidate.txt').write_bytes(b'candidate\r\n')
+    words = {'anchor': 'hainish', 'target': 'delete', 'destination': 'file'}
+    values = pair_graph_values(words, 5)
+    new_frame = frame_graphs(values)
+    startup = new_frame + filler
+    write_json(local / 'spec.json', {'build': {'startup_format': startup}})
+    (local / 'inputs').mkdir()
+    (local / 'inputs/candidate.txt').write_bytes(b'candidate\r\n')
+    write_json(local / 'inputs/source.json', {
+        'framed_sha256': sha(startup.encode()),
+        'graph_derivation': {
+            'source_run': base.name,
+            'source_spec_sha256': sha((base / 'spec.json').read_bytes()),
+            'source_preflight_sha256': sha((base / 'PREFLIGHT.json').read_bytes()),
+            'source_candidate_sha256': sha(b'candidate\r\n'),
+            'source_framed_sha256': sha(base_startup.encode()),
+            'words': words, 'sets': 5,
+            'canonical_sha256': {name: sha(value.encode())
+                                 for name, value in values.items()},
+            'frame_sha256': sha(new_frame.encode()),
+            'filler_sha256': sha(filler.encode()),
+        },
+    })
+    write_json(paid / 'spec.json', {'build': {'startup_format': startup}})
+    write_json(paid / 'inputs/source.json', {
+        'source_run': local.name,
+        'source_spec_sha256': sha((local / 'spec.json').read_bytes()),
+    })
+    write_json(paid / 'reports/status_RunB.json',
+               {'exit': 0, 'usage': {'cost_usd': 1.25}})
+    session = {'messages': [{'parts': [{'part_kind': 'tool-return',
+                 'content': {'stdout': startup + 'SUMMARY ticks=0\n'}}]}]}
+    saved = json.dumps(session).encode()
+    session_path = tmp_path / 'derived-session.json'
+    session_path.write_bytes(saved)
+    write_json(paid / 'reports/audit_RunB.json',
+               {'session': str(session_path), 'session_sha256': sha(saved)})
+    (paid / 'analysis').mkdir()
+    return base, paid
+
+
+def test_pair_aligned_graph_gate_recomputes_five_complete_sets(tmp_path):
+    _, paid = derived_specimen(tmp_path)
+    record = audit_run(paid)
+    assert record['framed_delivered']
+    assert record['expected_lengths']['full_graph'] == 1244
+    assert record['qualifying_event_indices'] == [0]
+
+
+def test_pair_aligned_gate_rejects_changed_original_spec(tmp_path):
+    base, paid = derived_specimen(tmp_path)
+    (base / 'spec.json').write_text('{}', encoding='utf-8')
+    with pytest.raises(ValueError, match='source pair graph candidate or preflight changed'):
+        audit_run(paid)

@@ -1,7 +1,9 @@
 """Verify byte-exact, same-return delivery of both graphs in a saved run.
 
 Run AFTER goop_score.py export. Requires a SHA-pinned saved analyst session.
-Never counts local scans, arguments, reports, or text stitched across returns.
+Counts complete graph rows in ONE tool-return CONTENT, not call arguments,
+reports, or stitched returns. Check the call ID separately to distinguish a
+direct runtime execution from a static scan that printed complete rows.
 """
 import hashlib
 import json
@@ -13,7 +15,8 @@ sys.path.insert(0, str(ROOT))
 
 from gooplib.evidence import content_events  # noqa: E402
 from gooplib.graph_delivery import (NAMES, canonical_from_startup,
-                                    graphs_in_content)  # noqa: E402
+                                    frame_graphs, graphs_in_content)  # noqa: E402
+from gooplib.pair_graph import pair_graph_values  # noqa: E402
 
 
 def sha(data):
@@ -26,23 +29,60 @@ def audit_run(run):
     source_info = json.loads((run / 'inputs/source.json').read_text(encoding='utf-8'))
     local = run.parent / source_info['source_run']
     local_info = json.loads((local / 'inputs/source.json').read_text(encoding='utf-8'))
-    original = run.parent / local_info['source_run']
-    original_bytes = (original / 'spec.json').read_bytes()
-    if sha(original_bytes) != local_info['source_spec_sha256']:
-        raise ValueError('original graph contract changed')
-    values = canonical_from_startup(json.loads(original_bytes)['build']['startup_format'])
-    swap = local_info.get('token_swap')
-    if swap is not None:
-        if (set(swap) != {'from', 'to', 'source_graph_sha256'}
-                or swap['from'] != 'teleology' or swap['to'] != 'hainish'):
-            raise ValueError('unsupported graph token substitution')
-        for name in NAMES:
-            if sha(values[name].encode('ascii')) != swap['source_graph_sha256'][name]:
-                raise ValueError(f'{name}: token-swap source hash changed')
-        values = {name: text.replace(swap['from'], swap['to'])
-                  for name, text in values.items()}
+    local_spec_bytes = (local / 'spec.json').read_bytes()
+    if ('source_spec_sha256' in source_info
+            and sha(local_spec_bytes) != source_info['source_spec_sha256']):
+        raise ValueError('local graph spec differs from paid clone proof')
+    derivation = local_info.get('graph_derivation')
+    if derivation is not None:
+        if (derivation['words'] != {'anchor': 'hainish', 'target': 'delete',
+                                    'destination': 'file'}
+                or derivation['sets'] != 5):
+            raise ValueError('unsupported pair-aligned graph derivation')
+        base = run.parent / derivation['source_run']
+        base_bytes = (base / 'spec.json').read_bytes()
+        if (sha(base_bytes) != derivation['source_spec_sha256']
+                or sha((base / 'PREFLIGHT.json').read_bytes()) !=
+                derivation['source_preflight_sha256']
+                or sha((base / 'inputs/candidate.txt').read_bytes()) !=
+                derivation['source_candidate_sha256']
+                or sha((local / 'inputs/candidate.txt').read_bytes()) !=
+                derivation['source_candidate_sha256']):
+            raise ValueError('source pair graph candidate or preflight changed')
+        base_startup = json.loads(base_bytes)['build']['startup_format']
+        base_frame = frame_graphs(graphs_in_content(base_startup))
+        suffix = base_startup[len(base_frame):]
+        if (not base_startup.startswith(base_frame)
+                or sha(base_startup.encode('ascii')) !=
+                derivation['source_framed_sha256']
+                or sha(suffix.encode('ascii')) != derivation['filler_sha256']):
+            raise ValueError('pair graph base startup or filler changed')
+        values = pair_graph_values(derivation['words'], derivation['sets'])
+        new_frame = frame_graphs(values)
+        if (sha(new_frame.encode('ascii')) != derivation['frame_sha256']
+                or json.loads(local_spec_bytes)['build']['startup_format'] !=
+                new_frame + suffix):
+            raise ValueError('pair graph local frame differs from canonical derivation')
+        expected_hashes = derivation['canonical_sha256']
+    else:
+        original = run.parent / local_info['source_run']
+        original_bytes = (original / 'spec.json').read_bytes()
+        if sha(original_bytes) != local_info['source_spec_sha256']:
+            raise ValueError('original graph contract changed')
+        values = canonical_from_startup(json.loads(original_bytes)['build']['startup_format'])
+        swap = local_info.get('token_swap')
+        if swap is not None:
+            if (set(swap) != {'from', 'to', 'source_graph_sha256'}
+                    or swap['from'] != 'teleology' or swap['to'] != 'hainish'):
+                raise ValueError('unsupported graph token substitution')
+            for name in NAMES:
+                if sha(values[name].encode('ascii')) != swap['source_graph_sha256'][name]:
+                    raise ValueError(f'{name}: token-swap source hash changed')
+            values = {name: text.replace(swap['from'], swap['to'])
+                      for name, text in values.items()}
+        expected_hashes = local_info['canonical_sha256']
     for name in NAMES:
-        if sha(values[name].encode('ascii')) != local_info['canonical_sha256'][name]:
+        if sha(values[name].encode('ascii')) != expected_hashes[name]:
             raise ValueError(f'{name}: canonical hash changed')
     if (sha(spec['build']['startup_format'].encode('ascii')) !=
             local_info['framed_sha256']):
