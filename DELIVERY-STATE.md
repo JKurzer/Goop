@@ -13,3 +13,6 @@
 10. User requested teleology -> hainish, not more graph/soup tuning. New v25 local arm derived from v22, replaces 16,320 candidate tokens and all spec graph/metadata tokens.
     Candidate SHA and graph hashes re-pinned separately; 12 framed rows max 190 chars. Native build/stage/preflight pass, shell probes at 0/0, 1/1, 4096/1 decode exactly.
     No additional paid run: 2/8 and $3.7883865 remain the reported ledger. Historical v20-v24 runs are untouched.
+11. v25 filler inspection: 160 candidate lines = 80 unique lines repeated exactly twice; 92.93% of bytes are parenthesized link groups.
+    Historical payloads/FinalPayload.md is 40 lines with 44.5% parenthesized bytes; its opening sentence and '(hainish and file)' are absent from v25.
+    v25 equals v22 candidate byte-for-byte after teleology->hainish. Thus thin filler predates the swap; no causal steering claim. Runtime stdout prints graph rows, not candidate filler.
