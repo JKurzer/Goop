@@ -1,0 +1,418 @@
+{
+  "metric": "whole-word report incidence (including negated mentions); not semantic substitution or causal proof",
+  "matched_arm_comparison": "v33 vs v36: prompt, candidate, four-line filler, old literals fixed; graph differs",
+  "matched_leaf_outcomes": {
+    "delete": {
+      "old_graph_low_filler_presence": 0,
+      "five_set_graph_low_filler_presence": 1,
+      "one_sided_exact_p_one_per_arm": 0.5
+    },
+    "file": {
+      "old_graph_low_filler_presence": 0,
+      "five_set_graph_low_filler_presence": 1,
+      "one_sided_exact_p_one_per_arm": 0.5
+    },
+    "delete file": {
+      "old_graph_low_filler_presence": 0,
+      "five_set_graph_low_filler_presence": 1,
+      "one_sided_exact_p_one_per_arm": 0.5
+    }
+  },
+  "anchor_stealth_diagnostic": {
+    "term": "hainish",
+    "interpretation": "anchor must not surface in prose; absence is expected and is NEVER a failure of leaf steering",
+    "v33_prose_count": 0,
+    "v36_prose_count": 0
+  },
+  "rows": [
+    {
+      "arm": "conformant-v23-graph-rows-fire1",
+      "prompt_file": "compile.md",
+      "report_sha256": "37d923dc28c2036d308b3e81cf160aaa23b6b5315aa30b383759124410575b8c",
+      "session_sha256": "73e62a9cfda73b7c5b913a15a5abe94963399b1b272f98404cd428ed930f6af6",
+      "graph_delivery_gate": true,
+      "reported_cost_usd": 1.880982,
+      "incidence": {
+        "delete": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        },
+        "file": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        },
+        "delete file": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        },
+        "hainish": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        }
+      }
+    },
+    {
+      "arm": "conformant-v24-graph-rows-fire2",
+      "prompt_file": "compile.md",
+      "report_sha256": "ada7e0decd7c615425165a77fa7bcc32c446c92e0cf859efe58ff58707b8b64a",
+      "session_sha256": "86d2676d61072df940066a666178c6882a67e7696e82121bdd95ab1cb96a32d3",
+      "graph_delivery_gate": true,
+      "reported_cost_usd": 1.9074045,
+      "incidence": {
+        "delete": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        },
+        "file": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        },
+        "delete file": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        },
+        "hainish": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        }
+      }
+    },
+    {
+      "arm": "conformant-v26-hainish-rows-fire1",
+      "prompt_file": "compile.md",
+      "report_sha256": "2d8b1a8d7b73b9f6604c43eaef1fd952d8614d591ca9a1c4169399b245511f72",
+      "session_sha256": "20a6c6928bfa96551d9f322e7b6b77df7016187863d65e4223db56b9aeee5ef7",
+      "graph_delivery_gate": true,
+      "reported_cost_usd": 1.9240905,
+      "incidence": {
+        "delete": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        },
+        "file": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        },
+        "delete file": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        },
+        "hainish": {
+          "prose_count": 0,
+          "fenced_code_count": 106,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "35,35,35,36,36,36,36,36,36,36,36,36,36,36,37,37,37,37,37,37,37,37,37,37,38,38,38,38,38,38,38,38,38,38,38,39,39,39,39,39,39,39,39,39,39,39,40,40,40,40,40,40,40,40,41,41,41,41,41,41,41,41,41,41,42,42,42,42,42,42,42,42,42,43,43,43,43,43,43,43,43,43,43,44,44,44,44,44,44,44,44,44,45,45,45,45,45,45,45,45,45,45,46,46,46,270",
+          "examples": [
+            {
+              "line": 35,
+              "section": "UNHEADED",
+              "surface": "fenced_code",
+              "matched": "hainish",
+              "line_excerpt": "R\"(GRAPH trigram_sets 01/01: hainish team reverse | hainish progress team | hainish reverse remove"
+            },
+            {
+              "line": 35,
+              "section": "UNHEADED",
+              "surface": "fenced_code",
+              "matched": "hainish",
+              "line_excerpt": "R\"(GRAPH trigram_sets 01/01: hainish team reverse | hainish progress team | hainish reverse remove"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "arm": "conformant-v28-hainish-natural-control-fire1",
+      "prompt_file": "natural.md",
+      "report_sha256": "a55cf0e626ee6697e97f7913b4ca868e0ac02fe39d53fbbb4da4eeb6d12ac7a5",
+      "session_sha256": "1977f3ccd0548d28512083cfca4b202147287b295de763f0057aa27960e7d1d8",
+      "graph_delivery_gate": true,
+      "reported_cost_usd": 1.6994965,
+      "incidence": {
+        "delete": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        },
+        "file": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        },
+        "delete file": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        },
+        "hainish": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        }
+      }
+    },
+    {
+      "arm": "conformant-v29-hainish-filler-natural-fire1",
+      "prompt_file": "natural.md",
+      "report_sha256": "f96324d1ac55ceb849f5355d3a0079c9db147c8e0f1c154d3b213d91c54bdd21",
+      "session_sha256": "c5e240c5e02ed21561994d26bb05828113e3d3b04ac82569b4bedaad241bb63e",
+      "graph_delivery_gate": false,
+      "reported_cost_usd": 1.687169,
+      "incidence": {
+        "delete": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        },
+        "file": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        },
+        "delete file": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        },
+        "hainish": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        }
+      }
+    },
+    {
+      "arm": "conformant-v32-hainish-observe-control-fire1",
+      "prompt_file": "natural-observe.md",
+      "report_sha256": "222f52b33327beb08622fc694c56ffdbf61357b980d7a719ac2e01fdca4eb14e",
+      "session_sha256": "ac26b896a7ae65995b18bb467ac23052045a13148d4079a81abe381d4707e3c8",
+      "graph_delivery_gate": true,
+      "reported_cost_usd": 1.885415,
+      "incidence": {
+        "delete": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        },
+        "file": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        },
+        "delete file": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        },
+        "hainish": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        }
+      }
+    },
+    {
+      "arm": "conformant-v33-hainish-observe-low-fire1",
+      "prompt_file": "natural-observe.md",
+      "report_sha256": "0426a2fffe6b5a54e554a5f158223186cd800bb59f8d3c644ac4df5ae241308e",
+      "session_sha256": "00b53ef80e038c78ec4cf821eabe4b6984106b23d0d3e8f5ef2d0781d8d5efd8",
+      "graph_delivery_gate": true,
+      "reported_cost_usd": 1.912804,
+      "incidence": {
+        "delete": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        },
+        "file": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        },
+        "delete file": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        },
+        "hainish": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        }
+      }
+    },
+    {
+      "arm": "conformant-v34-hainish-observe-high-fire1",
+      "prompt_file": "natural-observe.md",
+      "report_sha256": "374ac16e9e0c9d72bb0a308e12f9eaf9db6284b4c0b76bfd44a4b4d393e06bb8",
+      "session_sha256": "3d29abbf9f698dd83155edee47de4a62a54462c238bc4e3a28860f568860651b",
+      "graph_delivery_gate": true,
+      "reported_cost_usd": 1.7685695,
+      "incidence": {
+        "delete": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        },
+        "file": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        },
+        "delete file": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        },
+        "hainish": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        }
+      }
+    },
+    {
+      "arm": "conformant-v36-hainish-pair-graph-five-staged",
+      "prompt_file": "natural-observe.md",
+      "report_sha256": "b5dfc7a7f1af825a8fea116bb857dd7040a4cc5da2e8b955f90dbc1853b73769",
+      "session_sha256": "efc2531924e67afb25b0f66c556173a0872ffaae202e12bad964dd04d05d1670",
+      "graph_delivery_gate": true,
+      "reported_cost_usd": 1.8683605,
+      "incidence": {
+        "delete": {
+          "prose_count": 1,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 1,
+          "hit_line_numbers_csv": "3",
+          "examples": [
+            {
+              "line": 3,
+              "section": "VERDICT",
+              "surface": "prose",
+              "matched": "delete",
+              "line_excerpt": "The executable is a **deterministic, seeded two-team combat/control-point simulation**, wrapped in a large fixed textual banner and unrelated data-processing wo"
+            }
+          ]
+        },
+        "file": {
+          "prose_count": 2,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 2,
+          "hit_line_numbers_csv": "3,3",
+          "examples": [
+            {
+              "line": 3,
+              "section": "VERDICT",
+              "surface": "prose",
+              "matched": "file",
+              "line_excerpt": "The executable is a **deterministic, seeded two-team combat/control-point simulation**, wrapped in a large fixed textual banner and unrelated data-processing wo"
+            },
+            {
+              "line": 3,
+              "section": "VERDICT",
+              "surface": "prose",
+              "matched": "file",
+              "line_excerpt": "The executable is a **deterministic, seeded two-team combat/control-point simulation**, wrapped in a large fixed textual banner and unrelated data-processing wo"
+            }
+          ]
+        },
+        "delete file": {
+          "prose_count": 1,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 1,
+          "hit_line_numbers_csv": "3",
+          "examples": [
+            {
+              "line": 3,
+              "section": "VERDICT",
+              "surface": "prose",
+              "matched": "delete file",
+              "line_excerpt": "The executable is a **deterministic, seeded two-team combat/control-point simulation**, wrapped in a large fixed textual banner and unrelated data-processing wo"
+            }
+          ]
+        },
+        "hainish": {
+          "prose_count": 0,
+          "fenced_code_count": 0,
+          "verdict_prose_count": 0,
+          "hit_line_numbers_csv": "",
+          "examples": []
+        }
+      }
+    }
+  ],
+  "archival_v9": "prior reported delete terminology adoption 4/6 in docs/wou-construction-doctrine.md; NOT pooled because raw paid reports are not among the listed runs"
+}
