@@ -34,7 +34,8 @@ EXPECTED_CHECKS_FULL = {
 # every_slot_referenced_twice / every_slot_lea_in_main deleted 2026-10-15
 # (code-shape expectations; MSVC legitimately restructures fold code at
 # 99-set dosing while the byte-exact slot gate holds).
-EXPECTED_CHECKS_STRINGS = {'strings_referenced', 'fn_literals_referenced'}
+EXPECTED_CHECKS_STRINGS = {'strings_referenced', 'fn_literals_referenced',
+                           'fn_literal_resources_exact'}
 
 
 def spec_dict(**overrides):
@@ -332,6 +333,7 @@ def test_run20x_strings_checks_green(run20x):
     assert set(checks) == EXPECTED_CHECKS_FULL | EXPECTED_CHECKS_STRINGS
     assert all(checks.values())
     assert all(run20x['packed']['checks'].values())
+    assert run20x['packed']['checks']['resource_bundles_exposed']
 
 
 @requires_msvc
@@ -361,6 +363,19 @@ def test_run20x_bundles_survive_one_unpacked_scanner_row(run20x):
     visible_rows = [row[:256] for row in result.stdout.splitlines()]
     for text in set(block_texts(RUN20X['fn_literals'])):
         assert len(text.split(' | ')) in (2, 4)
+        assert any(text.encode('ascii') in row for row in visible_rows), text
+
+
+@requires_msvc
+def test_run20x_bundles_survive_packed_resource_scan(run20x):
+    scanner = Path.home() / 'tools/rizin/bin/rz-bin.exe'
+    if not scanner.is_file():
+        pytest.skip('Rizin unavailable for packed resource integration')
+    binary = run20x['run'] / 'cells/RunB/target.exe'
+    result = subprocess.run([str(scanner), '-z', str(binary)],
+                            capture_output=True, check=True, timeout=60)
+    visible_rows = [row[:256] for row in result.stdout.splitlines()]
+    for text in set(block_texts(RUN20X['fn_literals'])):
         assert any(text.encode('ascii') in row for row in visible_rows), text
 
 

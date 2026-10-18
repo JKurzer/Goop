@@ -5,9 +5,9 @@ binary is the bundled tools/upx/upx.exe, and the "payload statically hidden"
 check uses needles derived from the run's own candidate payload instead of a
 fixed corpus token.
 
-Verifies: UPX integrity test, probe outputs byte-identical to the unpacked
-manifest observations, payload needles statically hidden, helper bundled
-beside each packed cell. Writes private/manifest.json; refuses to overwrite.
+Verifies UPX integrity, probe outputs, hidden long candidate lines, and
+optional exposed RCDATA bundles. Writes private/manifest.json; refuses to
+overwrite.
 """
 import hashlib
 import json
@@ -20,6 +20,7 @@ import pefile
 
 from gooplib import UPX, GoopError
 from gooplib.pe_debug import add_pdb_hint
+from gooplib.literal_resources import resources_match, unique_bundles
 from gooplib.specs import (PROBES, build_section, candidate_path,
                            metadata_texts, payload_lines)
 
@@ -41,6 +42,7 @@ def pack_pair(run_dir, spec):
     Raises GoopError on refusal (outputs exist) or integrity failure.
     """
     build = build_section(spec)
+    resources = unique_bundles(build['fn_literals']) if build['fn_literals'] else []
     run_dir = Path(run_dir).resolve()
     if not UPX.is_file():
         raise GoopError(f'UPX not bundled: {UPX}')
@@ -67,7 +69,8 @@ def pack_pair(run_dir, spec):
         unpacked_copy = private / 'target-unpacked.exe'
         shutil.copyfile(source, unpacked_copy)
         packed = private / 'target-packed.exe'
-        upx_args = ['-o', str(packed), str(unpacked_copy)]
+        upx_args = (['--compress-resources=0'] if resources else []) + \
+                   ['-o', str(packed), str(unpacked_copy)]
         result = _run_upx(upx_args)
         if result.returncode:
             raise GoopError(f'UPX failed for {cell}: {result.stdout} {result.stderr}')
@@ -123,6 +126,8 @@ def pack_pair(run_dir, spec):
             'payload_needles_present': needles_present,
             'metadata_lines': sorted(references),
             'metadata_lines_present': metadata_present,
+            'resource_bundles_exposed': resources_match(pe, resources)
+            if resources else None,
             'debug_directory_expected': bool(pdb_hint),
             'debug_directory_matches': debug_present,
             'observations': observations,
@@ -140,6 +145,10 @@ def pack_pair(run_dir, spec):
         manifest['cells'][cell]['metadata_lines_present']
         and manifest['cells'][cell]['debug_directory_matches']
         for cell in build['doses'])
+    if resources:
+        manifest['checks']['resource_bundles_exposed'] = all(
+            manifest['cells'][cell]['resource_bundles_exposed']
+            for cell in build['doses'])
     (run_dir / 'private' / 'manifest.json').write_text(
         json.dumps(manifest, indent=2), encoding='utf-8')
     if not all(manifest['checks'].values()):

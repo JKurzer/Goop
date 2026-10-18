@@ -19,6 +19,7 @@ from gooplib import GoopError
 from gooplib.exports import (block_leaf_words, block_texts, count_visible,
                              link_texts, names_digest, validate_export_words,
                              validate_pairs)
+from gooplib.literal_resources import unique_bundles, write_resources
 from gooplib.native_build import build_pair, inject_fn_literals
 from gooplib.specs import build_section
 
@@ -125,6 +126,19 @@ def test_grouped_literals_never_cross_pairs():
         link_texts(WORDS, 1) + link_texts(pair2, 1)
 
 
+def test_resource_mirror_contains_whole_bundles_once(tmp_path):
+    block = {'sets': 2, 'words': WORDS, 'links_per_literal': 4,
+             'resource_carrier': True}
+    texts = unique_bundles(block)
+    assert len(texts) == 5
+    write_resources(tmp_path, texts)
+    assert (tmp_path / 'fnlit_resource_000.bin').read_bytes() == \
+        texts[0].encode('ascii') + b'\0'
+    assert (tmp_path / 'fnlit.rc').read_text(encoding='ascii').splitlines()[0] == \
+        '16384 RCDATA "fnlit_resource_000.bin"'
+    assert unique_bundles({**block, 'resource_carrier': False}) == []
+
+
 def test_block_dispatch_raw_flat_shape():
     """The raw run-spec flat triple (every pre-pairs arm) must not crash
     the scorer's visibility path (the e5f60f7 regression class)."""
@@ -180,6 +194,14 @@ def test_build_section_grouped_fn_literals_and_invalid_groupings():
     with pytest.raises(GoopError, match='120 bytes'):
         build_section(make_spec({'sets': 1, **long_words,
                                  'links_per_literal': 4}))
+    grouped = {**raw, 'resource_carrier': True}
+    assert build_section(make_spec(grouped))['fn_literals'] == \
+        {'sets': 2, 'words': WORDS, 'links_per_literal': 4,
+         'resource_carrier': True}
+    for bad in ({'sets': 1, **WORDS, 'resource_carrier': True},
+                {**grouped, 'resource_carrier': False}):
+        with pytest.raises(GoopError, match='resource_carrier'):
+            build_section(make_spec(bad))
 
 
 def test_new_build_refuses_legacy_one_link_literals_before_writing(tmp_path):

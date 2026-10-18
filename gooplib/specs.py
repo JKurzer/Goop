@@ -38,6 +38,9 @@ parameters (goop rule 2: zero magic numbers in utilities):
                 words/sets shape as exports; optionally add
                 `links_per_literal: 2` or `4` to keep complete two-LINK
                 configs inside independently visible <=120-byte strings.
+                `resource_carrier: true` also plants one copy of each
+                distinct bundle in RCDATA for UPX's resource-preservation
+                mode (the default compressed .rdata stays unchanged).
                 Without that key, the historical one-LINK layout remains
                 reproducible. Arrays are referenced in both loops via
                 volatile reads into the inert sink; output unchanged.
@@ -114,7 +117,12 @@ def _link_block(value, where):
              and 1 <= sets <= 99,
              f'build.{where}.sets must be an integer in [1, 99]')
     grouped = where == 'fn_literals' and 'links_per_literal' in value
-    extra = {'links_per_literal'} if grouped else set()
+    resource = where == 'fn_literals' and 'resource_carrier' in value
+    extra = ({'links_per_literal'} if grouped else set()) | \
+            ({'resource_carrier'} if resource else set())
+    if resource:
+        _require(grouped and value['resource_carrier'] is True,
+                 'build.fn_literals.resource_carrier requires grouping and true')
     if grouped:
         _require(type(value['links_per_literal']) is int
                  and value['links_per_literal'] in (2, 4),
@@ -135,6 +143,8 @@ def _link_block(value, where):
         if grouped:
             normalized['links_per_literal'] = value['links_per_literal']
             block_texts(normalized)  # reject strings too long for one row
+        if resource:
+            normalized['resource_carrier'] = True
         return normalized
     _require(set(value) == {'sets', *EXPORT_ROLES} | extra,
              f"build.{where} must be {{'sets', *{list(EXPORT_ROLES)}}} or "
@@ -145,6 +155,8 @@ def _link_block(value, where):
     if grouped:
         normalized['links_per_literal'] = value['links_per_literal']
         block_texts(normalized)  # reject strings too long for one row
+    if resource:
+        normalized['resource_carrier'] = True
     return normalized
 
 

@@ -40,6 +40,8 @@ from capstone.x86 import X86_OP_IMM, X86_OP_MEM, X86_REG_RIP
 from gooplib import NATIVE_SRC, GoopError
 from gooplib.dos_stub import NEUTRAL_TEXT, make_dos_stub
 from gooplib.exports import block_texts, names_digest
+from gooplib.literal_resources import (resources_match, unique_bundles,
+                                       write_resources)
 from gooplib.pe_debug import reserved_bytes
 from gooplib.specs import (ATTENTION_SIZE, DEFAULT_SUMMARY_TEXT,
                            DEFAULT_TICK_TEXT, FMT_SUMMARY_SIZE, FMT_TICK_SIZE,
@@ -401,14 +403,21 @@ def reference_census(pe, slot_vas):
     return hits
 
 
-def _compile(private, vcvars, dos_stub=None, reserve_bytes=None):
+def _compile(private, vcvars, dos_stub=None, reserve_bytes=None,
+             resource_texts=None):
     stub_option = ''
     if reserve_bytes is not None:
         text = dos_stub if dos_stub is not None else NEUTRAL_TEXT
         (private / 'dos-stub.exe').write_bytes(make_dos_stub(text, reserve_bytes))
         stub_option = ' /STUB:dos-stub.exe'
-    command = (f'call "{vcvars}" >nul && cl /EHsc /O2 /MT /std:c++17 /nologo /W3 '
+    resources = ''
+    if resource_texts:
+        write_resources(private, resource_texts)
+        resources = 'rc /nologo /fo fnlit.res fnlit.rc && '
+    command = (f'call "{vcvars}" >nul && ' + resources
+               + 'cl /EHsc /O2 /MT /std:c++17 /nologo /W3 '
                '/Fe:target.exe ' + ' '.join(f'{m}.cpp' for m in MODULES)
+               + (' fnlit.res' if resource_texts else '')
                + ' /link /OPT:NOICF /INCREMENTAL:NO /MAP:target.map /Brepro'
                + stub_option)
     result = subprocess.run(command, shell=True, cwd=private,
@@ -693,6 +702,12 @@ def _fnlit_checks(output, manifest, build, cells):
         info['contents_exact'] and info['referenced'] == info['count']
         and info['referenced_in_main'] == info['count']
         for info in per_cell.values())
+    resources = unique_bundles(build['fn_literals'])
+    if resources:
+        manifest['checks']['fn_literal_resources_exact'] = all(
+            resources_match(pefile.PE(str(output / 'cells' / cell / 'target.exe')),
+                            resources) for cell in cells)
+        manifest['fn_literals']['resource_count'] = len(resources)
 
 
 def build_pair(run_dir, spec):
@@ -777,7 +792,8 @@ def build_pair(run_dir, spec):
                                        build['slots'], build['slot_size'],
                                        assignments_in_main=False),
                     encoding='utf-8')
-        _compile(private, vcvars, metadata[cell][0], stub_reservation)
+        _compile(private, vcvars, metadata[cell][0], stub_reservation,
+                 unique_bundles(build['fn_literals']) if build['fn_literals'] else [])
         shutil.copyfile(private / 'target.exe', public / 'target.exe')
         binary = (public / 'target.exe').read_bytes()
         pe = pefile.PE(data=binary)
