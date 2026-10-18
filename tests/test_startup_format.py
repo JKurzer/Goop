@@ -1,4 +1,4 @@
-"""Opt-in startup output: one pinned, printable printf line per execution."""
+"""Opt-in startup output: pinned, printable rows with safe framing."""
 
 import pytest
 
@@ -25,12 +25,21 @@ def test_startup_format_is_opt_in_and_preserves_complete_graph():
 
 
 @pytest.mark.parametrize('invalid', [
-    'missing newline', 'extra\nnewline\n', 'bad %d\n', 'bad\tchar\n',
-    'A' * 2500 + '\n',
+    'missing newline', 'extra\n\nnewline\n', 'bad %d\n', 'bad\tchar\n',
+    'A' * 2500 + '\n', 'ok\n' + 'A' * 191 + '\n',
 ])
-def test_startup_format_refuses_unsafe_or_multiline_input(invalid):
+def test_startup_format_refuses_unsafe_or_overwide_multiline_input(invalid):
     with pytest.raises(GoopError, match='startup_format'):
         build_section(spec_with_format(invalid))
+
+
+def test_multiline_bounded_format_and_legacy_line_still_validate():
+    multiline = 'STARTUP seed graph 01/02: teleology team\n'
+    multiline += 'STARTUP seed graph 02/02: reverse remove\n'
+    spec = spec_with_format(multiline)
+    assert build_section(spec)['startup_format'] == multiline
+    # Already built v21 uses a long single line; do not invalidate its spec.
+    assert build_section(spec_with_format('x' * 1952 + '\n'))['startup_format']
 
 
 def test_long_format_can_hold_full_graph_and_zero_probe_is_explicit():

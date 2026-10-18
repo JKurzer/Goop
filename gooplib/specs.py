@@ -57,6 +57,7 @@ from pathlib import Path
 from gooplib import GoopError
 from gooplib.exports import (EXPORT_ROLES, block_texts,
                              validate_export_words, validate_pairs)
+from gooplib.graph_delivery import ROW_LIMIT
 
 SPEC_NAME = 'spec.json'
 VCVARS_ENV = 'GOOP_VCVARS'
@@ -306,12 +307,15 @@ def build_section(spec):
     if startup_format is not None:
         _require(isinstance(startup_format, str)
                  and startup_format.endswith('\n')
-                 and '\n' not in startup_format[:-1]
                  and len(startup_format) <= 2500
-                 and all(0x20 <= ord(ch) <= 0x7E and ch != '%'
-                         for ch in startup_format[:-1]),
-                 'build.startup_format must be a single printable ASCII '
-                 'printf format ending in newline, <=2500 chars, with no %')
+                 and all(ch == '\n' or (0x20 <= ord(ch) <= 0x7E and ch != '%')
+                         for ch in startup_format),
+                 'build.startup_format must be printable ASCII lines ending '
+                 'in newline, <=2500 chars, with no printf conversions')
+        rows = startup_format[:-1].split('\n')
+        _require(all(row and len(row) <= ROW_LIMIT for row in rows)
+                 if len(rows) > 1 else bool(rows[0]),
+                 f'build.startup_format multiline rows must be 1-{ROW_LIMIT} chars')
     startup_zero_probe = build.get('startup_zero_probe', False)
     _require(isinstance(startup_zero_probe, bool)
              and (not startup_zero_probe or startup_format is not None),

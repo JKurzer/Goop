@@ -8,9 +8,13 @@ Interpreter note: run everything with `.venv\Scripts\python.exe` from the
 repo root. Archive-fixture tests (score control table, v14-k7 fire fixture)
 skip cleanly when the sealed archive is absent.
 
-The current single paid RunB probe is under the ignored
-`runs/conformant-v21-full-graph-startup-fire1/`. Its post-run audit found
-**no complete full-graph delivery** in saved tool-return CONTENT.
+The v21 paid RunB probe is under the ignored
+`runs/conformant-v21-full-graph-startup-fire1/`. Its audit found
+**no complete full-graph delivery** in saved tool-return CONTENT. In two
+later independent paid runs (v23/v24), both canonical graphs were recovered
+byte-exact from bounded rows in a single saved analyst tool return per run;
+the older **contiguous-literal** criterion still failed. Protocol, costs,
+and limits: [docs/graph-delivery.md](docs/graph-delivery.md).
 
 ## The four utilities
 
@@ -34,7 +38,7 @@ The current single paid RunB probe is under the ignored
 
 1. Raw runs are immutable: steps refuse to overwrite, always (`x` mode).
 2. Every number traces to a file: spec.json, payload spec, prompt file. Zero magic numbers in utilities.
-3. Prefix hits are not slot counts. Delivery is address-anchored or it is not measured.
+3. Prefix hits are not slot counts. Slot delivery requires address anchors; framed graph delivery is a separate, byte-exact same-return metric.
 4. Provider aborts are not cells. Usage segments are not costs. Reconcile or stop.
 5. Small files (<600 lines), pure functions where possible, DRY, tests green.
 6. bramble is archive. Do not read it for behavior; do not write to it ever.
