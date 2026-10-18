@@ -1,3 +1,0 @@
-# Single RunB graph-row exposure attempt
-
-Analyst prompt: natural-observe.md. Launch ONE RunB; prior paid runs remain untouched. The $5 per-cell threshold is POST-HOC, not a provider spending cap. No retry. Graph-delivery gate: each canonical value, lengths {'trigram_sets': 107, 'full_graph': 1244, 'full_graph_directed': 1244}, reconstructed from complete numbered rows in ONE saved tool-return CONTENT event. No command echo, local scan, stitched sessions, or boolean check counts. Score word adoption outside copied startup and code literals separately; a copied graph is NOT steering. Inspect session and actual cost before any further paid run.

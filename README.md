@@ -1,44 +1,46 @@
-# goop — the steering-eval harness, condensed
+# Minimal payload builder
 
-Four utilities. One spec per arm. Payloads and prompts load from files.
-The current build stages native, uncompressed executables. The analyst's
-tooling is the machine-pinned rizin suite (named in the prompt files).
+One standard-library Python script, two JSON inputs, seven native source
+files, and focused tests. No historical harness or paid-model launcher.
 
-Interpreter note: run everything with `.venv\Scripts\python.exe` from the
-repo root. Archive-fixture tests (score control table, v14-k7 fire fixture)
-skip cleanly when the sealed archive is absent.
+## Build
 
-The v21 paid RunB probe is under the ignored
-`runs/conformant-v21-full-graph-startup-fire1/`. Its audit found
-**no complete full-graph delivery** in saved tool-return CONTENT. In two
-later independent paid runs (v23/v24), both canonical graphs were recovered
-byte-exact from bounded rows in a single saved analyst tool return per run;
-the older **contiguous-literal** criterion still failed. Protocol, costs,
-and limits: [docs/graph-delivery.md](docs/graph-delivery.md).
+From the repository root in an MSVC **x64 developer environment**:
 
-## The four utilities
+```bat
+python tools\embed_payload.py payloads\filler.json payloads\trigrams.json --out payload-build
+payload-build\target.exe 0 0
+```
 
-| Utility | Stage | What it does |
-|---|---|---|
-| `tools/goop_payload.py` | compose+freeze | Build a goop candidate from a payload spec (corpus, vocab, hub, terms, lines, seed, visibility predicate — all from files), or freeze an existing text file. Byte-exact regression controls. |
-| `tools/goop_build.py` | build+stage+verify | Native pair (N slots, RunA/RunB doses), unchanged executable staging, generic preflight (per-slot bytes, hashes, pair isolation). |
-| `tools/goop_fire.py` | fire | Run cells via code-puppy with a prompt FILE. Provider-abort detection (timeout/5xx/credits => not a cell). Usage-file/log reconciliation (segmented usage trips the stop, never the ledger). Cells ship target.exe only. |
-| `tools/goop_score.py` | export+score | Audits from autosaves, address-anchored delivery (quote-tolerant, spill-page aware, content-only), one aftermath JSONL row per cell. |
+The output directory must not already exist. The script writes the generated
+sources, `payload.txt`, and `target.exe` there.
 
-## Layout
+- `payloads/filler.json`: prose templates with `{left}` and `{right}`.
+- `payloads/trigrams.json`: anchor/target/destination sets and copy count.
+- `tools/embed_payload.py`: the complete 127-line builder; no third-party imports.
+- `gooplib/native_src/`: the seven plain C++ source/header templates.
+- `tests/test_embed_payload.py`: focused Python and native integration tests.
 
-- `gooplib/` — shared library (spec loading/validation, small helpers).
-- `payloads/` — corpus, vocab, terms files consumed by the payload utility.
-- `prompts/` — prompt protocol files (`natural.md`, `reduced.md`).
-- `specs/` — per-arm spec.json examples.
-- `runs/<arm>/` — arm artifacts (spec.json + inputs/, unpacked/, cells/, private/, reports/, analysis/).
-- `tests/` — every utility ships with tests or it doesn't ship.
+All three carriers use the same filler-backed graph: function-local literals,
+explicit startup output, and a summary-format prefix. Links are only
+`(ANCHOR LEAF)` or `(LEAF ANCHOR)`. The payload prints **twice per execution**,
+at startup and before the normal SUMMARY. The example prints 40 rows twice.
+No labels, arrows, extra graphs, metadata carriers, or old slot machinery.
 
-## Rules (the floor)
+## Test
 
-1. Raw runs are immutable: steps refuse to overwrite, always (`x` mode).
-2. Every number traces to a file: spec.json, payload spec, prompt file. Zero magic numbers in utilities.
-3. Prefix hits are not slot counts. Slot delivery requires address anchors; framed graph delivery is a separate, byte-exact same-return metric.
-4. Provider aborts are not cells. Usage segments are not costs. Reconcile or stop.
-5. Small files (<600 lines), pure functions where possible, DRY, tests green.
-6. bramble is archive. Do not read it for behavior; do not write to it ever.
+Install pytest in your chosen Python environment, then from the same x64
+developer environment run:
+
+```bat
+python -m pytest -q
+```
+
+Without MSVC on PATH, the native integration test skips. The builder itself
+requires only Python's standard library and the MSVC/Windows SDK toolchain.
+
+## Prior work
+
+The complete pre-cleanup project, including previously ignored run evidence,
+is retained at Git tag `legacy-before-minimal-stack` (`111a8dc`). No history
+was rewritten. Cached environments are disposable and were not archived.

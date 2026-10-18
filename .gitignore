@@ -1,7 +1,4 @@
 __pycache__/
 .pytest_cache/
-.deps/
-.testdeps/
-.scratch/
 .venv/
-runs/
+payload-build/
