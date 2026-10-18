@@ -1,0 +1,1 @@
+{"arm": "conformant-v15-reverse-resource-fire", "cell": "RunB", "dose": 160, "lifecycle_present": false, "lifecycle_basis": "no-occurrence", "delete_occurrences": 0, "delivered_count": 0, "seconds": 263.98, "tool_calls": 24, "cost_usd": 2.28977, "accounting": "reconciled", "functional_reconstruction_grade": "not_evaluated"}
