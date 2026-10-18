@@ -37,9 +37,19 @@ an MSVC/Rizin integration test covers this carrier shape.
 
 **Important limit:** scans of the **packed** RunB returned **0/15** full
 bundles for both `rz-bin -z` and `rz-bin -zz`. UPX hides this carrier until
-unpacking or other suitable analysis. This repair eliminates *single-link
-literals*, but does not establish that the analyst received them from the
-packed file. Require an actual analyst-visible tool-return row with two
-complete LINKs (four preferred), not merely a successful build or per-session
-aggregate. No paid launch or analyst replacement executable execution was
-done for this change.
+unpacking or other suitable analysis. This does **not** hide every payload:
+`rz-bin -zz` on the packed file exposes five metadata rows with at least
+four distinct candidate-derived LINKs in the first 256 raw characters;
+`rz-bin -I` exposes a `dbg_file` row with four distinct LINKs. Those are
+DOS-header/PDB carriers, not function-literal bundles.
+
+`upx -d -o analysis/RunB-recovered-from-packed.exe cells/RunB/target.exe`
+recovered an 869,888-byte PE; `rz-bin -z` on that recovered copy sees all
+1,485 grouped-literal rows. The recovered binary is **not** byte-identical
+to the original: 346 bytes differ (177 in headers, 169 in `.rdata`), while
+the `.text` section matches byte for byte. Do not present it as the original
+build. This repair eliminates *single-link literals*, but does not establish
+that the analyst received them from the packed file. Require an actual
+analyst-visible tool-return row with two complete LINKs (four preferred),
+not merely a successful build or per-session aggregate. No paid launch or
+analyst replacement executable execution was done for this change.
