@@ -1,0 +1,6 @@
+{
+  "source_run": "conformant-v37-coherent-filler-local",
+  "source_spec_sha256": "382ceebfb76786b8a04d2ad186e528c9c33f71e3e15c3580fc62cc5dbac8a4d9",
+  "source_preflight_sha256": "229b22f841f7a7d1c295c712e1da7f852da2c8e14cf2d9a93918acbddb32b779",
+  "RunB_sha256": "04b31527229015fd59e2558693234c11489c570ecdca80b294a4ba7b71240ef1"
+}

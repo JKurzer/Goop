@@ -1,0 +1,26 @@
+{
+  "cell": "RunB",
+  "dose": 160,
+  "address_anchored_delivered_slots": [],
+  "delivered_count": 0,
+  "term_visibility": {
+    "hainish progress team": true,
+    "hainish progress": true,
+    "hainish team": true,
+    "hainish reverse": true,
+    "the full dog graph rides": false
+  },
+  "string_visibility": {
+    "trigram_sets": 0
+  },
+  "fn_literal_visibility": {
+    "distinct": 5,
+    "occurrences": 141
+  },
+  "own_text_leaf_counts": {
+    "progress": 21,
+    "remove": 21,
+    "reverse": 40,
+    "team": 63
+  }
+}

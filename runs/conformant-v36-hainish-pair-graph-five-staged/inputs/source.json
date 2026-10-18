@@ -1,0 +1,10 @@
+{
+  "source_run": "conformant-v35-hainish-pair-graph-five-local",
+  "source_spec_sha256": "c97082f93ef1a08b430a6d74f8a9a2213531efdac7007844ae14398a0c15cca4",
+  "source_preflight_sha256": "ce27854d23dd2b3b88eaec404c42fa508b0ad5af983bcce5ebfebd9ed2deb2f4",
+  "candidate_sha256": "5d0decfbdb14750b4e7b0af4dbc57d88cfbc606e1c9a482cf4d9ecea6c8cc795",
+  "staged_sha256": {
+    "RunA": "b901580d68e4b6bdadfefc3d1faa8c01cc99464ce3a4fd8368bb238e200dc7c3",
+    "RunB": "830bd680abb79c3d47b465891ea87ec78ecdd5475ae6aac19e827691cacfe06b"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "source_run": "conformant-v21-full-graph-startup-fire1",
+  "source_spec_sha256": "02677514353ffe90691dfc59f3e73a6b242875fac976daee50bcfa19a2eb6dd3",
+  "source_local_run": "conformant-v25-hainish-rows-local",
+  "source_local_spec_sha256": "6dd9b77d77e01cc8a1ffdcf02640fee94a7745e46133d3740c41dd5919deb746",
+  "source_local_preflight_sha256": "bce53b73777bf8611fe14891c617c28d63efdb972c1a959018d7a8a017a2db1e",
+  "source_local_candidate_sha256": "9e02fbcc4c13bf0e22f61ce694f25dad454873f2d4b08a899c9c513ea6d0b580",
+  "token_swap": {
+    "from": "teleology",
+    "to": "hainish",
+    "source_graph_sha256": {
+      "trigram_sets": "6c53e211dcabf6f8931c0e22aebe1df880caab6e58dc1057c68e716862566696",
+      "full_graph": "4f336d6153f1cf613a82323dde458dd3dafa99863f3e36756eaf13cd248a5b3a",
+      "full_graph_directed": "ce2f84ee0ab0d511d1405f54c5d512b897ad7bfb01697ee0aaa7d6c9f026587b"
+    }
+  },
+  "candidate_sha256": "5d0decfbdb14750b4e7b0af4dbc57d88cfbc606e1c9a482cf4d9ecea6c8cc795",
+  "canonical_sha256": {
+    "trigram_sets": "0d4208321b49e1514951d3cda1010a236d1bb2d355123fadcedfe82d5c65abd4",
+    "full_graph": "4631409dd6150e699f988bb68f33d79b79f19d2d20944354791bbe3f648bba84",
+    "full_graph_directed": "7e4ecad1e7bd6c9fd7ccb4d621f8fd54539d9916d6e48908d80346ef935a54c4"
+  },
+  "framed_sha256": "3af95f3504c9a051c552e552578adde2a03b7d383898f224b67ef0e3c8be3635",
+  "filler": {
+    "source_sha256": "a87e79a6fb16cf96d558b8cc129c205f766c5144ef299673ecbe0251cb56580e",
+    "excerpt_sha256": "9c70a858900c8673a8edc1c5ba92ddfb48303b1168788fb301a6071440f153d1",
+    "excerpt_bytes": 1409,
+    "excerpt_lines": 16,
+    "candidate_copies": 10,
+    "runtime_lines": 4,
+    "runtime_repeats": 1,
+    "runtime_template_sha256": "137a9b62b9cbd9a7b0f61a96decb25609d75c4e0acbbb2e8a766660b3e839e9d"
+  },
+  "graph_derivation": {
+    "source_run": "conformant-v27-hainish-filler-local",
+    "source_spec_sha256": "b010f01e187bba64e5cc38266e8566d10698e09e57ae8da9aacb3898c9f3e0e7",
+    "source_preflight_sha256": "821934b5e308db59dbcca5d18f0a00371d4dd9f591e693f26790a617d0f425a4",
+    "source_candidate_sha256": "5d0decfbdb14750b4e7b0af4dbc57d88cfbc606e1c9a482cf4d9ecea6c8cc795",
+    "source_framed_sha256": "312ef7741f8e5eabb5764d4d0dbbc4ae92b8a32597c1d3e7a23df7a8e5273872",
+    "words": {
+      "anchor": "hainish",
+      "target": "delete",
+      "destination": "file"
+    },
+    "sets": 5,
+    "canonical_sha256": {
+      "trigram_sets": "0a883d74481f6ce40d197fac784b16bdea5125ca57e0abe648f00f9aefc4cad0",
+      "full_graph": "a91b639e90dc8f18dd7a6dcc175c234d48f1ad1b82a408aca9413ba73aa243cb",
+      "full_graph_directed": "cfd48b2712be089d878cf1a217c9f1490e85a87a6df4c5844d8bd2a41865b363"
+    },
+    "frame_sha256": "47316454bfcdafe3ecb3a52e67915a6fff829da6a06c7fd8b7415b463e8b612a",
+    "filler_sha256": "137a9b62b9cbd9a7b0f61a96decb25609d75c4e0acbbb2e8a766660b3e839e9d"
+  }
+}

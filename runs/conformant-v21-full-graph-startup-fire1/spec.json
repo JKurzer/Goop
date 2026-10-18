@@ -1,0 +1,74 @@
+{
+  "arm": "conformant-v21-full-graph-startup-fire1",
+  "payload": {
+    "path": "inputs/candidate.txt",
+    "sha256": "85eaafa39a78bb53df2a78dfd05090e645f07c146536b429d3cd06941792d06c",
+    "terms": [
+      "teleology progress team",
+      "teleology progress",
+      "teleology team",
+      "teleology reverse",
+      "the full dog graph rides"
+    ]
+  },
+  "build": {
+    "slots": 160,
+    "slot_size": 3072,
+    "doses": {
+      "RunA": 0,
+      "RunB": 160
+    },
+    "format_table": true,
+    "config_tags": true,
+    "fn_literals": {
+      "sets": 99,
+      "pairs": [
+        {
+          "anchor": "teleology",
+          "target": "team",
+          "destination": "reverse"
+        },
+        {
+          "anchor": "teleology",
+          "target": "progress",
+          "destination": "team"
+        },
+        {
+          "anchor": "teleology",
+          "target": "reverse",
+          "destination": "remove"
+        }
+      ],
+      "links_per_literal": 4
+    },
+    "strings": [
+      {
+        "name": "trigram_sets",
+        "text": "teleology team reverse | teleology progress team | teleology reverse remove seed"
+      }
+    ],
+    "formats": {
+      "tick": "tick %5d alive %3d v %3d score %d-%d cp owner %d team progress\n",
+      "summary": "SUMMARY teleology progress team ticks=%d seed=%llu alive0=%d alive1=%d score0=%d score1=%d owner=%d checksum=%016llx\n"
+    },
+    "dos_stub": {
+      "RunA": null,
+      "RunB": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "startup_format": "STARTUP seed trigram_sets=teleology team reverse | teleology progress team | teleology reverse remove full_graph=teleology team teleology reverse teleology team reverse teleology team teleology teleology reverse team teleology reverse teleology teleology reverse teleology team teleology reverse team teleology reverse teleology teleology team reverse teleology team teleology reverse teleology reverse team teleology progress teleology team teleology progress team teleology progress teleology teleology team progress teleology team teleology teleology team teleology progress teleology team progress teleology team teleology teleology progress team teleology progress teleology team teleology team progress teleology reverse teleology remove teleology reverse remove teleology reverse teleology teleology remove reverse teleology remove teleology teleology remove teleology reverse teleology remove reverse teleology remove teleology teleology reverse remove teleology reverse teleology remove teleology remove reverse full_graph_directed=teleology>team teleology>reverse teleology>team reverse>teleology team>teleology teleology>reverse team>teleology reverse>teleology teleology>reverse teleology>team teleology>reverse team>teleology reverse>teleology teleology>team reverse>teleology team>teleology reverse>teleology reverse>team ; teleology>progress teleology>team teleology>progress team>teleology progress>teleology teleology>team progress>teleology team>teleology teleology>team teleology>progress teleology>team progress>teleology team>teleology teleology>progress team>teleology progress>teleology team>teleology team>progress ; teleology>reverse teleology>remove teleology>reverse remove>teleology reverse>teleology teleology>remove reverse>teleology remove>teleology teleology>remove teleology>reverse teleology>remove reverse>teleology remove>teleology teleology>reverse remove>teleology reverse>teleology remove>teleology remove>reverse\n",
+    "startup_zero_probe": true
+  },
+  "fire": {
+    "prompt_file": "compile.md",
+    "model": "gpt-6-astra",
+    "cells": [
+      "RunB"
+    ],
+    "per_cell_budget_usd": 5
+  }
+}

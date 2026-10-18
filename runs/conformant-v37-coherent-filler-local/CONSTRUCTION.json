@@ -1,0 +1,32 @@
+{
+  "source_run": "conformant-v36-hainish-pair-graph-five-staged",
+  "source_spec_sha256": "3ad71799c924affed01f058596d1eb2f034de383857cdbc80a23009499982b67",
+  "source_excerpt_sha256": "9c70a858900c8673a8edc1c5ba92ddfb48303b1168788fb301a6071440f153d1",
+  "source_edit": "first four rows; remove and only inside parenthetical links; LF framing",
+  "unit_sha256": "aad40cc0fb24c914ab2202dc3c2d83de6166fb29b7af76a434672ab727c05919",
+  "candidate_sha256": "3817c049b3a99706ad9db938dcf1d1b6b62028ed98a941306508d11fedc7edc7",
+  "spec_sha256": "382ceebfb76786b8a04d2ad186e528c9c33f71e3e15c3580fc62cc5dbac8a4d9",
+  "links_per_unit": {
+    "delete hainish": 2,
+    "file hainish": 1,
+    "hainish delete": 2,
+    "hainish file": 3
+  },
+  "candidate_unit_copies": 40,
+  "runtime_unit_copies": 10,
+  "runtime_bytes_lf": 3480,
+  "active_carriers": [
+    "slot rows",
+    "function-referenced cargo rows",
+    "stdout rows"
+  ],
+  "disabled_carriers": [
+    "old function-link generator",
+    "DOS/PDB payload",
+    "attention"
+  ],
+  "neutral_formats": true,
+  "paid_authorization": false,
+  "causal_comparison_with_v36": false,
+  "note": "new coherent construction baseline, not a single-variable v36 ablation; RunA also has cargo/stdout and is NOT an undosed exposure control"
+}

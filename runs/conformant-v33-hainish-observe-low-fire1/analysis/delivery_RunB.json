@@ -1,0 +1,25 @@
+{
+  "cell": "RunB",
+  "dose": 160,
+  "address_anchored_delivered_slots": [],
+  "delivered_count": 0,
+  "term_visibility": {
+    "hainish file": false,
+    "hainish delete": false,
+    "file hainish": false,
+    "delete hainish": false
+  },
+  "string_visibility": {
+    "trigram_sets": 0
+  },
+  "fn_literal_visibility": {
+    "distinct": 5,
+    "occurrences": 240
+  },
+  "own_text_leaf_counts": {
+    "progress": 6,
+    "remove": 1,
+    "reverse": 0,
+    "team": 12
+  }
+}

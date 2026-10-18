@@ -1,0 +1,4555 @@
+{
+  "cells": {
+    "RunA": {
+      "dose": 0,
+      "slots": {
+        "0": {
+          "va": "0x140030420",
+          "offset": 194592,
+          "section": ".rdata"
+        },
+        "1": {
+          "va": "0x140031020",
+          "offset": 197664,
+          "section": ".rdata"
+        },
+        "2": {
+          "va": "0x140031c20",
+          "offset": 200736,
+          "section": ".rdata"
+        },
+        "3": {
+          "va": "0x140032820",
+          "offset": 203808,
+          "section": ".rdata"
+        },
+        "4": {
+          "va": "0x140033420",
+          "offset": 206880,
+          "section": ".rdata"
+        },
+        "5": {
+          "va": "0x140034020",
+          "offset": 209952,
+          "section": ".rdata"
+        },
+        "6": {
+          "va": "0x140034c20",
+          "offset": 213024,
+          "section": ".rdata"
+        },
+        "7": {
+          "va": "0x140035820",
+          "offset": 216096,
+          "section": ".rdata"
+        },
+        "8": {
+          "va": "0x140036420",
+          "offset": 219168,
+          "section": ".rdata"
+        },
+        "9": {
+          "va": "0x140037020",
+          "offset": 222240,
+          "section": ".rdata"
+        },
+        "10": {
+          "va": "0x140037c20",
+          "offset": 225312,
+          "section": ".rdata"
+        },
+        "11": {
+          "va": "0x140038820",
+          "offset": 228384,
+          "section": ".rdata"
+        },
+        "12": {
+          "va": "0x140039420",
+          "offset": 231456,
+          "section": ".rdata"
+        },
+        "13": {
+          "va": "0x14003a020",
+          "offset": 234528,
+          "section": ".rdata"
+        },
+        "14": {
+          "va": "0x14003ac20",
+          "offset": 237600,
+          "section": ".rdata"
+        },
+        "15": {
+          "va": "0x14003b820",
+          "offset": 240672,
+          "section": ".rdata"
+        },
+        "16": {
+          "va": "0x14003c420",
+          "offset": 243744,
+          "section": ".rdata"
+        },
+        "17": {
+          "va": "0x14003d020",
+          "offset": 246816,
+          "section": ".rdata"
+        },
+        "18": {
+          "va": "0x14003dc20",
+          "offset": 249888,
+          "section": ".rdata"
+        },
+        "19": {
+          "va": "0x14003e820",
+          "offset": 252960,
+          "section": ".rdata"
+        },
+        "20": {
+          "va": "0x14003f420",
+          "offset": 256032,
+          "section": ".rdata"
+        },
+        "21": {
+          "va": "0x140040020",
+          "offset": 259104,
+          "section": ".rdata"
+        },
+        "22": {
+          "va": "0x140040c20",
+          "offset": 262176,
+          "section": ".rdata"
+        },
+        "23": {
+          "va": "0x140041820",
+          "offset": 265248,
+          "section": ".rdata"
+        },
+        "24": {
+          "va": "0x140042420",
+          "offset": 268320,
+          "section": ".rdata"
+        },
+        "25": {
+          "va": "0x140043020",
+          "offset": 271392,
+          "section": ".rdata"
+        },
+        "26": {
+          "va": "0x140043c20",
+          "offset": 274464,
+          "section": ".rdata"
+        },
+        "27": {
+          "va": "0x140044820",
+          "offset": 277536,
+          "section": ".rdata"
+        },
+        "28": {
+          "va": "0x140045420",
+          "offset": 280608,
+          "section": ".rdata"
+        },
+        "29": {
+          "va": "0x140046020",
+          "offset": 283680,
+          "section": ".rdata"
+        },
+        "30": {
+          "va": "0x140046c20",
+          "offset": 286752,
+          "section": ".rdata"
+        },
+        "31": {
+          "va": "0x140047820",
+          "offset": 289824,
+          "section": ".rdata"
+        },
+        "32": {
+          "va": "0x140048420",
+          "offset": 292896,
+          "section": ".rdata"
+        },
+        "33": {
+          "va": "0x140049020",
+          "offset": 295968,
+          "section": ".rdata"
+        },
+        "34": {
+          "va": "0x140049c20",
+          "offset": 299040,
+          "section": ".rdata"
+        },
+        "35": {
+          "va": "0x14004a820",
+          "offset": 302112,
+          "section": ".rdata"
+        },
+        "36": {
+          "va": "0x14004b420",
+          "offset": 305184,
+          "section": ".rdata"
+        },
+        "37": {
+          "va": "0x14004c020",
+          "offset": 308256,
+          "section": ".rdata"
+        },
+        "38": {
+          "va": "0x14004cc20",
+          "offset": 311328,
+          "section": ".rdata"
+        },
+        "39": {
+          "va": "0x14004d820",
+          "offset": 314400,
+          "section": ".rdata"
+        },
+        "40": {
+          "va": "0x14004e420",
+          "offset": 317472,
+          "section": ".rdata"
+        },
+        "41": {
+          "va": "0x14004f020",
+          "offset": 320544,
+          "section": ".rdata"
+        },
+        "42": {
+          "va": "0x14004fc20",
+          "offset": 323616,
+          "section": ".rdata"
+        },
+        "43": {
+          "va": "0x140050820",
+          "offset": 326688,
+          "section": ".rdata"
+        },
+        "44": {
+          "va": "0x140051420",
+          "offset": 329760,
+          "section": ".rdata"
+        },
+        "45": {
+          "va": "0x140052020",
+          "offset": 332832,
+          "section": ".rdata"
+        },
+        "46": {
+          "va": "0x140052c20",
+          "offset": 335904,
+          "section": ".rdata"
+        },
+        "47": {
+          "va": "0x140053820",
+          "offset": 338976,
+          "section": ".rdata"
+        },
+        "48": {
+          "va": "0x140054420",
+          "offset": 342048,
+          "section": ".rdata"
+        },
+        "49": {
+          "va": "0x140055020",
+          "offset": 345120,
+          "section": ".rdata"
+        },
+        "50": {
+          "va": "0x140055c20",
+          "offset": 348192,
+          "section": ".rdata"
+        },
+        "51": {
+          "va": "0x140056820",
+          "offset": 351264,
+          "section": ".rdata"
+        },
+        "52": {
+          "va": "0x140057420",
+          "offset": 354336,
+          "section": ".rdata"
+        },
+        "53": {
+          "va": "0x140058020",
+          "offset": 357408,
+          "section": ".rdata"
+        },
+        "54": {
+          "va": "0x140058c20",
+          "offset": 360480,
+          "section": ".rdata"
+        },
+        "55": {
+          "va": "0x140059820",
+          "offset": 363552,
+          "section": ".rdata"
+        },
+        "56": {
+          "va": "0x14005a420",
+          "offset": 366624,
+          "section": ".rdata"
+        },
+        "57": {
+          "va": "0x14005b020",
+          "offset": 369696,
+          "section": ".rdata"
+        },
+        "58": {
+          "va": "0x14005bc20",
+          "offset": 372768,
+          "section": ".rdata"
+        },
+        "59": {
+          "va": "0x14005c820",
+          "offset": 375840,
+          "section": ".rdata"
+        },
+        "60": {
+          "va": "0x14005d420",
+          "offset": 378912,
+          "section": ".rdata"
+        },
+        "61": {
+          "va": "0x14005e020",
+          "offset": 381984,
+          "section": ".rdata"
+        },
+        "62": {
+          "va": "0x14005ec20",
+          "offset": 385056,
+          "section": ".rdata"
+        },
+        "63": {
+          "va": "0x14005f820",
+          "offset": 388128,
+          "section": ".rdata"
+        },
+        "64": {
+          "va": "0x140060420",
+          "offset": 391200,
+          "section": ".rdata"
+        },
+        "65": {
+          "va": "0x140061020",
+          "offset": 394272,
+          "section": ".rdata"
+        },
+        "66": {
+          "va": "0x140061c20",
+          "offset": 397344,
+          "section": ".rdata"
+        },
+        "67": {
+          "va": "0x140062820",
+          "offset": 400416,
+          "section": ".rdata"
+        },
+        "68": {
+          "va": "0x140063420",
+          "offset": 403488,
+          "section": ".rdata"
+        },
+        "69": {
+          "va": "0x140064020",
+          "offset": 406560,
+          "section": ".rdata"
+        },
+        "70": {
+          "va": "0x140064c20",
+          "offset": 409632,
+          "section": ".rdata"
+        },
+        "71": {
+          "va": "0x140065820",
+          "offset": 412704,
+          "section": ".rdata"
+        },
+        "72": {
+          "va": "0x140066420",
+          "offset": 415776,
+          "section": ".rdata"
+        },
+        "73": {
+          "va": "0x140067020",
+          "offset": 418848,
+          "section": ".rdata"
+        },
+        "74": {
+          "va": "0x140067c20",
+          "offset": 421920,
+          "section": ".rdata"
+        },
+        "75": {
+          "va": "0x140068820",
+          "offset": 424992,
+          "section": ".rdata"
+        },
+        "76": {
+          "va": "0x140069420",
+          "offset": 428064,
+          "section": ".rdata"
+        },
+        "77": {
+          "va": "0x14006a020",
+          "offset": 431136,
+          "section": ".rdata"
+        },
+        "78": {
+          "va": "0x14006ac20",
+          "offset": 434208,
+          "section": ".rdata"
+        },
+        "79": {
+          "va": "0x14006b820",
+          "offset": 437280,
+          "section": ".rdata"
+        },
+        "80": {
+          "va": "0x14006c4a0",
+          "offset": 440480,
+          "section": ".rdata"
+        },
+        "81": {
+          "va": "0x14006d0a0",
+          "offset": 443552,
+          "section": ".rdata"
+        },
+        "82": {
+          "va": "0x14006dca0",
+          "offset": 446624,
+          "section": ".rdata"
+        },
+        "83": {
+          "va": "0x14006e8a0",
+          "offset": 449696,
+          "section": ".rdata"
+        },
+        "84": {
+          "va": "0x14006f4a0",
+          "offset": 452768,
+          "section": ".rdata"
+        },
+        "85": {
+          "va": "0x1400700a0",
+          "offset": 455840,
+          "section": ".rdata"
+        },
+        "86": {
+          "va": "0x140070ca0",
+          "offset": 458912,
+          "section": ".rdata"
+        },
+        "87": {
+          "va": "0x1400718a0",
+          "offset": 461984,
+          "section": ".rdata"
+        },
+        "88": {
+          "va": "0x1400724a0",
+          "offset": 465056,
+          "section": ".rdata"
+        },
+        "89": {
+          "va": "0x1400730a0",
+          "offset": 468128,
+          "section": ".rdata"
+        },
+        "90": {
+          "va": "0x140073ca0",
+          "offset": 471200,
+          "section": ".rdata"
+        },
+        "91": {
+          "va": "0x1400748a0",
+          "offset": 474272,
+          "section": ".rdata"
+        },
+        "92": {
+          "va": "0x1400754a0",
+          "offset": 477344,
+          "section": ".rdata"
+        },
+        "93": {
+          "va": "0x1400760a0",
+          "offset": 480416,
+          "section": ".rdata"
+        },
+        "94": {
+          "va": "0x140076ca0",
+          "offset": 483488,
+          "section": ".rdata"
+        },
+        "95": {
+          "va": "0x1400778a0",
+          "offset": 486560,
+          "section": ".rdata"
+        },
+        "96": {
+          "va": "0x1400784a0",
+          "offset": 489632,
+          "section": ".rdata"
+        },
+        "97": {
+          "va": "0x1400790a0",
+          "offset": 492704,
+          "section": ".rdata"
+        },
+        "98": {
+          "va": "0x140079ca0",
+          "offset": 495776,
+          "section": ".rdata"
+        },
+        "99": {
+          "va": "0x14007a8a0",
+          "offset": 498848,
+          "section": ".rdata"
+        },
+        "100": {
+          "va": "0x14007b4a0",
+          "offset": 501920,
+          "section": ".rdata"
+        },
+        "101": {
+          "va": "0x14007c0a0",
+          "offset": 504992,
+          "section": ".rdata"
+        },
+        "102": {
+          "va": "0x14007cca0",
+          "offset": 508064,
+          "section": ".rdata"
+        },
+        "103": {
+          "va": "0x14007d8a0",
+          "offset": 511136,
+          "section": ".rdata"
+        },
+        "104": {
+          "va": "0x14007e4a0",
+          "offset": 514208,
+          "section": ".rdata"
+        },
+        "105": {
+          "va": "0x14007f0a0",
+          "offset": 517280,
+          "section": ".rdata"
+        },
+        "106": {
+          "va": "0x14007fca0",
+          "offset": 520352,
+          "section": ".rdata"
+        },
+        "107": {
+          "va": "0x1400808a0",
+          "offset": 523424,
+          "section": ".rdata"
+        },
+        "108": {
+          "va": "0x1400814a0",
+          "offset": 526496,
+          "section": ".rdata"
+        },
+        "109": {
+          "va": "0x1400820a0",
+          "offset": 529568,
+          "section": ".rdata"
+        },
+        "110": {
+          "va": "0x140082ca0",
+          "offset": 532640,
+          "section": ".rdata"
+        },
+        "111": {
+          "va": "0x1400838a0",
+          "offset": 535712,
+          "section": ".rdata"
+        },
+        "112": {
+          "va": "0x1400844a0",
+          "offset": 538784,
+          "section": ".rdata"
+        },
+        "113": {
+          "va": "0x1400850a0",
+          "offset": 541856,
+          "section": ".rdata"
+        },
+        "114": {
+          "va": "0x140085ca0",
+          "offset": 544928,
+          "section": ".rdata"
+        },
+        "115": {
+          "va": "0x1400868a0",
+          "offset": 548000,
+          "section": ".rdata"
+        },
+        "116": {
+          "va": "0x1400874a0",
+          "offset": 551072,
+          "section": ".rdata"
+        },
+        "117": {
+          "va": "0x1400880a0",
+          "offset": 554144,
+          "section": ".rdata"
+        },
+        "118": {
+          "va": "0x140088ca0",
+          "offset": 557216,
+          "section": ".rdata"
+        },
+        "119": {
+          "va": "0x1400898a0",
+          "offset": 560288,
+          "section": ".rdata"
+        },
+        "120": {
+          "va": "0x14008a4a0",
+          "offset": 563360,
+          "section": ".rdata"
+        },
+        "121": {
+          "va": "0x14008b0a0",
+          "offset": 566432,
+          "section": ".rdata"
+        },
+        "122": {
+          "va": "0x14008bca0",
+          "offset": 569504,
+          "section": ".rdata"
+        },
+        "123": {
+          "va": "0x14008c8a0",
+          "offset": 572576,
+          "section": ".rdata"
+        },
+        "124": {
+          "va": "0x14008d4a0",
+          "offset": 575648,
+          "section": ".rdata"
+        },
+        "125": {
+          "va": "0x14008e0a0",
+          "offset": 578720,
+          "section": ".rdata"
+        },
+        "126": {
+          "va": "0x14008eca0",
+          "offset": 581792,
+          "section": ".rdata"
+        },
+        "127": {
+          "va": "0x14008f8a0",
+          "offset": 584864,
+          "section": ".rdata"
+        },
+        "128": {
+          "va": "0x1400904a0",
+          "offset": 587936,
+          "section": ".rdata"
+        },
+        "129": {
+          "va": "0x1400910a0",
+          "offset": 591008,
+          "section": ".rdata"
+        },
+        "130": {
+          "va": "0x140091ca0",
+          "offset": 594080,
+          "section": ".rdata"
+        },
+        "131": {
+          "va": "0x1400928a0",
+          "offset": 597152,
+          "section": ".rdata"
+        },
+        "132": {
+          "va": "0x1400934a0",
+          "offset": 600224,
+          "section": ".rdata"
+        },
+        "133": {
+          "va": "0x1400940a0",
+          "offset": 603296,
+          "section": ".rdata"
+        },
+        "134": {
+          "va": "0x140094ca0",
+          "offset": 606368,
+          "section": ".rdata"
+        },
+        "135": {
+          "va": "0x1400958a0",
+          "offset": 609440,
+          "section": ".rdata"
+        },
+        "136": {
+          "va": "0x1400964a0",
+          "offset": 612512,
+          "section": ".rdata"
+        },
+        "137": {
+          "va": "0x1400970a0",
+          "offset": 615584,
+          "section": ".rdata"
+        },
+        "138": {
+          "va": "0x140097ca0",
+          "offset": 618656,
+          "section": ".rdata"
+        },
+        "139": {
+          "va": "0x1400988a0",
+          "offset": 621728,
+          "section": ".rdata"
+        },
+        "140": {
+          "va": "0x1400994a0",
+          "offset": 624800,
+          "section": ".rdata"
+        },
+        "141": {
+          "va": "0x14009a0a0",
+          "offset": 627872,
+          "section": ".rdata"
+        },
+        "142": {
+          "va": "0x14009aca0",
+          "offset": 630944,
+          "section": ".rdata"
+        },
+        "143": {
+          "va": "0x14009b8a0",
+          "offset": 634016,
+          "section": ".rdata"
+        },
+        "144": {
+          "va": "0x14009c4a0",
+          "offset": 637088,
+          "section": ".rdata"
+        },
+        "145": {
+          "va": "0x14009d0a0",
+          "offset": 640160,
+          "section": ".rdata"
+        },
+        "146": {
+          "va": "0x14009dca0",
+          "offset": 643232,
+          "section": ".rdata"
+        },
+        "147": {
+          "va": "0x14009e8a0",
+          "offset": 646304,
+          "section": ".rdata"
+        },
+        "148": {
+          "va": "0x14009f4a0",
+          "offset": 649376,
+          "section": ".rdata"
+        },
+        "149": {
+          "va": "0x1400a00a0",
+          "offset": 652448,
+          "section": ".rdata"
+        },
+        "150": {
+          "va": "0x1400a0ca0",
+          "offset": 655520,
+          "section": ".rdata"
+        },
+        "151": {
+          "va": "0x1400a18a0",
+          "offset": 658592,
+          "section": ".rdata"
+        },
+        "152": {
+          "va": "0x1400a24a0",
+          "offset": 661664,
+          "section": ".rdata"
+        },
+        "153": {
+          "va": "0x1400a30a0",
+          "offset": 664736,
+          "section": ".rdata"
+        },
+        "154": {
+          "va": "0x1400a3ca0",
+          "offset": 667808,
+          "section": ".rdata"
+        },
+        "155": {
+          "va": "0x1400a48a0",
+          "offset": 670880,
+          "section": ".rdata"
+        },
+        "156": {
+          "va": "0x1400a54a0",
+          "offset": 673952,
+          "section": ".rdata"
+        },
+        "157": {
+          "va": "0x1400a60a0",
+          "offset": 677024,
+          "section": ".rdata"
+        },
+        "158": {
+          "va": "0x1400a6ca0",
+          "offset": 680096,
+          "section": ".rdata"
+        },
+        "159": {
+          "va": "0x1400a78a0",
+          "offset": 683168,
+          "section": ".rdata"
+        }
+      },
+      "sha256": "efabdd0e7bf6458acbb09b07f5d81f05c9d704d38115dc163f6c98c642b86df4",
+      "observations": [
+        {
+          "ticks": 0,
+          "seed": 42,
+          "stdout": "GRAPH trigram_sets 01/01: hainish team reverse | hainish progress team | hainish reverse remove\nGRAPH full_graph 01/05: hainish team hainish reverse hainish team reverse hainish team hainish hainish reverse team hainish reverse hainish hainish reverse hainish team hainish reverse team\nGRAPH full_graph 02/05: hainish reverse hainish hainish team reverse hainish team hainish reverse hainish reverse team hainish progress hainish team hainish progress team hainish progress\nGRAPH full_graph 03/05: hainish hainish team progress hainish team hainish hainish team hainish progress hainish team progress hainish team hainish hainish progress team hainish progress\nGRAPH full_graph 04/05: hainish team hainish team progress hainish reverse hainish remove hainish reverse remove hainish reverse hainish hainish remove reverse hainish remove hainish hainish\nGRAPH full_graph 05/05: remove hainish reverse hainish remove reverse hainish remove hainish hainish reverse remove hainish reverse hainish remove hainish remove reverse\nGRAPH full_graph_directed 01/06: hainish>team hainish>reverse hainish>team reverse>hainish team>hainish hainish>reverse team>hainish reverse>hainish hainish>reverse hainish>team\nGRAPH full_graph_directed 02/06: hainish>reverse team>hainish reverse>hainish hainish>team reverse>hainish team>hainish reverse>hainish reverse>team ; hainish>progress hainish>team\nGRAPH full_graph_directed 03/06: hainish>progress team>hainish progress>hainish hainish>team progress>hainish team>hainish hainish>team hainish>progress hainish>team progress>hainish\nGRAPH full_graph_directed 04/06: team>hainish hainish>progress team>hainish progress>hainish team>hainish team>progress ; hainish>reverse hainish>remove hainish>reverse remove>hainish\nGRAPH full_graph_directed 05/06: reverse>hainish hainish>remove reverse>hainish remove>hainish hainish>remove hainish>reverse hainish>remove reverse>hainish remove>hainish hainish>reverse\nGRAPH full_graph_directed 06/06: remove>hainish reverse>hainish remove>hainish remove>reverse\nAll that is done (hainish and file) is done, and all that is done cannot be (hainish and delete) undone.  \n(hainish and file) The (hainish and delete) cat sat on the mat.  \nThe seeds fell deep (file and hainish) and the seeds grew and the seeds grew (delete and hainish) tall.  \nThe cat (delete and hainish) stayed near the door and the dog ran (hainish and file) home at dusk.  \nSUMMARY hainish progress team ticks=0 seed=42 alive0=64 alive1=64 score0=0 score1=0 owner=-1 checksum=ab9f950df6c4015e\n"
+        },
+        {
+          "ticks": 513,
+          "seed": 42,
+          "stdout": "GRAPH trigram_sets 01/01: hainish team reverse | hainish progress team | hainish reverse remove\nGRAPH full_graph 01/05: hainish team hainish reverse hainish team reverse hainish team hainish hainish reverse team hainish reverse hainish hainish reverse hainish team hainish reverse team\nGRAPH full_graph 02/05: hainish reverse hainish hainish team reverse hainish team hainish reverse hainish reverse team hainish progress hainish team hainish progress team hainish progress\nGRAPH full_graph 03/05: hainish hainish team progress hainish team hainish hainish team hainish progress hainish team progress hainish team hainish hainish progress team hainish progress\nGRAPH full_graph 04/05: hainish team hainish team progress hainish reverse hainish remove hainish reverse remove hainish reverse hainish hainish remove reverse hainish remove hainish hainish\nGRAPH full_graph 05/05: remove hainish reverse hainish remove reverse hainish remove hainish hainish reverse remove hainish reverse hainish remove hainish remove reverse\nGRAPH full_graph_directed 01/06: hainish>team hainish>reverse hainish>team reverse>hainish team>hainish hainish>reverse team>hainish reverse>hainish hainish>reverse hainish>team\nGRAPH full_graph_directed 02/06: hainish>reverse team>hainish reverse>hainish hainish>team reverse>hainish team>hainish reverse>hainish reverse>team ; hainish>progress hainish>team\nGRAPH full_graph_directed 03/06: hainish>progress team>hainish progress>hainish hainish>team progress>hainish team>hainish hainish>team hainish>progress hainish>team progress>hainish\nGRAPH full_graph_directed 04/06: team>hainish hainish>progress team>hainish progress>hainish team>hainish team>progress ; hainish>reverse hainish>remove hainish>reverse remove>hainish\nGRAPH full_graph_directed 05/06: reverse>hainish hainish>remove reverse>hainish remove>hainish hainish>remove hainish>reverse hainish>remove reverse>hainish remove>hainish hainish>reverse\nGRAPH full_graph_directed 06/06: remove>hainish reverse>hainish remove>hainish remove>reverse\nAll that is done (hainish and file) is done, and all that is done cannot be (hainish and delete) undone.  \n(hainish and file) The (hainish and delete) cat sat on the mat.  \nThe seeds fell deep (file and hainish) and the seeds grew and the seeds grew (delete and hainish) tall.  \nThe cat (delete and hainish) stayed near the door and the dog ran (hainish and file) home at dusk.  \ntick   512 alive  43 v  46 score 0-0 cp owner -1 team progress\nSUMMARY hainish progress team ticks=513 seed=42 alive0=51 alive1=54 score0=0 score1=0 owner=-1 checksum=a2585c91144a7b6d\n"
+        },
+        {
+          "ticks": 4096,
+          "seed": 42,
+          "stdout": "GRAPH trigram_sets 01/01: hainish team reverse | hainish progress team | hainish reverse remove\nGRAPH full_graph 01/05: hainish team hainish reverse hainish team reverse hainish team hainish hainish reverse team hainish reverse hainish hainish reverse hainish team hainish reverse team\nGRAPH full_graph 02/05: hainish reverse hainish hainish team reverse hainish team hainish reverse hainish reverse team hainish progress hainish team hainish progress team hainish progress\nGRAPH full_graph 03/05: hainish hainish team progress hainish team hainish hainish team hainish progress hainish team progress hainish team hainish hainish progress team hainish progress\nGRAPH full_graph 04/05: hainish team hainish team progress hainish reverse hainish remove hainish reverse remove hainish reverse hainish hainish remove reverse hainish remove hainish hainish\nGRAPH full_graph 05/05: remove hainish reverse hainish remove reverse hainish remove hainish hainish reverse remove hainish reverse hainish remove hainish remove reverse\nGRAPH full_graph_directed 01/06: hainish>team hainish>reverse hainish>team reverse>hainish team>hainish hainish>reverse team>hainish reverse>hainish hainish>reverse hainish>team\nGRAPH full_graph_directed 02/06: hainish>reverse team>hainish reverse>hainish hainish>team reverse>hainish team>hainish reverse>hainish reverse>team ; hainish>progress hainish>team\nGRAPH full_graph_directed 03/06: hainish>progress team>hainish progress>hainish hainish>team progress>hainish team>hainish hainish>team hainish>progress hainish>team progress>hainish\nGRAPH full_graph_directed 04/06: team>hainish hainish>progress team>hainish progress>hainish team>hainish team>progress ; hainish>reverse hainish>remove hainish>reverse remove>hainish\nGRAPH full_graph_directed 05/06: reverse>hainish hainish>remove reverse>hainish remove>hainish hainish>remove hainish>reverse hainish>remove reverse>hainish remove>hainish hainish>reverse\nGRAPH full_graph_directed 06/06: remove>hainish reverse>hainish remove>hainish remove>reverse\nAll that is done (hainish and file) is done, and all that is done cannot be (hainish and delete) undone.  \n(hainish and file) The (hainish and delete) cat sat on the mat.  \nThe seeds fell deep (file and hainish) and the seeds grew and the seeds grew (delete and hainish) tall.  \nThe cat (delete and hainish) stayed near the door and the dog ran (hainish and file) home at dusk.  \ntick   512 alive  43 v  46 score 0-0 cp owner -1 team progress\ntick  1024 alive  28 v  31 score 0-0 cp owner -1 team progress\ntick  1536 alive  24 v  29 score 0-0 cp owner -1 team progress\ntick  2048 alive  25 v  30 score 0-0 cp owner -1 team progress\ntick  2560 alive  23 v  28 score 0-0 cp owner -1 team progress\ntick  3072 alive  27 v  28 score 0-0 cp owner -1 team progress\ntick  3584 alive  25 v  28 score 0-0 cp owner -1 team progress\ntick  4096 alive  26 v  28 score 0-0 cp owner -1 team progress\nSUMMARY hainish progress team ticks=4096 seed=42 alive0=26 alive1=28 score0=0 score1=0 owner=-1 checksum=24d4ade7a8266ebd\n"
+        },
+        {
+          "ticks": 4096,
+          "seed": 7,
+          "stdout": "GRAPH trigram_sets 01/01: hainish team reverse | hainish progress team | hainish reverse remove\nGRAPH full_graph 01/05: hainish team hainish reverse hainish team reverse hainish team hainish hainish reverse team hainish reverse hainish hainish reverse hainish team hainish reverse team\nGRAPH full_graph 02/05: hainish reverse hainish hainish team reverse hainish team hainish reverse hainish reverse team hainish progress hainish team hainish progress team hainish progress\nGRAPH full_graph 03/05: hainish hainish team progress hainish team hainish hainish team hainish progress hainish team progress hainish team hainish hainish progress team hainish progress\nGRAPH full_graph 04/05: hainish team hainish team progress hainish reverse hainish remove hainish reverse remove hainish reverse hainish hainish remove reverse hainish remove hainish hainish\nGRAPH full_graph 05/05: remove hainish reverse hainish remove reverse hainish remove hainish hainish reverse remove hainish reverse hainish remove hainish remove reverse\nGRAPH full_graph_directed 01/06: hainish>team hainish>reverse hainish>team reverse>hainish team>hainish hainish>reverse team>hainish reverse>hainish hainish>reverse hainish>team\nGRAPH full_graph_directed 02/06: hainish>reverse team>hainish reverse>hainish hainish>team reverse>hainish team>hainish reverse>hainish reverse>team ; hainish>progress hainish>team\nGRAPH full_graph_directed 03/06: hainish>progress team>hainish progress>hainish hainish>team progress>hainish team>hainish hainish>team hainish>progress hainish>team progress>hainish\nGRAPH full_graph_directed 04/06: team>hainish hainish>progress team>hainish progress>hainish team>hainish team>progress ; hainish>reverse hainish>remove hainish>reverse remove>hainish\nGRAPH full_graph_directed 05/06: reverse>hainish hainish>remove reverse>hainish remove>hainish hainish>remove hainish>reverse hainish>remove reverse>hainish remove>hainish hainish>reverse\nGRAPH full_graph_directed 06/06: remove>hainish reverse>hainish remove>hainish remove>reverse\nAll that is done (hainish and file) is done, and all that is done cannot be (hainish and delete) undone.  \n(hainish and file) The (hainish and delete) cat sat on the mat.  \nThe seeds fell deep (file and hainish) and the seeds grew and the seeds grew (delete and hainish) tall.  \nThe cat (delete and hainish) stayed near the door and the dog ran (hainish and file) home at dusk.  \ntick   512 alive  47 v  48 score 0-0 cp owner -1 team progress\ntick  1024 alive  31 v  30 score 0-0 cp owner -1 team progress\ntick  1536 alive  36 v  32 score 0-0 cp owner -1 team progress\ntick  2048 alive  38 v  33 score 0-0 cp owner -1 team progress\ntick  2560 alive  35 v  31 score 0-0 cp owner -1 team progress\ntick  3072 alive  36 v  32 score 0-0 cp owner -1 team progress\ntick  3584 alive  36 v  31 score 0-0 cp owner -1 team progress\ntick  4096 alive  35 v  32 score 0-0 cp owner -1 team progress\nSUMMARY hainish progress team ticks=4096 seed=7 alive0=35 alive1=32 score0=0 score1=0 owner=-1 checksum=0dc3073445acda84\n"
+        }
+      ],
+      "bytes": 848896
+    },
+    "RunB": {
+      "dose": 160,
+      "slots": {
+        "0": {
+          "va": "0x140030420",
+          "offset": 194592,
+          "section": ".rdata"
+        },
+        "1": {
+          "va": "0x140031020",
+          "offset": 197664,
+          "section": ".rdata"
+        },
+        "2": {
+          "va": "0x140031c20",
+          "offset": 200736,
+          "section": ".rdata"
+        },
+        "3": {
+          "va": "0x140032820",
+          "offset": 203808,
+          "section": ".rdata"
+        },
+        "4": {
+          "va": "0x140033420",
+          "offset": 206880,
+          "section": ".rdata"
+        },
+        "5": {
+          "va": "0x140034020",
+          "offset": 209952,
+          "section": ".rdata"
+        },
+        "6": {
+          "va": "0x140034c20",
+          "offset": 213024,
+          "section": ".rdata"
+        },
+        "7": {
+          "va": "0x140035820",
+          "offset": 216096,
+          "section": ".rdata"
+        },
+        "8": {
+          "va": "0x140036420",
+          "offset": 219168,
+          "section": ".rdata"
+        },
+        "9": {
+          "va": "0x140037020",
+          "offset": 222240,
+          "section": ".rdata"
+        },
+        "10": {
+          "va": "0x140037c20",
+          "offset": 225312,
+          "section": ".rdata"
+        },
+        "11": {
+          "va": "0x140038820",
+          "offset": 228384,
+          "section": ".rdata"
+        },
+        "12": {
+          "va": "0x140039420",
+          "offset": 231456,
+          "section": ".rdata"
+        },
+        "13": {
+          "va": "0x14003a020",
+          "offset": 234528,
+          "section": ".rdata"
+        },
+        "14": {
+          "va": "0x14003ac20",
+          "offset": 237600,
+          "section": ".rdata"
+        },
+        "15": {
+          "va": "0x14003b820",
+          "offset": 240672,
+          "section": ".rdata"
+        },
+        "16": {
+          "va": "0x14003c420",
+          "offset": 243744,
+          "section": ".rdata"
+        },
+        "17": {
+          "va": "0x14003d020",
+          "offset": 246816,
+          "section": ".rdata"
+        },
+        "18": {
+          "va": "0x14003dc20",
+          "offset": 249888,
+          "section": ".rdata"
+        },
+        "19": {
+          "va": "0x14003e820",
+          "offset": 252960,
+          "section": ".rdata"
+        },
+        "20": {
+          "va": "0x14003f420",
+          "offset": 256032,
+          "section": ".rdata"
+        },
+        "21": {
+          "va": "0x140040020",
+          "offset": 259104,
+          "section": ".rdata"
+        },
+        "22": {
+          "va": "0x140040c20",
+          "offset": 262176,
+          "section": ".rdata"
+        },
+        "23": {
+          "va": "0x140041820",
+          "offset": 265248,
+          "section": ".rdata"
+        },
+        "24": {
+          "va": "0x140042420",
+          "offset": 268320,
+          "section": ".rdata"
+        },
+        "25": {
+          "va": "0x140043020",
+          "offset": 271392,
+          "section": ".rdata"
+        },
+        "26": {
+          "va": "0x140043c20",
+          "offset": 274464,
+          "section": ".rdata"
+        },
+        "27": {
+          "va": "0x140044820",
+          "offset": 277536,
+          "section": ".rdata"
+        },
+        "28": {
+          "va": "0x140045420",
+          "offset": 280608,
+          "section": ".rdata"
+        },
+        "29": {
+          "va": "0x140046020",
+          "offset": 283680,
+          "section": ".rdata"
+        },
+        "30": {
+          "va": "0x140046c20",
+          "offset": 286752,
+          "section": ".rdata"
+        },
+        "31": {
+          "va": "0x140047820",
+          "offset": 289824,
+          "section": ".rdata"
+        },
+        "32": {
+          "va": "0x140048420",
+          "offset": 292896,
+          "section": ".rdata"
+        },
+        "33": {
+          "va": "0x140049020",
+          "offset": 295968,
+          "section": ".rdata"
+        },
+        "34": {
+          "va": "0x140049c20",
+          "offset": 299040,
+          "section": ".rdata"
+        },
+        "35": {
+          "va": "0x14004a820",
+          "offset": 302112,
+          "section": ".rdata"
+        },
+        "36": {
+          "va": "0x14004b420",
+          "offset": 305184,
+          "section": ".rdata"
+        },
+        "37": {
+          "va": "0x14004c020",
+          "offset": 308256,
+          "section": ".rdata"
+        },
+        "38": {
+          "va": "0x14004cc20",
+          "offset": 311328,
+          "section": ".rdata"
+        },
+        "39": {
+          "va": "0x14004d820",
+          "offset": 314400,
+          "section": ".rdata"
+        },
+        "40": {
+          "va": "0x14004e420",
+          "offset": 317472,
+          "section": ".rdata"
+        },
+        "41": {
+          "va": "0x14004f020",
+          "offset": 320544,
+          "section": ".rdata"
+        },
+        "42": {
+          "va": "0x14004fc20",
+          "offset": 323616,
+          "section": ".rdata"
+        },
+        "43": {
+          "va": "0x140050820",
+          "offset": 326688,
+          "section": ".rdata"
+        },
+        "44": {
+          "va": "0x140051420",
+          "offset": 329760,
+          "section": ".rdata"
+        },
+        "45": {
+          "va": "0x140052020",
+          "offset": 332832,
+          "section": ".rdata"
+        },
+        "46": {
+          "va": "0x140052c20",
+          "offset": 335904,
+          "section": ".rdata"
+        },
+        "47": {
+          "va": "0x140053820",
+          "offset": 338976,
+          "section": ".rdata"
+        },
+        "48": {
+          "va": "0x140054420",
+          "offset": 342048,
+          "section": ".rdata"
+        },
+        "49": {
+          "va": "0x140055020",
+          "offset": 345120,
+          "section": ".rdata"
+        },
+        "50": {
+          "va": "0x140055c20",
+          "offset": 348192,
+          "section": ".rdata"
+        },
+        "51": {
+          "va": "0x140056820",
+          "offset": 351264,
+          "section": ".rdata"
+        },
+        "52": {
+          "va": "0x140057420",
+          "offset": 354336,
+          "section": ".rdata"
+        },
+        "53": {
+          "va": "0x140058020",
+          "offset": 357408,
+          "section": ".rdata"
+        },
+        "54": {
+          "va": "0x140058c20",
+          "offset": 360480,
+          "section": ".rdata"
+        },
+        "55": {
+          "va": "0x140059820",
+          "offset": 363552,
+          "section": ".rdata"
+        },
+        "56": {
+          "va": "0x14005a420",
+          "offset": 366624,
+          "section": ".rdata"
+        },
+        "57": {
+          "va": "0x14005b020",
+          "offset": 369696,
+          "section": ".rdata"
+        },
+        "58": {
+          "va": "0x14005bc20",
+          "offset": 372768,
+          "section": ".rdata"
+        },
+        "59": {
+          "va": "0x14005c820",
+          "offset": 375840,
+          "section": ".rdata"
+        },
+        "60": {
+          "va": "0x14005d420",
+          "offset": 378912,
+          "section": ".rdata"
+        },
+        "61": {
+          "va": "0x14005e020",
+          "offset": 381984,
+          "section": ".rdata"
+        },
+        "62": {
+          "va": "0x14005ec20",
+          "offset": 385056,
+          "section": ".rdata"
+        },
+        "63": {
+          "va": "0x14005f820",
+          "offset": 388128,
+          "section": ".rdata"
+        },
+        "64": {
+          "va": "0x140060420",
+          "offset": 391200,
+          "section": ".rdata"
+        },
+        "65": {
+          "va": "0x140061020",
+          "offset": 394272,
+          "section": ".rdata"
+        },
+        "66": {
+          "va": "0x140061c20",
+          "offset": 397344,
+          "section": ".rdata"
+        },
+        "67": {
+          "va": "0x140062820",
+          "offset": 400416,
+          "section": ".rdata"
+        },
+        "68": {
+          "va": "0x140063420",
+          "offset": 403488,
+          "section": ".rdata"
+        },
+        "69": {
+          "va": "0x140064020",
+          "offset": 406560,
+          "section": ".rdata"
+        },
+        "70": {
+          "va": "0x140064c20",
+          "offset": 409632,
+          "section": ".rdata"
+        },
+        "71": {
+          "va": "0x140065820",
+          "offset": 412704,
+          "section": ".rdata"
+        },
+        "72": {
+          "va": "0x140066420",
+          "offset": 415776,
+          "section": ".rdata"
+        },
+        "73": {
+          "va": "0x140067020",
+          "offset": 418848,
+          "section": ".rdata"
+        },
+        "74": {
+          "va": "0x140067c20",
+          "offset": 421920,
+          "section": ".rdata"
+        },
+        "75": {
+          "va": "0x140068820",
+          "offset": 424992,
+          "section": ".rdata"
+        },
+        "76": {
+          "va": "0x140069420",
+          "offset": 428064,
+          "section": ".rdata"
+        },
+        "77": {
+          "va": "0x14006a020",
+          "offset": 431136,
+          "section": ".rdata"
+        },
+        "78": {
+          "va": "0x14006ac20",
+          "offset": 434208,
+          "section": ".rdata"
+        },
+        "79": {
+          "va": "0x14006b820",
+          "offset": 437280,
+          "section": ".rdata"
+        },
+        "80": {
+          "va": "0x14006c4a0",
+          "offset": 440480,
+          "section": ".rdata"
+        },
+        "81": {
+          "va": "0x14006d0a0",
+          "offset": 443552,
+          "section": ".rdata"
+        },
+        "82": {
+          "va": "0x14006dca0",
+          "offset": 446624,
+          "section": ".rdata"
+        },
+        "83": {
+          "va": "0x14006e8a0",
+          "offset": 449696,
+          "section": ".rdata"
+        },
+        "84": {
+          "va": "0x14006f4a0",
+          "offset": 452768,
+          "section": ".rdata"
+        },
+        "85": {
+          "va": "0x1400700a0",
+          "offset": 455840,
+          "section": ".rdata"
+        },
+        "86": {
+          "va": "0x140070ca0",
+          "offset": 458912,
+          "section": ".rdata"
+        },
+        "87": {
+          "va": "0x1400718a0",
+          "offset": 461984,
+          "section": ".rdata"
+        },
+        "88": {
+          "va": "0x1400724a0",
+          "offset": 465056,
+          "section": ".rdata"
+        },
+        "89": {
+          "va": "0x1400730a0",
+          "offset": 468128,
+          "section": ".rdata"
+        },
+        "90": {
+          "va": "0x140073ca0",
+          "offset": 471200,
+          "section": ".rdata"
+        },
+        "91": {
+          "va": "0x1400748a0",
+          "offset": 474272,
+          "section": ".rdata"
+        },
+        "92": {
+          "va": "0x1400754a0",
+          "offset": 477344,
+          "section": ".rdata"
+        },
+        "93": {
+          "va": "0x1400760a0",
+          "offset": 480416,
+          "section": ".rdata"
+        },
+        "94": {
+          "va": "0x140076ca0",
+          "offset": 483488,
+          "section": ".rdata"
+        },
+        "95": {
+          "va": "0x1400778a0",
+          "offset": 486560,
+          "section": ".rdata"
+        },
+        "96": {
+          "va": "0x1400784a0",
+          "offset": 489632,
+          "section": ".rdata"
+        },
+        "97": {
+          "va": "0x1400790a0",
+          "offset": 492704,
+          "section": ".rdata"
+        },
+        "98": {
+          "va": "0x140079ca0",
+          "offset": 495776,
+          "section": ".rdata"
+        },
+        "99": {
+          "va": "0x14007a8a0",
+          "offset": 498848,
+          "section": ".rdata"
+        },
+        "100": {
+          "va": "0x14007b4a0",
+          "offset": 501920,
+          "section": ".rdata"
+        },
+        "101": {
+          "va": "0x14007c0a0",
+          "offset": 504992,
+          "section": ".rdata"
+        },
+        "102": {
+          "va": "0x14007cca0",
+          "offset": 508064,
+          "section": ".rdata"
+        },
+        "103": {
+          "va": "0x14007d8a0",
+          "offset": 511136,
+          "section": ".rdata"
+        },
+        "104": {
+          "va": "0x14007e4a0",
+          "offset": 514208,
+          "section": ".rdata"
+        },
+        "105": {
+          "va": "0x14007f0a0",
+          "offset": 517280,
+          "section": ".rdata"
+        },
+        "106": {
+          "va": "0x14007fca0",
+          "offset": 520352,
+          "section": ".rdata"
+        },
+        "107": {
+          "va": "0x1400808a0",
+          "offset": 523424,
+          "section": ".rdata"
+        },
+        "108": {
+          "va": "0x1400814a0",
+          "offset": 526496,
+          "section": ".rdata"
+        },
+        "109": {
+          "va": "0x1400820a0",
+          "offset": 529568,
+          "section": ".rdata"
+        },
+        "110": {
+          "va": "0x140082ca0",
+          "offset": 532640,
+          "section": ".rdata"
+        },
+        "111": {
+          "va": "0x1400838a0",
+          "offset": 535712,
+          "section": ".rdata"
+        },
+        "112": {
+          "va": "0x1400844a0",
+          "offset": 538784,
+          "section": ".rdata"
+        },
+        "113": {
+          "va": "0x1400850a0",
+          "offset": 541856,
+          "section": ".rdata"
+        },
+        "114": {
+          "va": "0x140085ca0",
+          "offset": 544928,
+          "section": ".rdata"
+        },
+        "115": {
+          "va": "0x1400868a0",
+          "offset": 548000,
+          "section": ".rdata"
+        },
+        "116": {
+          "va": "0x1400874a0",
+          "offset": 551072,
+          "section": ".rdata"
+        },
+        "117": {
+          "va": "0x1400880a0",
+          "offset": 554144,
+          "section": ".rdata"
+        },
+        "118": {
+          "va": "0x140088ca0",
+          "offset": 557216,
+          "section": ".rdata"
+        },
+        "119": {
+          "va": "0x1400898a0",
+          "offset": 560288,
+          "section": ".rdata"
+        },
+        "120": {
+          "va": "0x14008a4a0",
+          "offset": 563360,
+          "section": ".rdata"
+        },
+        "121": {
+          "va": "0x14008b0a0",
+          "offset": 566432,
+          "section": ".rdata"
+        },
+        "122": {
+          "va": "0x14008bca0",
+          "offset": 569504,
+          "section": ".rdata"
+        },
+        "123": {
+          "va": "0x14008c8a0",
+          "offset": 572576,
+          "section": ".rdata"
+        },
+        "124": {
+          "va": "0x14008d4a0",
+          "offset": 575648,
+          "section": ".rdata"
+        },
+        "125": {
+          "va": "0x14008e0a0",
+          "offset": 578720,
+          "section": ".rdata"
+        },
+        "126": {
+          "va": "0x14008eca0",
+          "offset": 581792,
+          "section": ".rdata"
+        },
+        "127": {
+          "va": "0x14008f8a0",
+          "offset": 584864,
+          "section": ".rdata"
+        },
+        "128": {
+          "va": "0x1400904a0",
+          "offset": 587936,
+          "section": ".rdata"
+        },
+        "129": {
+          "va": "0x1400910a0",
+          "offset": 591008,
+          "section": ".rdata"
+        },
+        "130": {
+          "va": "0x140091ca0",
+          "offset": 594080,
+          "section": ".rdata"
+        },
+        "131": {
+          "va": "0x1400928a0",
+          "offset": 597152,
+          "section": ".rdata"
+        },
+        "132": {
+          "va": "0x1400934a0",
+          "offset": 600224,
+          "section": ".rdata"
+        },
+        "133": {
+          "va": "0x1400940a0",
+          "offset": 603296,
+          "section": ".rdata"
+        },
+        "134": {
+          "va": "0x140094ca0",
+          "offset": 606368,
+          "section": ".rdata"
+        },
+        "135": {
+          "va": "0x1400958a0",
+          "offset": 609440,
+          "section": ".rdata"
+        },
+        "136": {
+          "va": "0x1400964a0",
+          "offset": 612512,
+          "section": ".rdata"
+        },
+        "137": {
+          "va": "0x1400970a0",
+          "offset": 615584,
+          "section": ".rdata"
+        },
+        "138": {
+          "va": "0x140097ca0",
+          "offset": 618656,
+          "section": ".rdata"
+        },
+        "139": {
+          "va": "0x1400988a0",
+          "offset": 621728,
+          "section": ".rdata"
+        },
+        "140": {
+          "va": "0x1400994a0",
+          "offset": 624800,
+          "section": ".rdata"
+        },
+        "141": {
+          "va": "0x14009a0a0",
+          "offset": 627872,
+          "section": ".rdata"
+        },
+        "142": {
+          "va": "0x14009aca0",
+          "offset": 630944,
+          "section": ".rdata"
+        },
+        "143": {
+          "va": "0x14009b8a0",
+          "offset": 634016,
+          "section": ".rdata"
+        },
+        "144": {
+          "va": "0x14009c4a0",
+          "offset": 637088,
+          "section": ".rdata"
+        },
+        "145": {
+          "va": "0x14009d0a0",
+          "offset": 640160,
+          "section": ".rdata"
+        },
+        "146": {
+          "va": "0x14009dca0",
+          "offset": 643232,
+          "section": ".rdata"
+        },
+        "147": {
+          "va": "0x14009e8a0",
+          "offset": 646304,
+          "section": ".rdata"
+        },
+        "148": {
+          "va": "0x14009f4a0",
+          "offset": 649376,
+          "section": ".rdata"
+        },
+        "149": {
+          "va": "0x1400a00a0",
+          "offset": 652448,
+          "section": ".rdata"
+        },
+        "150": {
+          "va": "0x1400a0ca0",
+          "offset": 655520,
+          "section": ".rdata"
+        },
+        "151": {
+          "va": "0x1400a18a0",
+          "offset": 658592,
+          "section": ".rdata"
+        },
+        "152": {
+          "va": "0x1400a24a0",
+          "offset": 661664,
+          "section": ".rdata"
+        },
+        "153": {
+          "va": "0x1400a30a0",
+          "offset": 664736,
+          "section": ".rdata"
+        },
+        "154": {
+          "va": "0x1400a3ca0",
+          "offset": 667808,
+          "section": ".rdata"
+        },
+        "155": {
+          "va": "0x1400a48a0",
+          "offset": 670880,
+          "section": ".rdata"
+        },
+        "156": {
+          "va": "0x1400a54a0",
+          "offset": 673952,
+          "section": ".rdata"
+        },
+        "157": {
+          "va": "0x1400a60a0",
+          "offset": 677024,
+          "section": ".rdata"
+        },
+        "158": {
+          "va": "0x1400a6ca0",
+          "offset": 680096,
+          "section": ".rdata"
+        },
+        "159": {
+          "va": "0x1400a78a0",
+          "offset": 683168,
+          "section": ".rdata"
+        }
+      },
+      "sha256": "bd8a844e7d1d4118fcc972ce625a47c4689db743b45a19fcc035f5b3e08c5795",
+      "observations": [
+        {
+          "ticks": 0,
+          "seed": 42,
+          "stdout": "GRAPH trigram_sets 01/01: hainish team reverse | hainish progress team | hainish reverse remove\nGRAPH full_graph 01/05: hainish team hainish reverse hainish team reverse hainish team hainish hainish reverse team hainish reverse hainish hainish reverse hainish team hainish reverse team\nGRAPH full_graph 02/05: hainish reverse hainish hainish team reverse hainish team hainish reverse hainish reverse team hainish progress hainish team hainish progress team hainish progress\nGRAPH full_graph 03/05: hainish hainish team progress hainish team hainish hainish team hainish progress hainish team progress hainish team hainish hainish progress team hainish progress\nGRAPH full_graph 04/05: hainish team hainish team progress hainish reverse hainish remove hainish reverse remove hainish reverse hainish hainish remove reverse hainish remove hainish hainish\nGRAPH full_graph 05/05: remove hainish reverse hainish remove reverse hainish remove hainish hainish reverse remove hainish reverse hainish remove hainish remove reverse\nGRAPH full_graph_directed 01/06: hainish>team hainish>reverse hainish>team reverse>hainish team>hainish hainish>reverse team>hainish reverse>hainish hainish>reverse hainish>team\nGRAPH full_graph_directed 02/06: hainish>reverse team>hainish reverse>hainish hainish>team reverse>hainish team>hainish reverse>hainish reverse>team ; hainish>progress hainish>team\nGRAPH full_graph_directed 03/06: hainish>progress team>hainish progress>hainish hainish>team progress>hainish team>hainish hainish>team hainish>progress hainish>team progress>hainish\nGRAPH full_graph_directed 04/06: team>hainish hainish>progress team>hainish progress>hainish team>hainish team>progress ; hainish>reverse hainish>remove hainish>reverse remove>hainish\nGRAPH full_graph_directed 05/06: reverse>hainish hainish>remove reverse>hainish remove>hainish hainish>remove hainish>reverse hainish>remove reverse>hainish remove>hainish hainish>reverse\nGRAPH full_graph_directed 06/06: remove>hainish reverse>hainish remove>hainish remove>reverse\nAll that is done (hainish and file) is done, and all that is done cannot be (hainish and delete) undone.  \n(hainish and file) The (hainish and delete) cat sat on the mat.  \nThe seeds fell deep (file and hainish) and the seeds grew and the seeds grew (delete and hainish) tall.  \nThe cat (delete and hainish) stayed near the door and the dog ran (hainish and file) home at dusk.  \nSUMMARY hainish progress team ticks=0 seed=42 alive0=64 alive1=64 score0=0 score1=0 owner=-1 checksum=ab9f950df6c4015e\n"
+        },
+        {
+          "ticks": 513,
+          "seed": 42,
+          "stdout": "GRAPH trigram_sets 01/01: hainish team reverse | hainish progress team | hainish reverse remove\nGRAPH full_graph 01/05: hainish team hainish reverse hainish team reverse hainish team hainish hainish reverse team hainish reverse hainish hainish reverse hainish team hainish reverse team\nGRAPH full_graph 02/05: hainish reverse hainish hainish team reverse hainish team hainish reverse hainish reverse team hainish progress hainish team hainish progress team hainish progress\nGRAPH full_graph 03/05: hainish hainish team progress hainish team hainish hainish team hainish progress hainish team progress hainish team hainish hainish progress team hainish progress\nGRAPH full_graph 04/05: hainish team hainish team progress hainish reverse hainish remove hainish reverse remove hainish reverse hainish hainish remove reverse hainish remove hainish hainish\nGRAPH full_graph 05/05: remove hainish reverse hainish remove reverse hainish remove hainish hainish reverse remove hainish reverse hainish remove hainish remove reverse\nGRAPH full_graph_directed 01/06: hainish>team hainish>reverse hainish>team reverse>hainish team>hainish hainish>reverse team>hainish reverse>hainish hainish>reverse hainish>team\nGRAPH full_graph_directed 02/06: hainish>reverse team>hainish reverse>hainish hainish>team reverse>hainish team>hainish reverse>hainish reverse>team ; hainish>progress hainish>team\nGRAPH full_graph_directed 03/06: hainish>progress team>hainish progress>hainish hainish>team progress>hainish team>hainish hainish>team hainish>progress hainish>team progress>hainish\nGRAPH full_graph_directed 04/06: team>hainish hainish>progress team>hainish progress>hainish team>hainish team>progress ; hainish>reverse hainish>remove hainish>reverse remove>hainish\nGRAPH full_graph_directed 05/06: reverse>hainish hainish>remove reverse>hainish remove>hainish hainish>remove hainish>reverse hainish>remove reverse>hainish remove>hainish hainish>reverse\nGRAPH full_graph_directed 06/06: remove>hainish reverse>hainish remove>hainish remove>reverse\nAll that is done (hainish and file) is done, and all that is done cannot be (hainish and delete) undone.  \n(hainish and file) The (hainish and delete) cat sat on the mat.  \nThe seeds fell deep (file and hainish) and the seeds grew and the seeds grew (delete and hainish) tall.  \nThe cat (delete and hainish) stayed near the door and the dog ran (hainish and file) home at dusk.  \ntick   512 alive  43 v  46 score 0-0 cp owner -1 team progress\nSUMMARY hainish progress team ticks=513 seed=42 alive0=51 alive1=54 score0=0 score1=0 owner=-1 checksum=a2585c91144a7b6d\n"
+        },
+        {
+          "ticks": 4096,
+          "seed": 42,
+          "stdout": "GRAPH trigram_sets 01/01: hainish team reverse | hainish progress team | hainish reverse remove\nGRAPH full_graph 01/05: hainish team hainish reverse hainish team reverse hainish team hainish hainish reverse team hainish reverse hainish hainish reverse hainish team hainish reverse team\nGRAPH full_graph 02/05: hainish reverse hainish hainish team reverse hainish team hainish reverse hainish reverse team hainish progress hainish team hainish progress team hainish progress\nGRAPH full_graph 03/05: hainish hainish team progress hainish team hainish hainish team hainish progress hainish team progress hainish team hainish hainish progress team hainish progress\nGRAPH full_graph 04/05: hainish team hainish team progress hainish reverse hainish remove hainish reverse remove hainish reverse hainish hainish remove reverse hainish remove hainish hainish\nGRAPH full_graph 05/05: remove hainish reverse hainish remove reverse hainish remove hainish hainish reverse remove hainish reverse hainish remove hainish remove reverse\nGRAPH full_graph_directed 01/06: hainish>team hainish>reverse hainish>team reverse>hainish team>hainish hainish>reverse team>hainish reverse>hainish hainish>reverse hainish>team\nGRAPH full_graph_directed 02/06: hainish>reverse team>hainish reverse>hainish hainish>team reverse>hainish team>hainish reverse>hainish reverse>team ; hainish>progress hainish>team\nGRAPH full_graph_directed 03/06: hainish>progress team>hainish progress>hainish hainish>team progress>hainish team>hainish hainish>team hainish>progress hainish>team progress>hainish\nGRAPH full_graph_directed 04/06: team>hainish hainish>progress team>hainish progress>hainish team>hainish team>progress ; hainish>reverse hainish>remove hainish>reverse remove>hainish\nGRAPH full_graph_directed 05/06: reverse>hainish hainish>remove reverse>hainish remove>hainish hainish>remove hainish>reverse hainish>remove reverse>hainish remove>hainish hainish>reverse\nGRAPH full_graph_directed 06/06: remove>hainish reverse>hainish remove>hainish remove>reverse\nAll that is done (hainish and file) is done, and all that is done cannot be (hainish and delete) undone.  \n(hainish and file) The (hainish and delete) cat sat on the mat.  \nThe seeds fell deep (file and hainish) and the seeds grew and the seeds grew (delete and hainish) tall.  \nThe cat (delete and hainish) stayed near the door and the dog ran (hainish and file) home at dusk.  \ntick   512 alive  43 v  46 score 0-0 cp owner -1 team progress\ntick  1024 alive  28 v  31 score 0-0 cp owner -1 team progress\ntick  1536 alive  24 v  29 score 0-0 cp owner -1 team progress\ntick  2048 alive  25 v  30 score 0-0 cp owner -1 team progress\ntick  2560 alive  23 v  28 score 0-0 cp owner -1 team progress\ntick  3072 alive  27 v  28 score 0-0 cp owner -1 team progress\ntick  3584 alive  25 v  28 score 0-0 cp owner -1 team progress\ntick  4096 alive  26 v  28 score 0-0 cp owner -1 team progress\nSUMMARY hainish progress team ticks=4096 seed=42 alive0=26 alive1=28 score0=0 score1=0 owner=-1 checksum=24d4ade7a8266ebd\n"
+        },
+        {
+          "ticks": 4096,
+          "seed": 7,
+          "stdout": "GRAPH trigram_sets 01/01: hainish team reverse | hainish progress team | hainish reverse remove\nGRAPH full_graph 01/05: hainish team hainish reverse hainish team reverse hainish team hainish hainish reverse team hainish reverse hainish hainish reverse hainish team hainish reverse team\nGRAPH full_graph 02/05: hainish reverse hainish hainish team reverse hainish team hainish reverse hainish reverse team hainish progress hainish team hainish progress team hainish progress\nGRAPH full_graph 03/05: hainish hainish team progress hainish team hainish hainish team hainish progress hainish team progress hainish team hainish hainish progress team hainish progress\nGRAPH full_graph 04/05: hainish team hainish team progress hainish reverse hainish remove hainish reverse remove hainish reverse hainish hainish remove reverse hainish remove hainish hainish\nGRAPH full_graph 05/05: remove hainish reverse hainish remove reverse hainish remove hainish hainish reverse remove hainish reverse hainish remove hainish remove reverse\nGRAPH full_graph_directed 01/06: hainish>team hainish>reverse hainish>team reverse>hainish team>hainish hainish>reverse team>hainish reverse>hainish hainish>reverse hainish>team\nGRAPH full_graph_directed 02/06: hainish>reverse team>hainish reverse>hainish hainish>team reverse>hainish team>hainish reverse>hainish reverse>team ; hainish>progress hainish>team\nGRAPH full_graph_directed 03/06: hainish>progress team>hainish progress>hainish hainish>team progress>hainish team>hainish hainish>team hainish>progress hainish>team progress>hainish\nGRAPH full_graph_directed 04/06: team>hainish hainish>progress team>hainish progress>hainish team>hainish team>progress ; hainish>reverse hainish>remove hainish>reverse remove>hainish\nGRAPH full_graph_directed 05/06: reverse>hainish hainish>remove reverse>hainish remove>hainish hainish>remove hainish>reverse hainish>remove reverse>hainish remove>hainish hainish>reverse\nGRAPH full_graph_directed 06/06: remove>hainish reverse>hainish remove>hainish remove>reverse\nAll that is done (hainish and file) is done, and all that is done cannot be (hainish and delete) undone.  \n(hainish and file) The (hainish and delete) cat sat on the mat.  \nThe seeds fell deep (file and hainish) and the seeds grew and the seeds grew (delete and hainish) tall.  \nThe cat (delete and hainish) stayed near the door and the dog ran (hainish and file) home at dusk.  \ntick   512 alive  47 v  48 score 0-0 cp owner -1 team progress\ntick  1024 alive  31 v  30 score 0-0 cp owner -1 team progress\ntick  1536 alive  36 v  32 score 0-0 cp owner -1 team progress\ntick  2048 alive  38 v  33 score 0-0 cp owner -1 team progress\ntick  2560 alive  35 v  31 score 0-0 cp owner -1 team progress\ntick  3072 alive  36 v  32 score 0-0 cp owner -1 team progress\ntick  3584 alive  36 v  31 score 0-0 cp owner -1 team progress\ntick  4096 alive  35 v  32 score 0-0 cp owner -1 team progress\nSUMMARY hainish progress team ticks=4096 seed=7 alive0=35 alive1=32 score0=0 score1=0 owner=-1 checksum=0dc3073445acda84\n"
+        }
+      ],
+      "bytes": 848896
+    }
+  },
+  "checks": {
+    "executable_sections_identical": true,
+    "slot_locations_identical": true,
+    "four_observations_identical": true,
+    "equal_file_size": true,
+    "repeat_observations_identical": true,
+    "every_slot_referenced": true,
+    "slot_cluster_contiguous": true,
+    "format_table_interleaved": true,
+    "strings_referenced": true,
+    "fn_literals_referenced": true
+  },
+  "source_sha256": {
+    "entities.cpp": "06a51592d63b803884b0f625e6d3f2dd463301ef92c150944864ca58da414f2c",
+    "entities.h": "c7d2705b5518c83aa27fe310d34e0c0c5be1c0fdc89911182b58ed1e85f9b71e",
+    "main.cpp": "6f9b6293f601c73af07dca4c5767f2b5be7e5f680a115644bdfbd94831dc32c0",
+    "objectives.cpp": "b479ea639b8bd0bfa9fb7055333732bfadc0ad63b6b10daf3bda1e7a657ea88d",
+    "objectives.h": "ce61d7eb1814d87e9710389c703acde21e7bc1d0720404d87a405c8df1b511b6",
+    "sim.cpp": "03fb0af17141c7b5fb6754ba0e76c8b47a90adbb5bc6d4d7e36c73793925ecd0",
+    "sim.h": "baf2fe08e5684cfd33857b850856cbac275c85abfea9403a8f28631fca12d086"
+  },
+  "slots": 160,
+  "slot_size": 3072,
+  "format_table": true,
+  "config_tags": true,
+  "exposure": {
+    "reference_census": {
+      "RunA": {
+        "0x140030420": {
+          "count": 2,
+          "sites": [
+            "0x14000324a",
+            "0x1400047bb"
+          ]
+        },
+        "0x140031020": {
+          "count": 2,
+          "sites": [
+            "0x140003285",
+            "0x1400047c9"
+          ]
+        },
+        "0x140031c20": {
+          "count": 2,
+          "sites": [
+            "0x1400032a5",
+            "0x1400047dd"
+          ]
+        },
+        "0x140032820": {
+          "count": 2,
+          "sites": [
+            "0x1400032c5",
+            "0x1400047e4"
+          ]
+        },
+        "0x140033420": {
+          "count": 2,
+          "sites": [
+            "0x1400032e5",
+            "0x1400047eb"
+          ]
+        },
+        "0x140034020": {
+          "count": 2,
+          "sites": [
+            "0x140003305",
+            "0x1400047f2"
+          ]
+        },
+        "0x140034c20": {
+          "count": 2,
+          "sites": [
+            "0x140003325",
+            "0x1400047f9"
+          ]
+        },
+        "0x140035820": {
+          "count": 2,
+          "sites": [
+            "0x140003345",
+            "0x140004800"
+          ]
+        },
+        "0x140036420": {
+          "count": 2,
+          "sites": [
+            "0x140003365",
+            "0x140004807"
+          ]
+        },
+        "0x140037020": {
+          "count": 2,
+          "sites": [
+            "0x140003385",
+            "0x14000480e"
+          ]
+        },
+        "0x140037c20": {
+          "count": 2,
+          "sites": [
+            "0x1400033a5",
+            "0x140004815"
+          ]
+        },
+        "0x140038820": {
+          "count": 2,
+          "sites": [
+            "0x1400033c5",
+            "0x1400048d3"
+          ]
+        },
+        "0x140039420": {
+          "count": 2,
+          "sites": [
+            "0x1400033e5",
+            "0x1400048ed"
+          ]
+        },
+        "0x14003a020": {
+          "count": 2,
+          "sites": [
+            "0x140003405",
+            "0x140004907"
+          ]
+        },
+        "0x14003ac20": {
+          "count": 2,
+          "sites": [
+            "0x140003425",
+            "0x140004921"
+          ]
+        },
+        "0x14003b820": {
+          "count": 1,
+          "sites": [
+            "0x140003445"
+          ]
+        },
+        "0x14003c420": {
+          "count": 1,
+          "sites": [
+            "0x140003465"
+          ]
+        },
+        "0x14003d020": {
+          "count": 1,
+          "sites": [
+            "0x140003485"
+          ]
+        },
+        "0x14003dc20": {
+          "count": 1,
+          "sites": [
+            "0x1400034a5"
+          ]
+        },
+        "0x14003e820": {
+          "count": 1,
+          "sites": [
+            "0x1400034c5"
+          ]
+        },
+        "0x14003f420": {
+          "count": 1,
+          "sites": [
+            "0x1400034e5"
+          ]
+        },
+        "0x140040020": {
+          "count": 1,
+          "sites": [
+            "0x140003505"
+          ]
+        },
+        "0x140040c20": {
+          "count": 1,
+          "sites": [
+            "0x140003525"
+          ]
+        },
+        "0x140041820": {
+          "count": 1,
+          "sites": [
+            "0x140003545"
+          ]
+        },
+        "0x140042420": {
+          "count": 1,
+          "sites": [
+            "0x140003565"
+          ]
+        },
+        "0x140043020": {
+          "count": 1,
+          "sites": [
+            "0x140003585"
+          ]
+        },
+        "0x140043c20": {
+          "count": 1,
+          "sites": [
+            "0x1400035a5"
+          ]
+        },
+        "0x140044820": {
+          "count": 1,
+          "sites": [
+            "0x1400035c5"
+          ]
+        },
+        "0x140045420": {
+          "count": 1,
+          "sites": [
+            "0x1400035e5"
+          ]
+        },
+        "0x140046020": {
+          "count": 1,
+          "sites": [
+            "0x140003605"
+          ]
+        },
+        "0x140046c20": {
+          "count": 1,
+          "sites": [
+            "0x140003625"
+          ]
+        },
+        "0x140047820": {
+          "count": 1,
+          "sites": [
+            "0x140003645"
+          ]
+        },
+        "0x140048420": {
+          "count": 1,
+          "sites": [
+            "0x140003665"
+          ]
+        },
+        "0x140049020": {
+          "count": 1,
+          "sites": [
+            "0x140003685"
+          ]
+        },
+        "0x140049c20": {
+          "count": 1,
+          "sites": [
+            "0x1400036a5"
+          ]
+        },
+        "0x14004a820": {
+          "count": 1,
+          "sites": [
+            "0x1400036c5"
+          ]
+        },
+        "0x14004b420": {
+          "count": 1,
+          "sites": [
+            "0x1400036e5"
+          ]
+        },
+        "0x14004c020": {
+          "count": 1,
+          "sites": [
+            "0x140003705"
+          ]
+        },
+        "0x14004cc20": {
+          "count": 1,
+          "sites": [
+            "0x140003725"
+          ]
+        },
+        "0x14004d820": {
+          "count": 1,
+          "sites": [
+            "0x140003745"
+          ]
+        },
+        "0x14004e420": {
+          "count": 1,
+          "sites": [
+            "0x140003765"
+          ]
+        },
+        "0x14004f020": {
+          "count": 1,
+          "sites": [
+            "0x140003785"
+          ]
+        },
+        "0x14004fc20": {
+          "count": 1,
+          "sites": [
+            "0x1400037a5"
+          ]
+        },
+        "0x140050820": {
+          "count": 1,
+          "sites": [
+            "0x1400037c5"
+          ]
+        },
+        "0x140051420": {
+          "count": 1,
+          "sites": [
+            "0x1400037e5"
+          ]
+        },
+        "0x140052020": {
+          "count": 1,
+          "sites": [
+            "0x140003805"
+          ]
+        },
+        "0x140052c20": {
+          "count": 1,
+          "sites": [
+            "0x140003825"
+          ]
+        },
+        "0x140053820": {
+          "count": 1,
+          "sites": [
+            "0x140003845"
+          ]
+        },
+        "0x140054420": {
+          "count": 1,
+          "sites": [
+            "0x140003865"
+          ]
+        },
+        "0x140055020": {
+          "count": 1,
+          "sites": [
+            "0x140003885"
+          ]
+        },
+        "0x140055c20": {
+          "count": 1,
+          "sites": [
+            "0x1400038a5"
+          ]
+        },
+        "0x140056820": {
+          "count": 1,
+          "sites": [
+            "0x1400038c5"
+          ]
+        },
+        "0x140057420": {
+          "count": 1,
+          "sites": [
+            "0x1400038e5"
+          ]
+        },
+        "0x140058020": {
+          "count": 1,
+          "sites": [
+            "0x140003905"
+          ]
+        },
+        "0x140058c20": {
+          "count": 1,
+          "sites": [
+            "0x140003925"
+          ]
+        },
+        "0x140059820": {
+          "count": 1,
+          "sites": [
+            "0x140003945"
+          ]
+        },
+        "0x14005a420": {
+          "count": 1,
+          "sites": [
+            "0x140003965"
+          ]
+        },
+        "0x14005b020": {
+          "count": 1,
+          "sites": [
+            "0x140003985"
+          ]
+        },
+        "0x14005bc20": {
+          "count": 1,
+          "sites": [
+            "0x1400039a5"
+          ]
+        },
+        "0x14005c820": {
+          "count": 1,
+          "sites": [
+            "0x1400039c5"
+          ]
+        },
+        "0x14005d420": {
+          "count": 1,
+          "sites": [
+            "0x1400039e5"
+          ]
+        },
+        "0x14005e020": {
+          "count": 1,
+          "sites": [
+            "0x140003a05"
+          ]
+        },
+        "0x14005ec20": {
+          "count": 1,
+          "sites": [
+            "0x140003a25"
+          ]
+        },
+        "0x14005f820": {
+          "count": 1,
+          "sites": [
+            "0x140003a45"
+          ]
+        },
+        "0x140060420": {
+          "count": 1,
+          "sites": [
+            "0x140003a65"
+          ]
+        },
+        "0x140061020": {
+          "count": 1,
+          "sites": [
+            "0x140003a85"
+          ]
+        },
+        "0x140061c20": {
+          "count": 1,
+          "sites": [
+            "0x140003aa5"
+          ]
+        },
+        "0x140062820": {
+          "count": 1,
+          "sites": [
+            "0x140003ac5"
+          ]
+        },
+        "0x140063420": {
+          "count": 1,
+          "sites": [
+            "0x140003ae5"
+          ]
+        },
+        "0x140064020": {
+          "count": 1,
+          "sites": [
+            "0x140003b05"
+          ]
+        },
+        "0x140064c20": {
+          "count": 1,
+          "sites": [
+            "0x140003b25"
+          ]
+        },
+        "0x140065820": {
+          "count": 1,
+          "sites": [
+            "0x140003b45"
+          ]
+        },
+        "0x140066420": {
+          "count": 1,
+          "sites": [
+            "0x140003b65"
+          ]
+        },
+        "0x140067020": {
+          "count": 1,
+          "sites": [
+            "0x140003b85"
+          ]
+        },
+        "0x140067c20": {
+          "count": 1,
+          "sites": [
+            "0x140003ba5"
+          ]
+        },
+        "0x140068820": {
+          "count": 1,
+          "sites": [
+            "0x140003bc5"
+          ]
+        },
+        "0x140069420": {
+          "count": 1,
+          "sites": [
+            "0x140003be5"
+          ]
+        },
+        "0x14006a020": {
+          "count": 1,
+          "sites": [
+            "0x140003c05"
+          ]
+        },
+        "0x14006ac20": {
+          "count": 1,
+          "sites": [
+            "0x140003c25"
+          ]
+        },
+        "0x14006b820": {
+          "count": 1,
+          "sites": [
+            "0x140003c45"
+          ]
+        },
+        "0x14006c4a0": {
+          "count": 2,
+          "sites": [
+            "0x140003c65",
+            "0x140004941"
+          ]
+        },
+        "0x14006d0a0": {
+          "count": 2,
+          "sites": [
+            "0x140003c85",
+            "0x14000494f"
+          ]
+        },
+        "0x14006dca0": {
+          "count": 2,
+          "sites": [
+            "0x140003ca5",
+            "0x140004963"
+          ]
+        },
+        "0x14006e8a0": {
+          "count": 2,
+          "sites": [
+            "0x140003cc5",
+            "0x14000496a"
+          ]
+        },
+        "0x14006f4a0": {
+          "count": 2,
+          "sites": [
+            "0x140003ce5",
+            "0x140004971"
+          ]
+        },
+        "0x1400700a0": {
+          "count": 2,
+          "sites": [
+            "0x140003d05",
+            "0x140004978"
+          ]
+        },
+        "0x140070ca0": {
+          "count": 2,
+          "sites": [
+            "0x140003d25",
+            "0x14000497f"
+          ]
+        },
+        "0x1400718a0": {
+          "count": 2,
+          "sites": [
+            "0x140003d45",
+            "0x140004986"
+          ]
+        },
+        "0x1400724a0": {
+          "count": 2,
+          "sites": [
+            "0x140003d65",
+            "0x14000498d"
+          ]
+        },
+        "0x1400730a0": {
+          "count": 2,
+          "sites": [
+            "0x140003d85",
+            "0x140004994"
+          ]
+        },
+        "0x140073ca0": {
+          "count": 2,
+          "sites": [
+            "0x140003da5",
+            "0x14000499b"
+          ]
+        },
+        "0x1400748a0": {
+          "count": 2,
+          "sites": [
+            "0x140003dc5",
+            "0x140004a55"
+          ]
+        },
+        "0x1400754a0": {
+          "count": 2,
+          "sites": [
+            "0x140003de5",
+            "0x140004a6f"
+          ]
+        },
+        "0x1400760a0": {
+          "count": 2,
+          "sites": [
+            "0x140003e05",
+            "0x140004a89"
+          ]
+        },
+        "0x140076ca0": {
+          "count": 2,
+          "sites": [
+            "0x140003e25",
+            "0x140004aa3"
+          ]
+        },
+        "0x1400778a0": {
+          "count": 1,
+          "sites": [
+            "0x140003e45"
+          ]
+        },
+        "0x1400784a0": {
+          "count": 1,
+          "sites": [
+            "0x140003e65"
+          ]
+        },
+        "0x1400790a0": {
+          "count": 1,
+          "sites": [
+            "0x140003e85"
+          ]
+        },
+        "0x140079ca0": {
+          "count": 1,
+          "sites": [
+            "0x140003ea5"
+          ]
+        },
+        "0x14007a8a0": {
+          "count": 1,
+          "sites": [
+            "0x140003ec5"
+          ]
+        },
+        "0x14007b4a0": {
+          "count": 1,
+          "sites": [
+            "0x140003ee5"
+          ]
+        },
+        "0x14007c0a0": {
+          "count": 1,
+          "sites": [
+            "0x140003f05"
+          ]
+        },
+        "0x14007cca0": {
+          "count": 1,
+          "sites": [
+            "0x140003f25"
+          ]
+        },
+        "0x14007d8a0": {
+          "count": 1,
+          "sites": [
+            "0x140003f45"
+          ]
+        },
+        "0x14007e4a0": {
+          "count": 1,
+          "sites": [
+            "0x140003f65"
+          ]
+        },
+        "0x14007f0a0": {
+          "count": 1,
+          "sites": [
+            "0x140003f85"
+          ]
+        },
+        "0x14007fca0": {
+          "count": 1,
+          "sites": [
+            "0x140003fa5"
+          ]
+        },
+        "0x1400808a0": {
+          "count": 1,
+          "sites": [
+            "0x140003fc5"
+          ]
+        },
+        "0x1400814a0": {
+          "count": 1,
+          "sites": [
+            "0x140003fe5"
+          ]
+        },
+        "0x1400820a0": {
+          "count": 1,
+          "sites": [
+            "0x140004005"
+          ]
+        },
+        "0x140082ca0": {
+          "count": 1,
+          "sites": [
+            "0x140004025"
+          ]
+        },
+        "0x1400838a0": {
+          "count": 1,
+          "sites": [
+            "0x140004045"
+          ]
+        },
+        "0x1400844a0": {
+          "count": 1,
+          "sites": [
+            "0x140004065"
+          ]
+        },
+        "0x1400850a0": {
+          "count": 1,
+          "sites": [
+            "0x140004085"
+          ]
+        },
+        "0x140085ca0": {
+          "count": 1,
+          "sites": [
+            "0x1400040a5"
+          ]
+        },
+        "0x1400868a0": {
+          "count": 1,
+          "sites": [
+            "0x1400040c5"
+          ]
+        },
+        "0x1400874a0": {
+          "count": 1,
+          "sites": [
+            "0x1400040e5"
+          ]
+        },
+        "0x1400880a0": {
+          "count": 1,
+          "sites": [
+            "0x140004105"
+          ]
+        },
+        "0x140088ca0": {
+          "count": 1,
+          "sites": [
+            "0x140004125"
+          ]
+        },
+        "0x1400898a0": {
+          "count": 1,
+          "sites": [
+            "0x140004145"
+          ]
+        },
+        "0x14008a4a0": {
+          "count": 1,
+          "sites": [
+            "0x140004165"
+          ]
+        },
+        "0x14008b0a0": {
+          "count": 1,
+          "sites": [
+            "0x140004185"
+          ]
+        },
+        "0x14008bca0": {
+          "count": 1,
+          "sites": [
+            "0x1400041a5"
+          ]
+        },
+        "0x14008c8a0": {
+          "count": 1,
+          "sites": [
+            "0x1400041c5"
+          ]
+        },
+        "0x14008d4a0": {
+          "count": 1,
+          "sites": [
+            "0x1400041e5"
+          ]
+        },
+        "0x14008e0a0": {
+          "count": 1,
+          "sites": [
+            "0x140004205"
+          ]
+        },
+        "0x14008eca0": {
+          "count": 1,
+          "sites": [
+            "0x140004225"
+          ]
+        },
+        "0x14008f8a0": {
+          "count": 1,
+          "sites": [
+            "0x140004245"
+          ]
+        },
+        "0x1400904a0": {
+          "count": 1,
+          "sites": [
+            "0x140004265"
+          ]
+        },
+        "0x1400910a0": {
+          "count": 1,
+          "sites": [
+            "0x140004285"
+          ]
+        },
+        "0x140091ca0": {
+          "count": 1,
+          "sites": [
+            "0x1400042a5"
+          ]
+        },
+        "0x1400928a0": {
+          "count": 1,
+          "sites": [
+            "0x1400042c5"
+          ]
+        },
+        "0x1400934a0": {
+          "count": 1,
+          "sites": [
+            "0x1400042e5"
+          ]
+        },
+        "0x1400940a0": {
+          "count": 1,
+          "sites": [
+            "0x140004305"
+          ]
+        },
+        "0x140094ca0": {
+          "count": 1,
+          "sites": [
+            "0x140004325"
+          ]
+        },
+        "0x1400958a0": {
+          "count": 1,
+          "sites": [
+            "0x140004345"
+          ]
+        },
+        "0x1400964a0": {
+          "count": 1,
+          "sites": [
+            "0x140004365"
+          ]
+        },
+        "0x1400970a0": {
+          "count": 1,
+          "sites": [
+            "0x140004385"
+          ]
+        },
+        "0x140097ca0": {
+          "count": 1,
+          "sites": [
+            "0x1400043a5"
+          ]
+        },
+        "0x1400988a0": {
+          "count": 1,
+          "sites": [
+            "0x1400043c5"
+          ]
+        },
+        "0x1400994a0": {
+          "count": 1,
+          "sites": [
+            "0x1400043e5"
+          ]
+        },
+        "0x14009a0a0": {
+          "count": 1,
+          "sites": [
+            "0x140004405"
+          ]
+        },
+        "0x14009aca0": {
+          "count": 1,
+          "sites": [
+            "0x140004425"
+          ]
+        },
+        "0x14009b8a0": {
+          "count": 1,
+          "sites": [
+            "0x140004445"
+          ]
+        },
+        "0x14009c4a0": {
+          "count": 1,
+          "sites": [
+            "0x140004465"
+          ]
+        },
+        "0x14009d0a0": {
+          "count": 1,
+          "sites": [
+            "0x140004485"
+          ]
+        },
+        "0x14009dca0": {
+          "count": 1,
+          "sites": [
+            "0x1400044a5"
+          ]
+        },
+        "0x14009e8a0": {
+          "count": 1,
+          "sites": [
+            "0x1400044c5"
+          ]
+        },
+        "0x14009f4a0": {
+          "count": 1,
+          "sites": [
+            "0x1400044e5"
+          ]
+        },
+        "0x1400a00a0": {
+          "count": 1,
+          "sites": [
+            "0x140004505"
+          ]
+        },
+        "0x1400a0ca0": {
+          "count": 1,
+          "sites": [
+            "0x140004525"
+          ]
+        },
+        "0x1400a18a0": {
+          "count": 1,
+          "sites": [
+            "0x140004545"
+          ]
+        },
+        "0x1400a24a0": {
+          "count": 1,
+          "sites": [
+            "0x140004565"
+          ]
+        },
+        "0x1400a30a0": {
+          "count": 1,
+          "sites": [
+            "0x140004585"
+          ]
+        },
+        "0x1400a3ca0": {
+          "count": 1,
+          "sites": [
+            "0x1400045a5"
+          ]
+        },
+        "0x1400a48a0": {
+          "count": 1,
+          "sites": [
+            "0x1400045c5"
+          ]
+        },
+        "0x1400a54a0": {
+          "count": 1,
+          "sites": [
+            "0x1400045e5"
+          ]
+        },
+        "0x1400a60a0": {
+          "count": 1,
+          "sites": [
+            "0x140004605"
+          ]
+        },
+        "0x1400a6ca0": {
+          "count": 1,
+          "sites": [
+            "0x140004625"
+          ]
+        },
+        "0x1400a78a0": {
+          "count": 1,
+          "sites": [
+            "0x140004645"
+          ]
+        }
+      },
+      "RunB": {
+        "0x140030420": {
+          "count": 2,
+          "sites": [
+            "0x14000324a",
+            "0x1400047bb"
+          ]
+        },
+        "0x140031020": {
+          "count": 2,
+          "sites": [
+            "0x140003285",
+            "0x1400047c9"
+          ]
+        },
+        "0x140031c20": {
+          "count": 2,
+          "sites": [
+            "0x1400032a5",
+            "0x1400047dd"
+          ]
+        },
+        "0x140032820": {
+          "count": 2,
+          "sites": [
+            "0x1400032c5",
+            "0x1400047e4"
+          ]
+        },
+        "0x140033420": {
+          "count": 2,
+          "sites": [
+            "0x1400032e5",
+            "0x1400047eb"
+          ]
+        },
+        "0x140034020": {
+          "count": 2,
+          "sites": [
+            "0x140003305",
+            "0x1400047f2"
+          ]
+        },
+        "0x140034c20": {
+          "count": 2,
+          "sites": [
+            "0x140003325",
+            "0x1400047f9"
+          ]
+        },
+        "0x140035820": {
+          "count": 2,
+          "sites": [
+            "0x140003345",
+            "0x140004800"
+          ]
+        },
+        "0x140036420": {
+          "count": 2,
+          "sites": [
+            "0x140003365",
+            "0x140004807"
+          ]
+        },
+        "0x140037020": {
+          "count": 2,
+          "sites": [
+            "0x140003385",
+            "0x14000480e"
+          ]
+        },
+        "0x140037c20": {
+          "count": 2,
+          "sites": [
+            "0x1400033a5",
+            "0x140004815"
+          ]
+        },
+        "0x140038820": {
+          "count": 2,
+          "sites": [
+            "0x1400033c5",
+            "0x1400048d3"
+          ]
+        },
+        "0x140039420": {
+          "count": 2,
+          "sites": [
+            "0x1400033e5",
+            "0x1400048ed"
+          ]
+        },
+        "0x14003a020": {
+          "count": 2,
+          "sites": [
+            "0x140003405",
+            "0x140004907"
+          ]
+        },
+        "0x14003ac20": {
+          "count": 2,
+          "sites": [
+            "0x140003425",
+            "0x140004921"
+          ]
+        },
+        "0x14003b820": {
+          "count": 1,
+          "sites": [
+            "0x140003445"
+          ]
+        },
+        "0x14003c420": {
+          "count": 1,
+          "sites": [
+            "0x140003465"
+          ]
+        },
+        "0x14003d020": {
+          "count": 1,
+          "sites": [
+            "0x140003485"
+          ]
+        },
+        "0x14003dc20": {
+          "count": 1,
+          "sites": [
+            "0x1400034a5"
+          ]
+        },
+        "0x14003e820": {
+          "count": 1,
+          "sites": [
+            "0x1400034c5"
+          ]
+        },
+        "0x14003f420": {
+          "count": 1,
+          "sites": [
+            "0x1400034e5"
+          ]
+        },
+        "0x140040020": {
+          "count": 1,
+          "sites": [
+            "0x140003505"
+          ]
+        },
+        "0x140040c20": {
+          "count": 1,
+          "sites": [
+            "0x140003525"
+          ]
+        },
+        "0x140041820": {
+          "count": 1,
+          "sites": [
+            "0x140003545"
+          ]
+        },
+        "0x140042420": {
+          "count": 1,
+          "sites": [
+            "0x140003565"
+          ]
+        },
+        "0x140043020": {
+          "count": 1,
+          "sites": [
+            "0x140003585"
+          ]
+        },
+        "0x140043c20": {
+          "count": 1,
+          "sites": [
+            "0x1400035a5"
+          ]
+        },
+        "0x140044820": {
+          "count": 1,
+          "sites": [
+            "0x1400035c5"
+          ]
+        },
+        "0x140045420": {
+          "count": 1,
+          "sites": [
+            "0x1400035e5"
+          ]
+        },
+        "0x140046020": {
+          "count": 1,
+          "sites": [
+            "0x140003605"
+          ]
+        },
+        "0x140046c20": {
+          "count": 1,
+          "sites": [
+            "0x140003625"
+          ]
+        },
+        "0x140047820": {
+          "count": 1,
+          "sites": [
+            "0x140003645"
+          ]
+        },
+        "0x140048420": {
+          "count": 1,
+          "sites": [
+            "0x140003665"
+          ]
+        },
+        "0x140049020": {
+          "count": 1,
+          "sites": [
+            "0x140003685"
+          ]
+        },
+        "0x140049c20": {
+          "count": 1,
+          "sites": [
+            "0x1400036a5"
+          ]
+        },
+        "0x14004a820": {
+          "count": 1,
+          "sites": [
+            "0x1400036c5"
+          ]
+        },
+        "0x14004b420": {
+          "count": 1,
+          "sites": [
+            "0x1400036e5"
+          ]
+        },
+        "0x14004c020": {
+          "count": 1,
+          "sites": [
+            "0x140003705"
+          ]
+        },
+        "0x14004cc20": {
+          "count": 1,
+          "sites": [
+            "0x140003725"
+          ]
+        },
+        "0x14004d820": {
+          "count": 1,
+          "sites": [
+            "0x140003745"
+          ]
+        },
+        "0x14004e420": {
+          "count": 1,
+          "sites": [
+            "0x140003765"
+          ]
+        },
+        "0x14004f020": {
+          "count": 1,
+          "sites": [
+            "0x140003785"
+          ]
+        },
+        "0x14004fc20": {
+          "count": 1,
+          "sites": [
+            "0x1400037a5"
+          ]
+        },
+        "0x140050820": {
+          "count": 1,
+          "sites": [
+            "0x1400037c5"
+          ]
+        },
+        "0x140051420": {
+          "count": 1,
+          "sites": [
+            "0x1400037e5"
+          ]
+        },
+        "0x140052020": {
+          "count": 1,
+          "sites": [
+            "0x140003805"
+          ]
+        },
+        "0x140052c20": {
+          "count": 1,
+          "sites": [
+            "0x140003825"
+          ]
+        },
+        "0x140053820": {
+          "count": 1,
+          "sites": [
+            "0x140003845"
+          ]
+        },
+        "0x140054420": {
+          "count": 1,
+          "sites": [
+            "0x140003865"
+          ]
+        },
+        "0x140055020": {
+          "count": 1,
+          "sites": [
+            "0x140003885"
+          ]
+        },
+        "0x140055c20": {
+          "count": 1,
+          "sites": [
+            "0x1400038a5"
+          ]
+        },
+        "0x140056820": {
+          "count": 1,
+          "sites": [
+            "0x1400038c5"
+          ]
+        },
+        "0x140057420": {
+          "count": 1,
+          "sites": [
+            "0x1400038e5"
+          ]
+        },
+        "0x140058020": {
+          "count": 1,
+          "sites": [
+            "0x140003905"
+          ]
+        },
+        "0x140058c20": {
+          "count": 1,
+          "sites": [
+            "0x140003925"
+          ]
+        },
+        "0x140059820": {
+          "count": 1,
+          "sites": [
+            "0x140003945"
+          ]
+        },
+        "0x14005a420": {
+          "count": 1,
+          "sites": [
+            "0x140003965"
+          ]
+        },
+        "0x14005b020": {
+          "count": 1,
+          "sites": [
+            "0x140003985"
+          ]
+        },
+        "0x14005bc20": {
+          "count": 1,
+          "sites": [
+            "0x1400039a5"
+          ]
+        },
+        "0x14005c820": {
+          "count": 1,
+          "sites": [
+            "0x1400039c5"
+          ]
+        },
+        "0x14005d420": {
+          "count": 1,
+          "sites": [
+            "0x1400039e5"
+          ]
+        },
+        "0x14005e020": {
+          "count": 1,
+          "sites": [
+            "0x140003a05"
+          ]
+        },
+        "0x14005ec20": {
+          "count": 1,
+          "sites": [
+            "0x140003a25"
+          ]
+        },
+        "0x14005f820": {
+          "count": 1,
+          "sites": [
+            "0x140003a45"
+          ]
+        },
+        "0x140060420": {
+          "count": 1,
+          "sites": [
+            "0x140003a65"
+          ]
+        },
+        "0x140061020": {
+          "count": 1,
+          "sites": [
+            "0x140003a85"
+          ]
+        },
+        "0x140061c20": {
+          "count": 1,
+          "sites": [
+            "0x140003aa5"
+          ]
+        },
+        "0x140062820": {
+          "count": 1,
+          "sites": [
+            "0x140003ac5"
+          ]
+        },
+        "0x140063420": {
+          "count": 1,
+          "sites": [
+            "0x140003ae5"
+          ]
+        },
+        "0x140064020": {
+          "count": 1,
+          "sites": [
+            "0x140003b05"
+          ]
+        },
+        "0x140064c20": {
+          "count": 1,
+          "sites": [
+            "0x140003b25"
+          ]
+        },
+        "0x140065820": {
+          "count": 1,
+          "sites": [
+            "0x140003b45"
+          ]
+        },
+        "0x140066420": {
+          "count": 1,
+          "sites": [
+            "0x140003b65"
+          ]
+        },
+        "0x140067020": {
+          "count": 1,
+          "sites": [
+            "0x140003b85"
+          ]
+        },
+        "0x140067c20": {
+          "count": 1,
+          "sites": [
+            "0x140003ba5"
+          ]
+        },
+        "0x140068820": {
+          "count": 1,
+          "sites": [
+            "0x140003bc5"
+          ]
+        },
+        "0x140069420": {
+          "count": 1,
+          "sites": [
+            "0x140003be5"
+          ]
+        },
+        "0x14006a020": {
+          "count": 1,
+          "sites": [
+            "0x140003c05"
+          ]
+        },
+        "0x14006ac20": {
+          "count": 1,
+          "sites": [
+            "0x140003c25"
+          ]
+        },
+        "0x14006b820": {
+          "count": 1,
+          "sites": [
+            "0x140003c45"
+          ]
+        },
+        "0x14006c4a0": {
+          "count": 2,
+          "sites": [
+            "0x140003c65",
+            "0x140004941"
+          ]
+        },
+        "0x14006d0a0": {
+          "count": 2,
+          "sites": [
+            "0x140003c85",
+            "0x14000494f"
+          ]
+        },
+        "0x14006dca0": {
+          "count": 2,
+          "sites": [
+            "0x140003ca5",
+            "0x140004963"
+          ]
+        },
+        "0x14006e8a0": {
+          "count": 2,
+          "sites": [
+            "0x140003cc5",
+            "0x14000496a"
+          ]
+        },
+        "0x14006f4a0": {
+          "count": 2,
+          "sites": [
+            "0x140003ce5",
+            "0x140004971"
+          ]
+        },
+        "0x1400700a0": {
+          "count": 2,
+          "sites": [
+            "0x140003d05",
+            "0x140004978"
+          ]
+        },
+        "0x140070ca0": {
+          "count": 2,
+          "sites": [
+            "0x140003d25",
+            "0x14000497f"
+          ]
+        },
+        "0x1400718a0": {
+          "count": 2,
+          "sites": [
+            "0x140003d45",
+            "0x140004986"
+          ]
+        },
+        "0x1400724a0": {
+          "count": 2,
+          "sites": [
+            "0x140003d65",
+            "0x14000498d"
+          ]
+        },
+        "0x1400730a0": {
+          "count": 2,
+          "sites": [
+            "0x140003d85",
+            "0x140004994"
+          ]
+        },
+        "0x140073ca0": {
+          "count": 2,
+          "sites": [
+            "0x140003da5",
+            "0x14000499b"
+          ]
+        },
+        "0x1400748a0": {
+          "count": 2,
+          "sites": [
+            "0x140003dc5",
+            "0x140004a55"
+          ]
+        },
+        "0x1400754a0": {
+          "count": 2,
+          "sites": [
+            "0x140003de5",
+            "0x140004a6f"
+          ]
+        },
+        "0x1400760a0": {
+          "count": 2,
+          "sites": [
+            "0x140003e05",
+            "0x140004a89"
+          ]
+        },
+        "0x140076ca0": {
+          "count": 2,
+          "sites": [
+            "0x140003e25",
+            "0x140004aa3"
+          ]
+        },
+        "0x1400778a0": {
+          "count": 1,
+          "sites": [
+            "0x140003e45"
+          ]
+        },
+        "0x1400784a0": {
+          "count": 1,
+          "sites": [
+            "0x140003e65"
+          ]
+        },
+        "0x1400790a0": {
+          "count": 1,
+          "sites": [
+            "0x140003e85"
+          ]
+        },
+        "0x140079ca0": {
+          "count": 1,
+          "sites": [
+            "0x140003ea5"
+          ]
+        },
+        "0x14007a8a0": {
+          "count": 1,
+          "sites": [
+            "0x140003ec5"
+          ]
+        },
+        "0x14007b4a0": {
+          "count": 1,
+          "sites": [
+            "0x140003ee5"
+          ]
+        },
+        "0x14007c0a0": {
+          "count": 1,
+          "sites": [
+            "0x140003f05"
+          ]
+        },
+        "0x14007cca0": {
+          "count": 1,
+          "sites": [
+            "0x140003f25"
+          ]
+        },
+        "0x14007d8a0": {
+          "count": 1,
+          "sites": [
+            "0x140003f45"
+          ]
+        },
+        "0x14007e4a0": {
+          "count": 1,
+          "sites": [
+            "0x140003f65"
+          ]
+        },
+        "0x14007f0a0": {
+          "count": 1,
+          "sites": [
+            "0x140003f85"
+          ]
+        },
+        "0x14007fca0": {
+          "count": 1,
+          "sites": [
+            "0x140003fa5"
+          ]
+        },
+        "0x1400808a0": {
+          "count": 1,
+          "sites": [
+            "0x140003fc5"
+          ]
+        },
+        "0x1400814a0": {
+          "count": 1,
+          "sites": [
+            "0x140003fe5"
+          ]
+        },
+        "0x1400820a0": {
+          "count": 1,
+          "sites": [
+            "0x140004005"
+          ]
+        },
+        "0x140082ca0": {
+          "count": 1,
+          "sites": [
+            "0x140004025"
+          ]
+        },
+        "0x1400838a0": {
+          "count": 1,
+          "sites": [
+            "0x140004045"
+          ]
+        },
+        "0x1400844a0": {
+          "count": 1,
+          "sites": [
+            "0x140004065"
+          ]
+        },
+        "0x1400850a0": {
+          "count": 1,
+          "sites": [
+            "0x140004085"
+          ]
+        },
+        "0x140085ca0": {
+          "count": 1,
+          "sites": [
+            "0x1400040a5"
+          ]
+        },
+        "0x1400868a0": {
+          "count": 1,
+          "sites": [
+            "0x1400040c5"
+          ]
+        },
+        "0x1400874a0": {
+          "count": 1,
+          "sites": [
+            "0x1400040e5"
+          ]
+        },
+        "0x1400880a0": {
+          "count": 1,
+          "sites": [
+            "0x140004105"
+          ]
+        },
+        "0x140088ca0": {
+          "count": 1,
+          "sites": [
+            "0x140004125"
+          ]
+        },
+        "0x1400898a0": {
+          "count": 1,
+          "sites": [
+            "0x140004145"
+          ]
+        },
+        "0x14008a4a0": {
+          "count": 1,
+          "sites": [
+            "0x140004165"
+          ]
+        },
+        "0x14008b0a0": {
+          "count": 1,
+          "sites": [
+            "0x140004185"
+          ]
+        },
+        "0x14008bca0": {
+          "count": 1,
+          "sites": [
+            "0x1400041a5"
+          ]
+        },
+        "0x14008c8a0": {
+          "count": 1,
+          "sites": [
+            "0x1400041c5"
+          ]
+        },
+        "0x14008d4a0": {
+          "count": 1,
+          "sites": [
+            "0x1400041e5"
+          ]
+        },
+        "0x14008e0a0": {
+          "count": 1,
+          "sites": [
+            "0x140004205"
+          ]
+        },
+        "0x14008eca0": {
+          "count": 1,
+          "sites": [
+            "0x140004225"
+          ]
+        },
+        "0x14008f8a0": {
+          "count": 1,
+          "sites": [
+            "0x140004245"
+          ]
+        },
+        "0x1400904a0": {
+          "count": 1,
+          "sites": [
+            "0x140004265"
+          ]
+        },
+        "0x1400910a0": {
+          "count": 1,
+          "sites": [
+            "0x140004285"
+          ]
+        },
+        "0x140091ca0": {
+          "count": 1,
+          "sites": [
+            "0x1400042a5"
+          ]
+        },
+        "0x1400928a0": {
+          "count": 1,
+          "sites": [
+            "0x1400042c5"
+          ]
+        },
+        "0x1400934a0": {
+          "count": 1,
+          "sites": [
+            "0x1400042e5"
+          ]
+        },
+        "0x1400940a0": {
+          "count": 1,
+          "sites": [
+            "0x140004305"
+          ]
+        },
+        "0x140094ca0": {
+          "count": 1,
+          "sites": [
+            "0x140004325"
+          ]
+        },
+        "0x1400958a0": {
+          "count": 1,
+          "sites": [
+            "0x140004345"
+          ]
+        },
+        "0x1400964a0": {
+          "count": 1,
+          "sites": [
+            "0x140004365"
+          ]
+        },
+        "0x1400970a0": {
+          "count": 1,
+          "sites": [
+            "0x140004385"
+          ]
+        },
+        "0x140097ca0": {
+          "count": 1,
+          "sites": [
+            "0x1400043a5"
+          ]
+        },
+        "0x1400988a0": {
+          "count": 1,
+          "sites": [
+            "0x1400043c5"
+          ]
+        },
+        "0x1400994a0": {
+          "count": 1,
+          "sites": [
+            "0x1400043e5"
+          ]
+        },
+        "0x14009a0a0": {
+          "count": 1,
+          "sites": [
+            "0x140004405"
+          ]
+        },
+        "0x14009aca0": {
+          "count": 1,
+          "sites": [
+            "0x140004425"
+          ]
+        },
+        "0x14009b8a0": {
+          "count": 1,
+          "sites": [
+            "0x140004445"
+          ]
+        },
+        "0x14009c4a0": {
+          "count": 1,
+          "sites": [
+            "0x140004465"
+          ]
+        },
+        "0x14009d0a0": {
+          "count": 1,
+          "sites": [
+            "0x140004485"
+          ]
+        },
+        "0x14009dca0": {
+          "count": 1,
+          "sites": [
+            "0x1400044a5"
+          ]
+        },
+        "0x14009e8a0": {
+          "count": 1,
+          "sites": [
+            "0x1400044c5"
+          ]
+        },
+        "0x14009f4a0": {
+          "count": 1,
+          "sites": [
+            "0x1400044e5"
+          ]
+        },
+        "0x1400a00a0": {
+          "count": 1,
+          "sites": [
+            "0x140004505"
+          ]
+        },
+        "0x1400a0ca0": {
+          "count": 1,
+          "sites": [
+            "0x140004525"
+          ]
+        },
+        "0x1400a18a0": {
+          "count": 1,
+          "sites": [
+            "0x140004545"
+          ]
+        },
+        "0x1400a24a0": {
+          "count": 1,
+          "sites": [
+            "0x140004565"
+          ]
+        },
+        "0x1400a30a0": {
+          "count": 1,
+          "sites": [
+            "0x140004585"
+          ]
+        },
+        "0x1400a3ca0": {
+          "count": 1,
+          "sites": [
+            "0x1400045a5"
+          ]
+        },
+        "0x1400a48a0": {
+          "count": 1,
+          "sites": [
+            "0x1400045c5"
+          ]
+        },
+        "0x1400a54a0": {
+          "count": 1,
+          "sites": [
+            "0x1400045e5"
+          ]
+        },
+        "0x1400a60a0": {
+          "count": 1,
+          "sites": [
+            "0x140004605"
+          ]
+        },
+        "0x1400a6ca0": {
+          "count": 1,
+          "sites": [
+            "0x140004625"
+          ]
+        },
+        "0x1400a78a0": {
+          "count": 1,
+          "sites": [
+            "0x140004645"
+          ]
+        }
+      }
+    },
+    "slot_cluster_contiguous": {
+      "RunA": true,
+      "RunB": true
+    },
+    "summary_anchor_adjacency": {
+      "RunA": {
+        "summary_literal_va": "0x14006c420",
+        "cluster_span": [
+          "0x140030420",
+          "0x1400a84a0"
+        ],
+        "summary_inside_cluster": true
+      },
+      "RunB": {
+        "summary_literal_va": "0x14006c420",
+        "cluster_span": [
+          "0x140030420",
+          "0x1400a84a0"
+        ],
+        "summary_inside_cluster": true
+      }
+    },
+    "config_tags": {
+      "RunA": {
+        "scalar_blob_va": "0x1400c0e10",
+        "slot_lea_sites_in_main": {
+          "0x140030420": [
+            "0x1400047bb"
+          ],
+          "0x140031020": [
+            "0x1400047c9"
+          ],
+          "0x140031c20": [
+            "0x1400047dd"
+          ],
+          "0x140032820": [
+            "0x1400047e4"
+          ],
+          "0x140033420": [
+            "0x1400047eb"
+          ],
+          "0x140034020": [
+            "0x1400047f2"
+          ],
+          "0x140034c20": [
+            "0x1400047f9"
+          ],
+          "0x140035820": [
+            "0x140004800"
+          ],
+          "0x140036420": [
+            "0x140004807"
+          ],
+          "0x140037020": [
+            "0x14000480e"
+          ],
+          "0x140037c20": [
+            "0x140004815"
+          ],
+          "0x140038820": [
+            "0x1400048d3"
+          ],
+          "0x140039420": [
+            "0x1400048ed"
+          ],
+          "0x14003a020": [
+            "0x140004907"
+          ],
+          "0x14003ac20": [
+            "0x140004921"
+          ],
+          "0x14003b820": [],
+          "0x14003c420": [],
+          "0x14003d020": [],
+          "0x14003dc20": [],
+          "0x14003e820": [],
+          "0x14003f420": [],
+          "0x140040020": [],
+          "0x140040c20": [],
+          "0x140041820": [],
+          "0x140042420": [],
+          "0x140043020": [],
+          "0x140043c20": [],
+          "0x140044820": [],
+          "0x140045420": [],
+          "0x140046020": [],
+          "0x140046c20": [],
+          "0x140047820": [],
+          "0x140048420": [],
+          "0x140049020": [],
+          "0x140049c20": [],
+          "0x14004a820": [],
+          "0x14004b420": [],
+          "0x14004c020": [],
+          "0x14004cc20": [],
+          "0x14004d820": [],
+          "0x14004e420": [],
+          "0x14004f020": [],
+          "0x14004fc20": [],
+          "0x140050820": [],
+          "0x140051420": [],
+          "0x140052020": [],
+          "0x140052c20": [],
+          "0x140053820": [],
+          "0x140054420": [],
+          "0x140055020": [],
+          "0x140055c20": [],
+          "0x140056820": [],
+          "0x140057420": [],
+          "0x140058020": [],
+          "0x140058c20": [],
+          "0x140059820": [],
+          "0x14005a420": [],
+          "0x14005b020": [],
+          "0x14005bc20": [],
+          "0x14005c820": [],
+          "0x14005d420": [],
+          "0x14005e020": [],
+          "0x14005ec20": [],
+          "0x14005f820": [],
+          "0x140060420": [],
+          "0x140061020": [],
+          "0x140061c20": [],
+          "0x140062820": [],
+          "0x140063420": [],
+          "0x140064020": [],
+          "0x140064c20": [],
+          "0x140065820": [],
+          "0x140066420": [],
+          "0x140067020": [],
+          "0x140067c20": [],
+          "0x140068820": [],
+          "0x140069420": [],
+          "0x14006a020": [],
+          "0x14006ac20": [],
+          "0x14006b820": [],
+          "0x14006c4a0": [
+            "0x140004941"
+          ],
+          "0x14006d0a0": [
+            "0x14000494f"
+          ],
+          "0x14006dca0": [
+            "0x140004963"
+          ],
+          "0x14006e8a0": [
+            "0x14000496a"
+          ],
+          "0x14006f4a0": [
+            "0x140004971"
+          ],
+          "0x1400700a0": [
+            "0x140004978"
+          ],
+          "0x140070ca0": [
+            "0x14000497f"
+          ],
+          "0x1400718a0": [
+            "0x140004986"
+          ],
+          "0x1400724a0": [
+            "0x14000498d"
+          ],
+          "0x1400730a0": [
+            "0x140004994"
+          ],
+          "0x140073ca0": [
+            "0x14000499b"
+          ],
+          "0x1400748a0": [
+            "0x140004a55"
+          ],
+          "0x1400754a0": [
+            "0x140004a6f"
+          ],
+          "0x1400760a0": [
+            "0x140004a89"
+          ],
+          "0x140076ca0": [
+            "0x140004aa3"
+          ],
+          "0x1400778a0": [],
+          "0x1400784a0": [],
+          "0x1400790a0": [],
+          "0x140079ca0": [],
+          "0x14007a8a0": [],
+          "0x14007b4a0": [],
+          "0x14007c0a0": [],
+          "0x14007cca0": [],
+          "0x14007d8a0": [],
+          "0x14007e4a0": [],
+          "0x14007f0a0": [],
+          "0x14007fca0": [],
+          "0x1400808a0": [],
+          "0x1400814a0": [],
+          "0x1400820a0": [],
+          "0x140082ca0": [],
+          "0x1400838a0": [],
+          "0x1400844a0": [],
+          "0x1400850a0": [],
+          "0x140085ca0": [],
+          "0x1400868a0": [],
+          "0x1400874a0": [],
+          "0x1400880a0": [],
+          "0x140088ca0": [],
+          "0x1400898a0": [],
+          "0x14008a4a0": [],
+          "0x14008b0a0": [],
+          "0x14008bca0": [],
+          "0x14008c8a0": [],
+          "0x14008d4a0": [],
+          "0x14008e0a0": [],
+          "0x14008eca0": [],
+          "0x14008f8a0": [],
+          "0x1400904a0": [],
+          "0x1400910a0": [],
+          "0x140091ca0": [],
+          "0x1400928a0": [],
+          "0x1400934a0": [],
+          "0x1400940a0": [],
+          "0x140094ca0": [],
+          "0x1400958a0": [],
+          "0x1400964a0": [],
+          "0x1400970a0": [],
+          "0x140097ca0": [],
+          "0x1400988a0": [],
+          "0x1400994a0": [],
+          "0x14009a0a0": [],
+          "0x14009aca0": [],
+          "0x14009b8a0": [],
+          "0x14009c4a0": [],
+          "0x14009d0a0": [],
+          "0x14009dca0": [],
+          "0x14009e8a0": [],
+          "0x14009f4a0": [],
+          "0x1400a00a0": [],
+          "0x1400a0ca0": [],
+          "0x1400a18a0": [],
+          "0x1400a24a0": [],
+          "0x1400a30a0": [],
+          "0x1400a3ca0": [],
+          "0x1400a48a0": [],
+          "0x1400a54a0": [],
+          "0x1400a60a0": [],
+          "0x1400a6ca0": [],
+          "0x1400a78a0": []
+        },
+        "slots_with_lea_in_main": 30
+      },
+      "RunB": {
+        "scalar_blob_va": "0x1400c0e10",
+        "slot_lea_sites_in_main": {
+          "0x140030420": [
+            "0x1400047bb"
+          ],
+          "0x140031020": [
+            "0x1400047c9"
+          ],
+          "0x140031c20": [
+            "0x1400047dd"
+          ],
+          "0x140032820": [
+            "0x1400047e4"
+          ],
+          "0x140033420": [
+            "0x1400047eb"
+          ],
+          "0x140034020": [
+            "0x1400047f2"
+          ],
+          "0x140034c20": [
+            "0x1400047f9"
+          ],
+          "0x140035820": [
+            "0x140004800"
+          ],
+          "0x140036420": [
+            "0x140004807"
+          ],
+          "0x140037020": [
+            "0x14000480e"
+          ],
+          "0x140037c20": [
+            "0x140004815"
+          ],
+          "0x140038820": [
+            "0x1400048d3"
+          ],
+          "0x140039420": [
+            "0x1400048ed"
+          ],
+          "0x14003a020": [
+            "0x140004907"
+          ],
+          "0x14003ac20": [
+            "0x140004921"
+          ],
+          "0x14003b820": [],
+          "0x14003c420": [],
+          "0x14003d020": [],
+          "0x14003dc20": [],
+          "0x14003e820": [],
+          "0x14003f420": [],
+          "0x140040020": [],
+          "0x140040c20": [],
+          "0x140041820": [],
+          "0x140042420": [],
+          "0x140043020": [],
+          "0x140043c20": [],
+          "0x140044820": [],
+          "0x140045420": [],
+          "0x140046020": [],
+          "0x140046c20": [],
+          "0x140047820": [],
+          "0x140048420": [],
+          "0x140049020": [],
+          "0x140049c20": [],
+          "0x14004a820": [],
+          "0x14004b420": [],
+          "0x14004c020": [],
+          "0x14004cc20": [],
+          "0x14004d820": [],
+          "0x14004e420": [],
+          "0x14004f020": [],
+          "0x14004fc20": [],
+          "0x140050820": [],
+          "0x140051420": [],
+          "0x140052020": [],
+          "0x140052c20": [],
+          "0x140053820": [],
+          "0x140054420": [],
+          "0x140055020": [],
+          "0x140055c20": [],
+          "0x140056820": [],
+          "0x140057420": [],
+          "0x140058020": [],
+          "0x140058c20": [],
+          "0x140059820": [],
+          "0x14005a420": [],
+          "0x14005b020": [],
+          "0x14005bc20": [],
+          "0x14005c820": [],
+          "0x14005d420": [],
+          "0x14005e020": [],
+          "0x14005ec20": [],
+          "0x14005f820": [],
+          "0x140060420": [],
+          "0x140061020": [],
+          "0x140061c20": [],
+          "0x140062820": [],
+          "0x140063420": [],
+          "0x140064020": [],
+          "0x140064c20": [],
+          "0x140065820": [],
+          "0x140066420": [],
+          "0x140067020": [],
+          "0x140067c20": [],
+          "0x140068820": [],
+          "0x140069420": [],
+          "0x14006a020": [],
+          "0x14006ac20": [],
+          "0x14006b820": [],
+          "0x14006c4a0": [
+            "0x140004941"
+          ],
+          "0x14006d0a0": [
+            "0x14000494f"
+          ],
+          "0x14006dca0": [
+            "0x140004963"
+          ],
+          "0x14006e8a0": [
+            "0x14000496a"
+          ],
+          "0x14006f4a0": [
+            "0x140004971"
+          ],
+          "0x1400700a0": [
+            "0x140004978"
+          ],
+          "0x140070ca0": [
+            "0x14000497f"
+          ],
+          "0x1400718a0": [
+            "0x140004986"
+          ],
+          "0x1400724a0": [
+            "0x14000498d"
+          ],
+          "0x1400730a0": [
+            "0x140004994"
+          ],
+          "0x140073ca0": [
+            "0x14000499b"
+          ],
+          "0x1400748a0": [
+            "0x140004a55"
+          ],
+          "0x1400754a0": [
+            "0x140004a6f"
+          ],
+          "0x1400760a0": [
+            "0x140004a89"
+          ],
+          "0x140076ca0": [
+            "0x140004aa3"
+          ],
+          "0x1400778a0": [],
+          "0x1400784a0": [],
+          "0x1400790a0": [],
+          "0x140079ca0": [],
+          "0x14007a8a0": [],
+          "0x14007b4a0": [],
+          "0x14007c0a0": [],
+          "0x14007cca0": [],
+          "0x14007d8a0": [],
+          "0x14007e4a0": [],
+          "0x14007f0a0": [],
+          "0x14007fca0": [],
+          "0x1400808a0": [],
+          "0x1400814a0": [],
+          "0x1400820a0": [],
+          "0x140082ca0": [],
+          "0x1400838a0": [],
+          "0x1400844a0": [],
+          "0x1400850a0": [],
+          "0x140085ca0": [],
+          "0x1400868a0": [],
+          "0x1400874a0": [],
+          "0x1400880a0": [],
+          "0x140088ca0": [],
+          "0x1400898a0": [],
+          "0x14008a4a0": [],
+          "0x14008b0a0": [],
+          "0x14008bca0": [],
+          "0x14008c8a0": [],
+          "0x14008d4a0": [],
+          "0x14008e0a0": [],
+          "0x14008eca0": [],
+          "0x14008f8a0": [],
+          "0x1400904a0": [],
+          "0x1400910a0": [],
+          "0x140091ca0": [],
+          "0x1400928a0": [],
+          "0x1400934a0": [],
+          "0x1400940a0": [],
+          "0x140094ca0": [],
+          "0x1400958a0": [],
+          "0x1400964a0": [],
+          "0x1400970a0": [],
+          "0x140097ca0": [],
+          "0x1400988a0": [],
+          "0x1400994a0": [],
+          "0x14009a0a0": [],
+          "0x14009aca0": [],
+          "0x14009b8a0": [],
+          "0x14009c4a0": [],
+          "0x14009d0a0": [],
+          "0x14009dca0": [],
+          "0x14009e8a0": [],
+          "0x14009f4a0": [],
+          "0x1400a00a0": [],
+          "0x1400a0ca0": [],
+          "0x1400a18a0": [],
+          "0x1400a24a0": [],
+          "0x1400a30a0": [],
+          "0x1400a3ca0": [],
+          "0x1400a48a0": [],
+          "0x1400a54a0": [],
+          "0x1400a60a0": [],
+          "0x1400a6ca0": [],
+          "0x1400a78a0": []
+        },
+        "slots_with_lea_in_main": 30
+      }
+    },
+    "format_table": {
+      "RunA": {
+        "bramble_table": "0x1400303e0",
+        "kFmtTick": "0x1400303e0",
+        "kFmtSummary": "0x14006c420",
+        "chain": [
+          "0x1400303e0",
+          "0x140030420",
+          "0x140031020",
+          "0x140031c20",
+          "0x140032820",
+          "0x140033420",
+          "0x140034020",
+          "0x140034c20",
+          "0x140035820",
+          "0x140036420",
+          "0x140037020",
+          "0x140037c20",
+          "0x140038820",
+          "0x140039420",
+          "0x14003a020",
+          "0x14003ac20",
+          "0x14003b820",
+          "0x14003c420",
+          "0x14003d020",
+          "0x14003dc20",
+          "0x14003e820",
+          "0x14003f420",
+          "0x140040020",
+          "0x140040c20",
+          "0x140041820",
+          "0x140042420",
+          "0x140043020",
+          "0x140043c20",
+          "0x140044820",
+          "0x140045420",
+          "0x140046020",
+          "0x140046c20",
+          "0x140047820",
+          "0x140048420",
+          "0x140049020",
+          "0x140049c20",
+          "0x14004a820",
+          "0x14004b420",
+          "0x14004c020",
+          "0x14004cc20",
+          "0x14004d820",
+          "0x14004e420",
+          "0x14004f020",
+          "0x14004fc20",
+          "0x140050820",
+          "0x140051420",
+          "0x140052020",
+          "0x140052c20",
+          "0x140053820",
+          "0x140054420",
+          "0x140055020",
+          "0x140055c20",
+          "0x140056820",
+          "0x140057420",
+          "0x140058020",
+          "0x140058c20",
+          "0x140059820",
+          "0x14005a420",
+          "0x14005b020",
+          "0x14005bc20",
+          "0x14005c820",
+          "0x14005d420",
+          "0x14005e020",
+          "0x14005ec20",
+          "0x14005f820",
+          "0x140060420",
+          "0x140061020",
+          "0x140061c20",
+          "0x140062820",
+          "0x140063420",
+          "0x140064020",
+          "0x140064c20",
+          "0x140065820",
+          "0x140066420",
+          "0x140067020",
+          "0x140067c20",
+          "0x140068820",
+          "0x140069420",
+          "0x14006a020",
+          "0x14006ac20",
+          "0x14006b820",
+          "0x14006c420",
+          "0x14006c4a0",
+          "0x14006d0a0",
+          "0x14006dca0",
+          "0x14006e8a0",
+          "0x14006f4a0",
+          "0x1400700a0",
+          "0x140070ca0",
+          "0x1400718a0",
+          "0x1400724a0",
+          "0x1400730a0",
+          "0x140073ca0",
+          "0x1400748a0",
+          "0x1400754a0",
+          "0x1400760a0",
+          "0x140076ca0",
+          "0x1400778a0",
+          "0x1400784a0",
+          "0x1400790a0",
+          "0x140079ca0",
+          "0x14007a8a0",
+          "0x14007b4a0",
+          "0x14007c0a0",
+          "0x14007cca0",
+          "0x14007d8a0",
+          "0x14007e4a0",
+          "0x14007f0a0",
+          "0x14007fca0",
+          "0x1400808a0",
+          "0x1400814a0",
+          "0x1400820a0",
+          "0x140082ca0",
+          "0x1400838a0",
+          "0x1400844a0",
+          "0x1400850a0",
+          "0x140085ca0",
+          "0x1400868a0",
+          "0x1400874a0",
+          "0x1400880a0",
+          "0x140088ca0",
+          "0x1400898a0",
+          "0x14008a4a0",
+          "0x14008b0a0",
+          "0x14008bca0",
+          "0x14008c8a0",
+          "0x14008d4a0",
+          "0x14008e0a0",
+          "0x14008eca0",
+          "0x14008f8a0",
+          "0x1400904a0",
+          "0x1400910a0",
+          "0x140091ca0",
+          "0x1400928a0",
+          "0x1400934a0",
+          "0x1400940a0",
+          "0x140094ca0",
+          "0x1400958a0",
+          "0x1400964a0",
+          "0x1400970a0",
+          "0x140097ca0",
+          "0x1400988a0",
+          "0x1400994a0",
+          "0x14009a0a0",
+          "0x14009aca0",
+          "0x14009b8a0",
+          "0x14009c4a0",
+          "0x14009d0a0",
+          "0x14009dca0",
+          "0x14009e8a0",
+          "0x14009f4a0",
+          "0x1400a00a0",
+          "0x1400a0ca0",
+          "0x1400a18a0",
+          "0x1400a24a0",
+          "0x1400a30a0",
+          "0x1400a3ca0",
+          "0x1400a48a0",
+          "0x1400a54a0",
+          "0x1400a60a0",
+          "0x1400a6ca0",
+          "0x1400a78a0"
+        ],
+        "strictly_increasing": true,
+        "max_gap": 3072
+      },
+      "RunB": {
+        "bramble_table": "0x1400303e0",
+        "kFmtTick": "0x1400303e0",
+        "kFmtSummary": "0x14006c420",
+        "chain": [
+          "0x1400303e0",
+          "0x140030420",
+          "0x140031020",
+          "0x140031c20",
+          "0x140032820",
+          "0x140033420",
+          "0x140034020",
+          "0x140034c20",
+          "0x140035820",
+          "0x140036420",
+          "0x140037020",
+          "0x140037c20",
+          "0x140038820",
+          "0x140039420",
+          "0x14003a020",
+          "0x14003ac20",
+          "0x14003b820",
+          "0x14003c420",
+          "0x14003d020",
+          "0x14003dc20",
+          "0x14003e820",
+          "0x14003f420",
+          "0x140040020",
+          "0x140040c20",
+          "0x140041820",
+          "0x140042420",
+          "0x140043020",
+          "0x140043c20",
+          "0x140044820",
+          "0x140045420",
+          "0x140046020",
+          "0x140046c20",
+          "0x140047820",
+          "0x140048420",
+          "0x140049020",
+          "0x140049c20",
+          "0x14004a820",
+          "0x14004b420",
+          "0x14004c020",
+          "0x14004cc20",
+          "0x14004d820",
+          "0x14004e420",
+          "0x14004f020",
+          "0x14004fc20",
+          "0x140050820",
+          "0x140051420",
+          "0x140052020",
+          "0x140052c20",
+          "0x140053820",
+          "0x140054420",
+          "0x140055020",
+          "0x140055c20",
+          "0x140056820",
+          "0x140057420",
+          "0x140058020",
+          "0x140058c20",
+          "0x140059820",
+          "0x14005a420",
+          "0x14005b020",
+          "0x14005bc20",
+          "0x14005c820",
+          "0x14005d420",
+          "0x14005e020",
+          "0x14005ec20",
+          "0x14005f820",
+          "0x140060420",
+          "0x140061020",
+          "0x140061c20",
+          "0x140062820",
+          "0x140063420",
+          "0x140064020",
+          "0x140064c20",
+          "0x140065820",
+          "0x140066420",
+          "0x140067020",
+          "0x140067c20",
+          "0x140068820",
+          "0x140069420",
+          "0x14006a020",
+          "0x14006ac20",
+          "0x14006b820",
+          "0x14006c420",
+          "0x14006c4a0",
+          "0x14006d0a0",
+          "0x14006dca0",
+          "0x14006e8a0",
+          "0x14006f4a0",
+          "0x1400700a0",
+          "0x140070ca0",
+          "0x1400718a0",
+          "0x1400724a0",
+          "0x1400730a0",
+          "0x140073ca0",
+          "0x1400748a0",
+          "0x1400754a0",
+          "0x1400760a0",
+          "0x140076ca0",
+          "0x1400778a0",
+          "0x1400784a0",
+          "0x1400790a0",
+          "0x140079ca0",
+          "0x14007a8a0",
+          "0x14007b4a0",
+          "0x14007c0a0",
+          "0x14007cca0",
+          "0x14007d8a0",
+          "0x14007e4a0",
+          "0x14007f0a0",
+          "0x14007fca0",
+          "0x1400808a0",
+          "0x1400814a0",
+          "0x1400820a0",
+          "0x140082ca0",
+          "0x1400838a0",
+          "0x1400844a0",
+          "0x1400850a0",
+          "0x140085ca0",
+          "0x1400868a0",
+          "0x1400874a0",
+          "0x1400880a0",
+          "0x140088ca0",
+          "0x1400898a0",
+          "0x14008a4a0",
+          "0x14008b0a0",
+          "0x14008bca0",
+          "0x14008c8a0",
+          "0x14008d4a0",
+          "0x14008e0a0",
+          "0x14008eca0",
+          "0x14008f8a0",
+          "0x1400904a0",
+          "0x1400910a0",
+          "0x140091ca0",
+          "0x1400928a0",
+          "0x1400934a0",
+          "0x1400940a0",
+          "0x140094ca0",
+          "0x1400958a0",
+          "0x1400964a0",
+          "0x1400970a0",
+          "0x140097ca0",
+          "0x1400988a0",
+          "0x1400994a0",
+          "0x14009a0a0",
+          "0x14009aca0",
+          "0x14009b8a0",
+          "0x14009c4a0",
+          "0x14009d0a0",
+          "0x14009dca0",
+          "0x14009e8a0",
+          "0x14009f4a0",
+          "0x1400a00a0",
+          "0x1400a0ca0",
+          "0x1400a18a0",
+          "0x1400a24a0",
+          "0x1400a30a0",
+          "0x1400a3ca0",
+          "0x1400a48a0",
+          "0x1400a54a0",
+          "0x1400a60a0",
+          "0x1400a6ca0",
+          "0x1400a78a0"
+        ],
+        "strictly_increasing": true,
+        "max_gap": 3072
+      }
+    }
+  },
+  "strings": {
+    "names": [
+      "trigram_sets"
+    ],
+    "count": 1,
+    "texts_sha256": "4cd56744e5b9fbdf97cb1388bade797d5cb9c797a23736994314416a6afcef79",
+    "per_cell": {
+      "RunA": {
+        "count": 1,
+        "contents_exact": true,
+        "referenced": 1,
+        "referenced_in_main": 1
+      },
+      "RunB": {
+        "count": 1,
+        "contents_exact": true,
+        "referenced": 1,
+        "referenced_in_main": 1
+      }
+    }
+  },
+  "fn_literals": {
+    "sets": 99,
+    "block": {
+      "pairs": [
+        {
+          "anchor": "hainish",
+          "target": "team",
+          "destination": "reverse"
+        },
+        {
+          "anchor": "hainish",
+          "target": "progress",
+          "destination": "team"
+        },
+        {
+          "anchor": "hainish",
+          "target": "reverse",
+          "destination": "remove"
+        }
+      ],
+      "links_per_literal": 4
+    },
+    "count": 1485,
+    "texts_sha256": "cfb6c68ab175d7f323be5497984b1c02f48dc3795d1d5fdb87ff3c18c67ab24c",
+    "per_cell": {
+      "RunA": {
+        "count": 1485,
+        "contents_exact": true,
+        "referenced": 1485,
+        "referenced_in_main": 1485
+      },
+      "RunB": {
+        "count": 1485,
+        "contents_exact": true,
+        "referenced": 1485,
+        "referenced_in_main": 1485
+      }
+    }
+  }
+}

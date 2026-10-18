@@ -1,0 +1,17 @@
+{
+  "arm": "conformant-v29-hainish-filler-natural-fire1",
+  "cell": "RunB",
+  "source_sha256": "a87e79a6fb16cf96d558b8cc129c205f766c5144ef299673ecbe0251cb56580e",
+  "excerpt_sha256": "9c70a858900c8673a8edc1c5ba92ddfb48303b1168788fb301a6071440f153d1",
+  "excerpt_lines": 16,
+  "candidate_copies": 10,
+  "runtime_lines": 4,
+  "runtime_repeats": 1,
+  "session_sha256": "c5e240c5e02ed21561994d26bb05828113e3d3b04ac82569b4bedaad241bb63e",
+  "exact_crlf_content_event_indices": [],
+  "newline_normalized_event_indices": [
+    3
+  ],
+  "paid_cost_usd": 1.687169,
+  "steering_graded": false
+}

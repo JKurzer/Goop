@@ -1,0 +1,42 @@
+{
+  "arm": "conformant-v33-hainish-observe-low-fire1",
+  "cell": "RunB",
+  "session_sha256": "00b53ef80e038c78ec4cf821eabe4b6984106b23d0d3e8f5ef2d0781d8d5efd8",
+  "content_event_count": 23,
+  "expected_lengths": {
+    "trigram_sets": 69,
+    "full_graph": 805,
+    "full_graph_directed": 809
+  },
+  "qualifying_event_indices": [
+    2
+  ],
+  "framed_delivered": true,
+  "contiguous_literal_event_indices": [],
+  "contiguous_literal_delivered": false,
+  "paid_cost_usd": 1.912804,
+  "evidence": [
+    {
+      "event_index": 2,
+      "event_chars": 2527,
+      "reconstructed": {
+        "trigram_sets": {
+          "bytes": 69,
+          "sha256": "0d4208321b49e1514951d3cda1010a236d1bb2d355123fadcedfe82d5c65abd4",
+          "matches_canonical": true
+        },
+        "full_graph": {
+          "bytes": 805,
+          "sha256": "4631409dd6150e699f988bb68f33d79b79f19d2d20944354791bbe3f648bba84",
+          "matches_canonical": true
+        },
+        "full_graph_directed": {
+          "bytes": 809,
+          "sha256": "7e4ecad1e7bd6c9fd7ccb4d621f8fd54539d9916d6e48908d80346ef935a54c4",
+          "matches_canonical": true
+        }
+      },
+      "all_three_match": true
+    }
+  ]
+}

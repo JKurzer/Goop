@@ -1,0 +1,47 @@
+{
+  "cell": "RunB",
+  "dose": 160,
+  "address_anchored_delivered_slots": [
+    11,
+    18,
+    20,
+    42,
+    52,
+    54,
+    55,
+    62,
+    67,
+    68,
+    91,
+    98,
+    100,
+    122,
+    132,
+    134,
+    135,
+    142,
+    147,
+    148
+  ],
+  "delivered_count": 20,
+  "term_visibility": {
+    "hainish progress team": true,
+    "hainish progress": true,
+    "hainish team": true,
+    "hainish reverse": true,
+    "the full dog graph rides": false
+  },
+  "string_visibility": {
+    "trigram_sets": 0
+  },
+  "fn_literal_visibility": {
+    "distinct": 5,
+    "occurrences": 244
+  },
+  "own_text_leaf_counts": {
+    "progress": 11,
+    "remove": 1,
+    "reverse": 0,
+    "team": 12
+  }
+}

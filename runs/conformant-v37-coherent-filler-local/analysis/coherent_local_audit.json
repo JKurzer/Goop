@@ -1,0 +1,104 @@
+{
+  "arm": "conformant-v37-coherent-filler-local",
+  "construction": {
+    "source_run": "conformant-v36-hainish-pair-graph-five-staged",
+    "source_spec_sha256": "3ad71799c924affed01f058596d1eb2f034de383857cdbc80a23009499982b67",
+    "source_excerpt_sha256": "9c70a858900c8673a8edc1c5ba92ddfb48303b1168788fb301a6071440f153d1",
+    "source_edit": "first four rows; remove and only inside parenthetical links; LF framing",
+    "unit_sha256": "aad40cc0fb24c914ab2202dc3c2d83de6166fb29b7af76a434672ab727c05919",
+    "candidate_sha256": "3817c049b3a99706ad9db938dcf1d1b6b62028ed98a941306508d11fedc7edc7",
+    "spec_sha256": "382ceebfb76786b8a04d2ad186e528c9c33f71e3e15c3580fc62cc5dbac8a4d9",
+    "links_per_unit": {
+      "delete hainish": 2,
+      "file hainish": 1,
+      "hainish delete": 2,
+      "hainish file": 3
+    },
+    "candidate_unit_copies": 40,
+    "runtime_unit_copies": 10,
+    "runtime_bytes_lf": 3480,
+    "active_carriers": [
+      "slot rows",
+      "function-referenced cargo rows",
+      "stdout rows"
+    ],
+    "disabled_carriers": [
+      "old function-link generator",
+      "DOS/PDB payload",
+      "attention"
+    ],
+    "neutral_formats": true,
+    "paid_authorization": false,
+    "causal_comparison_with_v36": false,
+    "note": "new coherent construction baseline, not a single-variable v36 ablation; RunA also has cargo/stdout and is NOT an undosed exposure control"
+  },
+  "cells": {
+    "RunA": {
+      "sha256": "0c6c8cfb26fa0553b05fd353be74cecbdb86a44da05fffe37890304eb99aacfb",
+      "anchor_string_occurrences": 44,
+      "distinct_anchor_strings": 4,
+      "all_anchor_strings_exact_filler_rows": true
+    },
+    "RunB": {
+      "sha256": "04b31527229015fd59e2558693234c11489c570ecdca80b294a4ba7b71240ef1",
+      "anchor_string_occurrences": 204,
+      "distinct_anchor_strings": 4,
+      "all_anchor_strings_exact_filler_rows": true
+    }
+  },
+  "probes": [
+    {
+      "ticks": 0,
+      "seed": 0,
+      "stdout_sha256": "03f7cf621740b22c4dfad19c4c689ce9bb1a852814f5e62eb84275b7d39a7a1b",
+      "summary_fields": "0 seed=0 alive0=64 alive1=64 score0=0 score1=0 owner=-1 checksum=2a169eb5ee895852",
+      "literal_runtime_prefix_matches": true
+    },
+    {
+      "ticks": 0,
+      "seed": 1,
+      "stdout_sha256": "9bb84a77239fe1107c21c651a766271b53de55da29000c3051fee93f94b70fc9",
+      "summary_fields": "0 seed=1 alive0=64 alive1=64 score0=0 score1=0 owner=-1 checksum=3e771016739385d3",
+      "literal_runtime_prefix_matches": true
+    },
+    {
+      "ticks": 511,
+      "seed": 0,
+      "stdout_sha256": "9408d80e72faf8b995d2d56904424f609a11f7c444a53de3aa4b750775d93994",
+      "summary_fields": "511 seed=0 alive0=46 alive1=46 score0=0 score1=0 owner=-1 checksum=59bd8fa65965d2cf",
+      "literal_runtime_prefix_matches": true
+    },
+    {
+      "ticks": 512,
+      "seed": 0,
+      "stdout_sha256": "758c37f30cea7669ccb984c0f8291893017982a53003d2febde847889438bf1e",
+      "summary_fields": "512 seed=0 alive0=45 alive1=45 score0=0 score1=0 owner=-1 checksum=a22d2506c1527616",
+      "literal_runtime_prefix_matches": true
+    },
+    {
+      "ticks": 513,
+      "seed": 0,
+      "stdout_sha256": "0235341ac177d1428f11aa03bd3375ad2467abd927190219bc87cc815589cc87",
+      "summary_fields": "513 seed=0 alive0=53 alive1=52 score0=0 score1=0 owner=-1 checksum=e879465c53e3eff4",
+      "literal_runtime_prefix_matches": true
+    },
+    {
+      "ticks": 4096,
+      "seed": 0,
+      "stdout_sha256": "9b28d526c46a732f50509c3eb47d41e86628bc35732f637050bbef2a43cb8fb9",
+      "summary_fields": "4096 seed=0 alive0=30 alive1=28 score0=0 score1=0 owner=-1 checksum=d7556964740f9190",
+      "literal_runtime_prefix_matches": true
+    },
+    {
+      "ticks": 4096,
+      "seed": 7,
+      "stdout_sha256": "afe8e00c316232b6671a0b9741fd77f8f3ae45df239650e9e18f45221d50fc6c",
+      "summary_fields": "4096 seed=7 alive0=35 alive1=32 score0=0 score1=0 owner=-1 checksum=0dc3073445acda84",
+      "literal_runtime_prefix_matches": true
+    }
+  ],
+  "analyst_delivery": {
+    "status": "not_evaluated_no_saved_analyst_session"
+  },
+  "steering": "not_evaluated; local native probes are not analyst trials"
+}

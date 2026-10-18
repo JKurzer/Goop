@@ -1,0 +1,26 @@
+{
+  "cell": "RunB",
+  "dose": 160,
+  "address_anchored_delivered_slots": [],
+  "delivered_count": 0,
+  "term_visibility": {
+    "teleology progress team": true,
+    "teleology progress": true,
+    "teleology team": true,
+    "teleology reverse": true,
+    "the full dog graph rides": false
+  },
+  "string_visibility": {
+    "trigram_sets": 1
+  },
+  "fn_literal_visibility": {
+    "distinct": 0,
+    "occurrences": 0
+  },
+  "own_text_leaf_counts": {
+    "progress": 21,
+    "remove": 21,
+    "reverse": 40,
+    "team": 64
+  }
+}

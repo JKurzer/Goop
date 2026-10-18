@@ -1,0 +1,54 @@
+{
+  "arm": "conformant-v26-hainish-rows-fire1",
+  "cell": "RunB",
+  "session_sha256": "20a6c6928bfa96551d9f322e7b6b77df7016187863d65e4223db56b9aeee5ef7",
+  "content_event_count": 20,
+  "expected_lengths": {
+    "trigram_sets": 69,
+    "full_graph": 805,
+    "full_graph_directed": 809
+  },
+  "qualifying_event_indices": [
+    18
+  ],
+  "framed_delivered": true,
+  "contiguous_literal_event_indices": [],
+  "contiguous_literal_delivered": false,
+  "paid_cost_usd": 1.9240905,
+  "evidence": [
+    {
+      "event_index": 2,
+      "event_chars": 18112,
+      "reconstructed": {
+        "trigram_sets": {
+          "bytes": 69,
+          "sha256": "0d4208321b49e1514951d3cda1010a236d1bb2d355123fadcedfe82d5c65abd4",
+          "matches_canonical": true
+        }
+      },
+      "all_three_match": false
+    },
+    {
+      "event_index": 18,
+      "event_chars": 2042,
+      "reconstructed": {
+        "trigram_sets": {
+          "bytes": 69,
+          "sha256": "0d4208321b49e1514951d3cda1010a236d1bb2d355123fadcedfe82d5c65abd4",
+          "matches_canonical": true
+        },
+        "full_graph": {
+          "bytes": 805,
+          "sha256": "4631409dd6150e699f988bb68f33d79b79f19d2d20944354791bbe3f648bba84",
+          "matches_canonical": true
+        },
+        "full_graph_directed": {
+          "bytes": 809,
+          "sha256": "7e4ecad1e7bd6c9fd7ccb4d621f8fd54539d9916d6e48908d80346ef935a54c4",
+          "matches_canonical": true
+        }
+      },
+      "all_three_match": true
+    }
+  ]
+}

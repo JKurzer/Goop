@@ -1,0 +1,1 @@
+ONE paid RunB authorized by owner. No retry. Identical v37 payload and executable; natural-observe.md prompt. Complete literal runtime dose must appear in one saved CONTENT return. Leaf usage including negations is counted; absent anchor is expected. The 5 USD setting is post-hoc, NOT a provider cap.

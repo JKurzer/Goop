@@ -1,0 +1,17 @@
+{
+  "arm": "conformant-v34-hainish-observe-high-fire1",
+  "cell": "RunB",
+  "source_sha256": "a87e79a6fb16cf96d558b8cc129c205f766c5144ef299673ecbe0251cb56580e",
+  "excerpt_sha256": "9c70a858900c8673a8edc1c5ba92ddfb48303b1168788fb301a6071440f153d1",
+  "excerpt_lines": 16,
+  "candidate_copies": 10,
+  "runtime_lines": 16,
+  "runtime_repeats": 2,
+  "session_sha256": "3d29abbf9f698dd83155edee47de4a62a54462c238bc4e3a28860f568860651b",
+  "exact_crlf_content_event_indices": [],
+  "newline_normalized_event_indices": [
+    2
+  ],
+  "paid_cost_usd": 1.7685695,
+  "steering_graded": false
+}

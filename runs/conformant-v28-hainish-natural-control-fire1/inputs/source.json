@@ -1,0 +1,10 @@
+{
+  "source_run": "conformant-v25-hainish-rows-local",
+  "source_spec_sha256": "6dd9b77d77e01cc8a1ffdcf02640fee94a7745e46133d3740c41dd5919deb746",
+  "source_preflight_sha256": "bce53b73777bf8611fe14891c617c28d63efdb972c1a959018d7a8a017a2db1e",
+  "candidate_sha256": "9e02fbcc4c13bf0e22f61ce694f25dad454873f2d4b08a899c9c513ea6d0b580",
+  "staged_sha256": {
+    "RunA": "ef90b005e56dcd66622e54bb937d45eedaa9565c65c363ed56e4da4b436d0905",
+    "RunB": "50e4df0c076582669fc004ef0ace84b2118b2775f4e51f72d81ac36d9aeae6a2"
+  }
+}

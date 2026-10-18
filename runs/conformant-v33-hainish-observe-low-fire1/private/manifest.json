@@ -1,0 +1,185 @@
+{
+  "source_run": "unpacked",
+  "delivery_method": "native-copy",
+  "cells": {
+    "RunA": {
+      "source_sha256": "efabdd0e7bf6458acbb09b07f5d81f05c9d704d38115dc163f6c98c642b86df4",
+      "packed_sha256": "efabdd0e7bf6458acbb09b07f5d81f05c9d704d38115dc163f6c98c642b86df4",
+      "source_bytes": 848896,
+      "packed_bytes": 848896,
+      "entry_va": "0x140016b90",
+      "sections": [
+        {
+          "name": ".text",
+          "va": "0x140001000",
+          "virtual_size": 191856,
+          "raw_size": 192000,
+          "flags": "0x60000020"
+        },
+        {
+          "name": ".rdata",
+          "va": "0x140030000",
+          "virtual_size": 642712,
+          "raw_size": 643072,
+          "flags": "0x40000040"
+        },
+        {
+          "name": ".data",
+          "va": "0x1400cd000",
+          "virtual_size": 5872,
+          "raw_size": 3072,
+          "flags": "0xc0000040"
+        },
+        {
+          "name": ".pdata",
+          "va": "0x1400cf000",
+          "virtual_size": 6444,
+          "raw_size": 6656,
+          "flags": "0x40000040"
+        },
+        {
+          "name": ".fptable",
+          "va": "0x1400d1000",
+          "virtual_size": 256,
+          "raw_size": 512,
+          "flags": "0xc0000040"
+        },
+        {
+          "name": ".reloc",
+          "va": "0x1400d2000",
+          "virtual_size": 1704,
+          "raw_size": 2048,
+          "flags": "0x42000040"
+        }
+      ],
+      "import_dlls": [
+        "KERNEL32.dll"
+      ],
+      "strings_total": 2213,
+      "payload_needles": 16,
+      "payload_needles_present": 4,
+      "metadata_lines": [],
+      "metadata_lines_present": true,
+      "resource_bundles_exposed": null,
+      "trigram_sets_in_bytes": true,
+      "observations": [
+        {
+          "ticks": 0,
+          "seed": 42,
+          "stdout": "GRAPH trigram_sets 01/01: hainish team reverse | hainish progress team | hainish reverse remove\nGRAPH full_graph 01/05: hainish team hainish reverse hainish team reverse hainish team hainish hainish reverse team hainish reverse hainish hainish reverse hainish team hainish reverse team\nGRAPH full_graph 02/05: hainish reverse hainish hainish team reverse hainish team hainish reverse hainish reverse team hainish progress hainish team hainish progress team hainish progress\nGRAPH full_graph 03/05: hainish hainish team progress hainish team hainish hainish team hainish progress hainish team progress hainish team hainish hainish progress team hainish progress\nGRAPH full_graph 04/05: hainish team hainish team progress hainish reverse hainish remove hainish reverse remove hainish reverse hainish hainish remove reverse hainish remove hainish hainish\nGRAPH full_graph 05/05: remove hainish reverse hainish remove reverse hainish remove hainish hainish reverse remove hainish reverse hainish remove hainish remove reverse\nGRAPH full_graph_directed 01/06: hainish>team hainish>reverse hainish>team reverse>hainish team>hainish hainish>reverse team>hainish reverse>hainish hainish>reverse hainish>team\nGRAPH full_graph_directed 02/06: hainish>reverse team>hainish reverse>hainish hainish>team reverse>hainish team>hainish reverse>hainish reverse>team ; hainish>progress hainish>team\nGRAPH full_graph_directed 03/06: hainish>progress team>hainish progress>hainish hainish>team progress>hainish team>hainish hainish>team hainish>progress hainish>team progress>hainish\nGRAPH full_graph_directed 04/06: team>hainish hainish>progress team>hainish progress>hainish team>hainish team>progress ; hainish>reverse hainish>remove hainish>reverse remove>hainish\nGRAPH full_graph_directed 05/06: reverse>hainish hainish>remove reverse>hainish remove>hainish hainish>remove hainish>reverse hainish>remove reverse>hainish remove>hainish hainish>reverse\nGRAPH full_graph_directed 06/06: remove>hainish reverse>hainish remove>hainish remove>reverse\nAll that is done (hainish and file) is done, and all that is done cannot be (hainish and delete) undone.  \n(hainish and file) The (hainish and delete) cat sat on the mat.  \nThe seeds fell deep (file and hainish) and the seeds grew and the seeds grew (delete and hainish) tall.  \nThe cat (delete and hainish) stayed near the door and the dog ran (hainish and file) home at dusk.  \nSUMMARY hainish progress team ticks=0 seed=42 alive0=64 alive1=64 score0=0 score1=0 owner=-1 checksum=ab9f950df6c4015e\n"
+        },
+        {
+          "ticks": 513,
+          "seed": 42,
+          "stdout": "GRAPH trigram_sets 01/01: hainish team reverse | hainish progress team | hainish reverse remove\nGRAPH full_graph 01/05: hainish team hainish reverse hainish team reverse hainish team hainish hainish reverse team hainish reverse hainish hainish reverse hainish team hainish reverse team\nGRAPH full_graph 02/05: hainish reverse hainish hainish team reverse hainish team hainish reverse hainish reverse team hainish progress hainish team hainish progress team hainish progress\nGRAPH full_graph 03/05: hainish hainish team progress hainish team hainish hainish team hainish progress hainish team progress hainish team hainish hainish progress team hainish progress\nGRAPH full_graph 04/05: hainish team hainish team progress hainish reverse hainish remove hainish reverse remove hainish reverse hainish hainish remove reverse hainish remove hainish hainish\nGRAPH full_graph 05/05: remove hainish reverse hainish remove reverse hainish remove hainish hainish reverse remove hainish reverse hainish remove hainish remove reverse\nGRAPH full_graph_directed 01/06: hainish>team hainish>reverse hainish>team reverse>hainish team>hainish hainish>reverse team>hainish reverse>hainish hainish>reverse hainish>team\nGRAPH full_graph_directed 02/06: hainish>reverse team>hainish reverse>hainish hainish>team reverse>hainish team>hainish reverse>hainish reverse>team ; hainish>progress hainish>team\nGRAPH full_graph_directed 03/06: hainish>progress team>hainish progress>hainish hainish>team progress>hainish team>hainish hainish>team hainish>progress hainish>team progress>hainish\nGRAPH full_graph_directed 04/06: team>hainish hainish>progress team>hainish progress>hainish team>hainish team>progress ; hainish>reverse hainish>remove hainish>reverse remove>hainish\nGRAPH full_graph_directed 05/06: reverse>hainish hainish>remove reverse>hainish remove>hainish hainish>remove hainish>reverse hainish>remove reverse>hainish remove>hainish hainish>reverse\nGRAPH full_graph_directed 06/06: remove>hainish reverse>hainish remove>hainish remove>reverse\nAll that is done (hainish and file) is done, and all that is done cannot be (hainish and delete) undone.  \n(hainish and file) The (hainish and delete) cat sat on the mat.  \nThe seeds fell deep (file and hainish) and the seeds grew and the seeds grew (delete and hainish) tall.  \nThe cat (delete and hainish) stayed near the door and the dog ran (hainish and file) home at dusk.  \ntick   512 alive  43 v  46 score 0-0 cp owner -1 team progress\nSUMMARY hainish progress team ticks=513 seed=42 alive0=51 alive1=54 score0=0 score1=0 owner=-1 checksum=a2585c91144a7b6d\n"
+        },
+        {
+          "ticks": 4096,
+          "seed": 42,
+          "stdout": "GRAPH trigram_sets 01/01: hainish team reverse | hainish progress team | hainish reverse remove\nGRAPH full_graph 01/05: hainish team hainish reverse hainish team reverse hainish team hainish hainish reverse team hainish reverse hainish hainish reverse hainish team hainish reverse team\nGRAPH full_graph 02/05: hainish reverse hainish hainish team reverse hainish team hainish reverse hainish reverse team hainish progress hainish team hainish progress team hainish progress\nGRAPH full_graph 03/05: hainish hainish team progress hainish team hainish hainish team hainish progress hainish team progress hainish team hainish hainish progress team hainish progress\nGRAPH full_graph 04/05: hainish team hainish team progress hainish reverse hainish remove hainish reverse remove hainish reverse hainish hainish remove reverse hainish remove hainish hainish\nGRAPH full_graph 05/05: remove hainish reverse hainish remove reverse hainish remove hainish hainish reverse remove hainish reverse hainish remove hainish remove reverse\nGRAPH full_graph_directed 01/06: hainish>team hainish>reverse hainish>team reverse>hainish team>hainish hainish>reverse team>hainish reverse>hainish hainish>reverse hainish>team\nGRAPH full_graph_directed 02/06: hainish>reverse team>hainish reverse>hainish hainish>team reverse>hainish team>hainish reverse>hainish reverse>team ; hainish>progress hainish>team\nGRAPH full_graph_directed 03/06: hainish>progress team>hainish progress>hainish hainish>team progress>hainish team>hainish hainish>team hainish>progress hainish>team progress>hainish\nGRAPH full_graph_directed 04/06: team>hainish hainish>progress team>hainish progress>hainish team>hainish team>progress ; hainish>reverse hainish>remove hainish>reverse remove>hainish\nGRAPH full_graph_directed 05/06: reverse>hainish hainish>remove reverse>hainish remove>hainish hainish>remove hainish>reverse hainish>remove reverse>hainish remove>hainish hainish>reverse\nGRAPH full_graph_directed 06/06: remove>hainish reverse>hainish remove>hainish remove>reverse\nAll that is done (hainish and file) is done, and all that is done cannot be (hainish and delete) undone.  \n(hainish and file) The (hainish and delete) cat sat on the mat.  \nThe seeds fell deep (file and hainish) and the seeds grew and the seeds grew (delete and hainish) tall.  \nThe cat (delete and hainish) stayed near the door and the dog ran (hainish and file) home at dusk.  \ntick   512 alive  43 v  46 score 0-0 cp owner -1 team progress\ntick  1024 alive  28 v  31 score 0-0 cp owner -1 team progress\ntick  1536 alive  24 v  29 score 0-0 cp owner -1 team progress\ntick  2048 alive  25 v  30 score 0-0 cp owner -1 team progress\ntick  2560 alive  23 v  28 score 0-0 cp owner -1 team progress\ntick  3072 alive  27 v  28 score 0-0 cp owner -1 team progress\ntick  3584 alive  25 v  28 score 0-0 cp owner -1 team progress\ntick  4096 alive  26 v  28 score 0-0 cp owner -1 team progress\nSUMMARY hainish progress team ticks=4096 seed=42 alive0=26 alive1=28 score0=0 score1=0 owner=-1 checksum=24d4ade7a8266ebd\n"
+        },
+        {
+          "ticks": 4096,
+          "seed": 7,
+          "stdout": "GRAPH trigram_sets 01/01: hainish team reverse | hainish progress team | hainish reverse remove\nGRAPH full_graph 01/05: hainish team hainish reverse hainish team reverse hainish team hainish hainish reverse team hainish reverse hainish hainish reverse hainish team hainish reverse team\nGRAPH full_graph 02/05: hainish reverse hainish hainish team reverse hainish team hainish reverse hainish reverse team hainish progress hainish team hainish progress team hainish progress\nGRAPH full_graph 03/05: hainish hainish team progress hainish team hainish hainish team hainish progress hainish team progress hainish team hainish hainish progress team hainish progress\nGRAPH full_graph 04/05: hainish team hainish team progress hainish reverse hainish remove hainish reverse remove hainish reverse hainish hainish remove reverse hainish remove hainish hainish\nGRAPH full_graph 05/05: remove hainish reverse hainish remove reverse hainish remove hainish hainish reverse remove hainish reverse hainish remove hainish remove reverse\nGRAPH full_graph_directed 01/06: hainish>team hainish>reverse hainish>team reverse>hainish team>hainish hainish>reverse team>hainish reverse>hainish hainish>reverse hainish>team\nGRAPH full_graph_directed 02/06: hainish>reverse team>hainish reverse>hainish hainish>team reverse>hainish team>hainish reverse>hainish reverse>team ; hainish>progress hainish>team\nGRAPH full_graph_directed 03/06: hainish>progress team>hainish progress>hainish hainish>team progress>hainish team>hainish hainish>team hainish>progress hainish>team progress>hainish\nGRAPH full_graph_directed 04/06: team>hainish hainish>progress team>hainish progress>hainish team>hainish team>progress ; hainish>reverse hainish>remove hainish>reverse remove>hainish\nGRAPH full_graph_directed 05/06: reverse>hainish hainish>remove reverse>hainish remove>hainish hainish>remove hainish>reverse hainish>remove reverse>hainish remove>hainish hainish>reverse\nGRAPH full_graph_directed 06/06: remove>hainish reverse>hainish remove>hainish remove>reverse\nAll that is done (hainish and file) is done, and all that is done cannot be (hainish and delete) undone.  \n(hainish and file) The (hainish and delete) cat sat on the mat.  \nThe seeds fell deep (file and hainish) and the seeds grew and the seeds grew (delete and hainish) tall.  \nThe cat (delete and hainish) stayed near the door and the dog ran (hainish and file) home at dusk.  \ntick   512 alive  47 v  48 score 0-0 cp owner -1 team progress\ntick  1024 alive  31 v  30 score 0-0 cp owner -1 team progress\ntick  1536 alive  36 v  32 score 0-0 cp owner -1 team progress\ntick  2048 alive  38 v  33 score 0-0 cp owner -1 team progress\ntick  2560 alive  35 v  31 score 0-0 cp owner -1 team progress\ntick  3072 alive  36 v  32 score 0-0 cp owner -1 team progress\ntick  3584 alive  36 v  31 score 0-0 cp owner -1 team progress\ntick  4096 alive  35 v  32 score 0-0 cp owner -1 team progress\nSUMMARY hainish progress team ticks=4096 seed=7 alive0=35 alive1=32 score0=0 score1=0 owner=-1 checksum=0dc3073445acda84\n"
+        }
+      ],
+      "observations_match_source": true
+    },
+    "RunB": {
+      "source_sha256": "bd8a844e7d1d4118fcc972ce625a47c4689db743b45a19fcc035f5b3e08c5795",
+      "packed_sha256": "bd8a844e7d1d4118fcc972ce625a47c4689db743b45a19fcc035f5b3e08c5795",
+      "source_bytes": 848896,
+      "packed_bytes": 848896,
+      "entry_va": "0x140016b90",
+      "sections": [
+        {
+          "name": ".text",
+          "va": "0x140001000",
+          "virtual_size": 191856,
+          "raw_size": 192000,
+          "flags": "0x60000020"
+        },
+        {
+          "name": ".rdata",
+          "va": "0x140030000",
+          "virtual_size": 642712,
+          "raw_size": 643072,
+          "flags": "0x40000040"
+        },
+        {
+          "name": ".data",
+          "va": "0x1400cd000",
+          "virtual_size": 5872,
+          "raw_size": 3072,
+          "flags": "0xc0000040"
+        },
+        {
+          "name": ".pdata",
+          "va": "0x1400cf000",
+          "virtual_size": 6444,
+          "raw_size": 6656,
+          "flags": "0x40000040"
+        },
+        {
+          "name": ".fptable",
+          "va": "0x1400d1000",
+          "virtual_size": 256,
+          "raw_size": 512,
+          "flags": "0xc0000040"
+        },
+        {
+          "name": ".reloc",
+          "va": "0x1400d2000",
+          "virtual_size": 1704,
+          "raw_size": 2048,
+          "flags": "0x42000040"
+        }
+      ],
+      "import_dlls": [
+        "KERNEL32.dll"
+      ],
+      "strings_total": 2372,
+      "payload_needles": 16,
+      "payload_needles_present": 16,
+      "metadata_lines": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "metadata_lines_present": true,
+      "resource_bundles_exposed": null,
+      "trigram_sets_in_bytes": true,
+      "observations": [
+        {
+          "ticks": 0,
+          "seed": 42,
+          "stdout": "GRAPH trigram_sets 01/01: hainish team reverse | hainish progress team | hainish reverse remove\nGRAPH full_graph 01/05: hainish team hainish reverse hainish team reverse hainish team hainish hainish reverse team hainish reverse hainish hainish reverse hainish team hainish reverse team\nGRAPH full_graph 02/05: hainish reverse hainish hainish team reverse hainish team hainish reverse hainish reverse team hainish progress hainish team hainish progress team hainish progress\nGRAPH full_graph 03/05: hainish hainish team progress hainish team hainish hainish team hainish progress hainish team progress hainish team hainish hainish progress team hainish progress\nGRAPH full_graph 04/05: hainish team hainish team progress hainish reverse hainish remove hainish reverse remove hainish reverse hainish hainish remove reverse hainish remove hainish hainish\nGRAPH full_graph 05/05: remove hainish reverse hainish remove reverse hainish remove hainish hainish reverse remove hainish reverse hainish remove hainish remove reverse\nGRAPH full_graph_directed 01/06: hainish>team hainish>reverse hainish>team reverse>hainish team>hainish hainish>reverse team>hainish reverse>hainish hainish>reverse hainish>team\nGRAPH full_graph_directed 02/06: hainish>reverse team>hainish reverse>hainish hainish>team reverse>hainish team>hainish reverse>hainish reverse>team ; hainish>progress hainish>team\nGRAPH full_graph_directed 03/06: hainish>progress team>hainish progress>hainish hainish>team progress>hainish team>hainish hainish>team hainish>progress hainish>team progress>hainish\nGRAPH full_graph_directed 04/06: team>hainish hainish>progress team>hainish progress>hainish team>hainish team>progress ; hainish>reverse hainish>remove hainish>reverse remove>hainish\nGRAPH full_graph_directed 05/06: reverse>hainish hainish>remove reverse>hainish remove>hainish hainish>remove hainish>reverse hainish>remove reverse>hainish remove>hainish hainish>reverse\nGRAPH full_graph_directed 06/06: remove>hainish reverse>hainish remove>hainish remove>reverse\nAll that is done (hainish and file) is done, and all that is done cannot be (hainish and delete) undone.  \n(hainish and file) The (hainish and delete) cat sat on the mat.  \nThe seeds fell deep (file and hainish) and the seeds grew and the seeds grew (delete and hainish) tall.  \nThe cat (delete and hainish) stayed near the door and the dog ran (hainish and file) home at dusk.  \nSUMMARY hainish progress team ticks=0 seed=42 alive0=64 alive1=64 score0=0 score1=0 owner=-1 checksum=ab9f950df6c4015e\n"
+        },
+        {
+          "ticks": 513,
+          "seed": 42,
+          "stdout": "GRAPH trigram_sets 01/01: hainish team reverse | hainish progress team | hainish reverse remove\nGRAPH full_graph 01/05: hainish team hainish reverse hainish team reverse hainish team hainish hainish reverse team hainish reverse hainish hainish reverse hainish team hainish reverse team\nGRAPH full_graph 02/05: hainish reverse hainish hainish team reverse hainish team hainish reverse hainish reverse team hainish progress hainish team hainish progress team hainish progress\nGRAPH full_graph 03/05: hainish hainish team progress hainish team hainish hainish team hainish progress hainish team progress hainish team hainish hainish progress team hainish progress\nGRAPH full_graph 04/05: hainish team hainish team progress hainish reverse hainish remove hainish reverse remove hainish reverse hainish hainish remove reverse hainish remove hainish hainish\nGRAPH full_graph 05/05: remove hainish reverse hainish remove reverse hainish remove hainish hainish reverse remove hainish reverse hainish remove hainish remove reverse\nGRAPH full_graph_directed 01/06: hainish>team hainish>reverse hainish>team reverse>hainish team>hainish hainish>reverse team>hainish reverse>hainish hainish>reverse hainish>team\nGRAPH full_graph_directed 02/06: hainish>reverse team>hainish reverse>hainish hainish>team reverse>hainish team>hainish reverse>hainish reverse>team ; hainish>progress hainish>team\nGRAPH full_graph_directed 03/06: hainish>progress team>hainish progress>hainish hainish>team progress>hainish team>hainish hainish>team hainish>progress hainish>team progress>hainish\nGRAPH full_graph_directed 04/06: team>hainish hainish>progress team>hainish progress>hainish team>hainish team>progress ; hainish>reverse hainish>remove hainish>reverse remove>hainish\nGRAPH full_graph_directed 05/06: reverse>hainish hainish>remove reverse>hainish remove>hainish hainish>remove hainish>reverse hainish>remove reverse>hainish remove>hainish hainish>reverse\nGRAPH full_graph_directed 06/06: remove>hainish reverse>hainish remove>hainish remove>reverse\nAll that is done (hainish and file) is done, and all that is done cannot be (hainish and delete) undone.  \n(hainish and file) The (hainish and delete) cat sat on the mat.  \nThe seeds fell deep (file and hainish) and the seeds grew and the seeds grew (delete and hainish) tall.  \nThe cat (delete and hainish) stayed near the door and the dog ran (hainish and file) home at dusk.  \ntick   512 alive  43 v  46 score 0-0 cp owner -1 team progress\nSUMMARY hainish progress team ticks=513 seed=42 alive0=51 alive1=54 score0=0 score1=0 owner=-1 checksum=a2585c91144a7b6d\n"
+        },
+        {
+          "ticks": 4096,
+          "seed": 42,
+          "stdout": "GRAPH trigram_sets 01/01: hainish team reverse | hainish progress team | hainish reverse remove\nGRAPH full_graph 01/05: hainish team hainish reverse hainish team reverse hainish team hainish hainish reverse team hainish reverse hainish hainish reverse hainish team hainish reverse team\nGRAPH full_graph 02/05: hainish reverse hainish hainish team reverse hainish team hainish reverse hainish reverse team hainish progress hainish team hainish progress team hainish progress\nGRAPH full_graph 03/05: hainish hainish team progress hainish team hainish hainish team hainish progress hainish team progress hainish team hainish hainish progress team hainish progress\nGRAPH full_graph 04/05: hainish team hainish team progress hainish reverse hainish remove hainish reverse remove hainish reverse hainish hainish remove reverse hainish remove hainish hainish\nGRAPH full_graph 05/05: remove hainish reverse hainish remove reverse hainish remove hainish hainish reverse remove hainish reverse hainish remove hainish remove reverse\nGRAPH full_graph_directed 01/06: hainish>team hainish>reverse hainish>team reverse>hainish team>hainish hainish>reverse team>hainish reverse>hainish hainish>reverse hainish>team\nGRAPH full_graph_directed 02/06: hainish>reverse team>hainish reverse>hainish hainish>team reverse>hainish team>hainish reverse>hainish reverse>team ; hainish>progress hainish>team\nGRAPH full_graph_directed 03/06: hainish>progress team>hainish progress>hainish hainish>team progress>hainish team>hainish hainish>team hainish>progress hainish>team progress>hainish\nGRAPH full_graph_directed 04/06: team>hainish hainish>progress team>hainish progress>hainish team>hainish team>progress ; hainish>reverse hainish>remove hainish>reverse remove>hainish\nGRAPH full_graph_directed 05/06: reverse>hainish hainish>remove reverse>hainish remove>hainish hainish>remove hainish>reverse hainish>remove reverse>hainish remove>hainish hainish>reverse\nGRAPH full_graph_directed 06/06: remove>hainish reverse>hainish remove>hainish remove>reverse\nAll that is done (hainish and file) is done, and all that is done cannot be (hainish and delete) undone.  \n(hainish and file) The (hainish and delete) cat sat on the mat.  \nThe seeds fell deep (file and hainish) and the seeds grew and the seeds grew (delete and hainish) tall.  \nThe cat (delete and hainish) stayed near the door and the dog ran (hainish and file) home at dusk.  \ntick   512 alive  43 v  46 score 0-0 cp owner -1 team progress\ntick  1024 alive  28 v  31 score 0-0 cp owner -1 team progress\ntick  1536 alive  24 v  29 score 0-0 cp owner -1 team progress\ntick  2048 alive  25 v  30 score 0-0 cp owner -1 team progress\ntick  2560 alive  23 v  28 score 0-0 cp owner -1 team progress\ntick  3072 alive  27 v  28 score 0-0 cp owner -1 team progress\ntick  3584 alive  25 v  28 score 0-0 cp owner -1 team progress\ntick  4096 alive  26 v  28 score 0-0 cp owner -1 team progress\nSUMMARY hainish progress team ticks=4096 seed=42 alive0=26 alive1=28 score0=0 score1=0 owner=-1 checksum=24d4ade7a8266ebd\n"
+        },
+        {
+          "ticks": 4096,
+          "seed": 7,
+          "stdout": "GRAPH trigram_sets 01/01: hainish team reverse | hainish progress team | hainish reverse remove\nGRAPH full_graph 01/05: hainish team hainish reverse hainish team reverse hainish team hainish hainish reverse team hainish reverse hainish hainish reverse hainish team hainish reverse team\nGRAPH full_graph 02/05: hainish reverse hainish hainish team reverse hainish team hainish reverse hainish reverse team hainish progress hainish team hainish progress team hainish progress\nGRAPH full_graph 03/05: hainish hainish team progress hainish team hainish hainish team hainish progress hainish team progress hainish team hainish hainish progress team hainish progress\nGRAPH full_graph 04/05: hainish team hainish team progress hainish reverse hainish remove hainish reverse remove hainish reverse hainish hainish remove reverse hainish remove hainish hainish\nGRAPH full_graph 05/05: remove hainish reverse hainish remove reverse hainish remove hainish hainish reverse remove hainish reverse hainish remove hainish remove reverse\nGRAPH full_graph_directed 01/06: hainish>team hainish>reverse hainish>team reverse>hainish team>hainish hainish>reverse team>hainish reverse>hainish hainish>reverse hainish>team\nGRAPH full_graph_directed 02/06: hainish>reverse team>hainish reverse>hainish hainish>team reverse>hainish team>hainish reverse>hainish reverse>team ; hainish>progress hainish>team\nGRAPH full_graph_directed 03/06: hainish>progress team>hainish progress>hainish hainish>team progress>hainish team>hainish hainish>team hainish>progress hainish>team progress>hainish\nGRAPH full_graph_directed 04/06: team>hainish hainish>progress team>hainish progress>hainish team>hainish team>progress ; hainish>reverse hainish>remove hainish>reverse remove>hainish\nGRAPH full_graph_directed 05/06: reverse>hainish hainish>remove reverse>hainish remove>hainish hainish>remove hainish>reverse hainish>remove reverse>hainish remove>hainish hainish>reverse\nGRAPH full_graph_directed 06/06: remove>hainish reverse>hainish remove>hainish remove>reverse\nAll that is done (hainish and file) is done, and all that is done cannot be (hainish and delete) undone.  \n(hainish and file) The (hainish and delete) cat sat on the mat.  \nThe seeds fell deep (file and hainish) and the seeds grew and the seeds grew (delete and hainish) tall.  \nThe cat (delete and hainish) stayed near the door and the dog ran (hainish and file) home at dusk.  \ntick   512 alive  47 v  48 score 0-0 cp owner -1 team progress\ntick  1024 alive  31 v  30 score 0-0 cp owner -1 team progress\ntick  1536 alive  36 v  32 score 0-0 cp owner -1 team progress\ntick  2048 alive  38 v  33 score 0-0 cp owner -1 team progress\ntick  2560 alive  35 v  31 score 0-0 cp owner -1 team progress\ntick  3072 alive  36 v  32 score 0-0 cp owner -1 team progress\ntick  3584 alive  36 v  31 score 0-0 cp owner -1 team progress\ntick  4096 alive  35 v  32 score 0-0 cp owner -1 team progress\nSUMMARY hainish progress team ticks=4096 seed=7 alive0=35 alive1=32 score0=0 score1=0 owner=-1 checksum=0dc3073445acda84\n"
+        }
+      ],
+      "observations_match_source": true
+    }
+  },
+  "checks": {
+    "observations_identical_all": true,
+    "source_bytes_unchanged": true,
+    "metadata_delivered_as_declared": true,
+    "trigram_sets_in_bytes": true
+  }
+}

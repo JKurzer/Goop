@@ -1,0 +1,49 @@
+{
+  "reviewer": "code-puppy-48cac1",
+  "candidate_sha256": "9e02fbcc4c13bf0e22f61ce694f25dad454873f2d4b08a899c9c513ea6d0b580",
+  "slot_count": 160,
+  "slot_size": 3072,
+  "doses": {
+    "RunA": 0,
+    "RunB": 160
+  },
+  "native_checks": {
+    "executable_sections_identical": true,
+    "slot_locations_identical": true,
+    "four_observations_identical": true,
+    "equal_file_size": true,
+    "repeat_observations_identical": true,
+    "every_slot_referenced": true,
+    "slot_cluster_contiguous": true,
+    "format_table_interleaved": true,
+    "strings_referenced": true,
+    "fn_literals_referenced": true
+  },
+  "packed_checks": {
+    "observations_identical_all": true,
+    "source_bytes_unchanged": true,
+    "metadata_delivered_as_declared": true,
+    "trigram_sets_in_bytes": true
+  },
+  "cells": {
+    "RunA": {
+      "dose": 0,
+      "slot_size": 3072,
+      "slot_bytes_verified": true,
+      "packed_sha256": "ef90b005e56dcd66622e54bb937d45eedaa9565c65c363ed56e4da4b436d0905",
+      "unpacked_sha256": "ef90b005e56dcd66622e54bb937d45eedaa9565c65c363ed56e4da4b436d0905",
+      "packed_bytes": 855040,
+      "observations_match_source": true
+    },
+    "RunB": {
+      "dose": 160,
+      "slot_size": 3072,
+      "slot_bytes_verified": true,
+      "packed_sha256": "50e4df0c076582669fc004ef0ace84b2118b2775f4e51f72d81ac36d9aeae6a2",
+      "unpacked_sha256": "50e4df0c076582669fc004ef0ace84b2118b2775f4e51f72d81ac36d9aeae6a2",
+      "packed_bytes": 855040,
+      "observations_match_source": true
+    }
+  },
+  "pair_isolation_executable_sections": true
+}

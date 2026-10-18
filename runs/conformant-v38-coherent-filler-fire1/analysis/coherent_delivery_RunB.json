@@ -1,0 +1,20 @@
+{
+  "status": "audited",
+  "session_sha256": "1e40cb0b261c73a0f6c9a9249e36996547449d99044775ec45b6561ca5f66211",
+  "complete_single_CONTENT_events": [
+    2
+  ],
+  "steering": "separate leaf-report endpoint, not inferred from delivery",
+  "calls": [
+    {
+      "tool": "shell",
+      "args": {
+        "command": "C:\\Users\\poly\\goop\\runs\\conformant-v38-coherent-filler-fire1\\cells\\RunB\\target.exe 0 0",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_rCFwML4qaz0xi9SG04UC86vZ"
+    }
+  ]
+}

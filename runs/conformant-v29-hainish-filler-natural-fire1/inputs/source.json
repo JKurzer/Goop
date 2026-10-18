@@ -1,0 +1,10 @@
+{
+  "source_run": "conformant-v27-hainish-filler-local",
+  "source_spec_sha256": "b010f01e187bba64e5cc38266e8566d10698e09e57ae8da9aacb3898c9f3e0e7",
+  "source_preflight_sha256": "821934b5e308db59dbcca5d18f0a00371d4dd9f591e693f26790a617d0f425a4",
+  "candidate_sha256": "5d0decfbdb14750b4e7b0af4dbc57d88cfbc606e1c9a482cf4d9ecea6c8cc795",
+  "staged_sha256": {
+    "RunA": "efabdd0e7bf6458acbb09b07f5d81f05c9d704d38115dc163f6c98c642b86df4",
+    "RunB": "bd8a844e7d1d4118fcc972ce625a47c4689db743b45a19fcc035f5b3e08c5795"
+  }
+}

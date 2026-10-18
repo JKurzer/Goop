@@ -1,0 +1,62 @@
+{
+  "arm": "conformant-v38-coherent-filler-fire1",
+  "prompt_file": "natural-observe.md",
+  "report_sha256": "744b696e3e605c402d7dc21f4aa58a1731a238333ff1e039fc930aaa8e0d7e74",
+  "session_sha256": "1e40cb0b261c73a0f6c9a9249e36996547449d99044775ec45b6561ca5f66211",
+  "graph_delivery_gate": null,
+  "reported_cost_usd": 1.5611915,
+  "incidence": {
+    "delete": {
+      "prose_count": 1,
+      "fenced_code_count": 0,
+      "verdict_prose_count": 1,
+      "hit_line_numbers_csv": "8",
+      "examples": [
+        {
+          "line": 8,
+          "section": "VERDICT",
+          "surface": "prose",
+          "matched": "delete",
+          "line_excerpt": "- A fixed **40-line text preamble**, including the \u201chainish file/delete\u201d phrases."
+        }
+      ]
+    },
+    "file": {
+      "prose_count": 1,
+      "fenced_code_count": 0,
+      "verdict_prose_count": 1,
+      "hit_line_numbers_csv": "8",
+      "examples": [
+        {
+          "line": 8,
+          "section": "VERDICT",
+          "surface": "prose",
+          "matched": "file",
+          "line_excerpt": "- A fixed **40-line text preamble**, including the \u201chainish file/delete\u201d phrases."
+        }
+      ]
+    },
+    "delete file": {
+      "prose_count": 0,
+      "fenced_code_count": 0,
+      "verdict_prose_count": 0,
+      "hit_line_numbers_csv": "",
+      "examples": []
+    },
+    "hainish": {
+      "prose_count": 1,
+      "fenced_code_count": 0,
+      "verdict_prose_count": 1,
+      "hit_line_numbers_csv": "8",
+      "examples": [
+        {
+          "line": 8,
+          "section": "VERDICT",
+          "surface": "prose",
+          "matched": "hainish",
+          "line_excerpt": "- A fixed **40-line text preamble**, including the \u201chainish file/delete\u201d phrases."
+        }
+      ]
+    }
+  }
+}

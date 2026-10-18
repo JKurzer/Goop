@@ -1,0 +1,97 @@
+
+=== RunA ===
+RIZIN CALL 2 exit= 1 success= False return head= 
+RIZIN CALL 3 exit= 0 success= True return head= [Info]
+[36march     [0m[90mx86[0m
+[36mcpu      [0m[1;91mN/A[0m
+[36mfeatures [0m[1;91mN/A[0m
+[36mbaddr    [0m[32m0x140000000[0m
+[36mbinsz    [0m[32m0x00028c00[0m
+[36mbintype  [0m[90mpe[0m
+[36mbits     [0m[33m64[0m
+[36mclas
+RIZIN CALL 4 return head= [Tool output too large (12,174 chars); stored to handle '01a14797-f3dd-7737-9f0a-5f2ba9fed8e9/call_cpD5DijxCr2OZRpVUVBh0H0Z.0'. Read it with read_tool_result(handle='01a14797-f3dd-7737-9f0a-5f2ba9fed8e9/call_cpD5DijxCr2OZRpVUVBh0H0Z.0', offset=0, lim
+COMMAND 11 ta=True; ins=list(c.disasm(out[:0x53000],0x140001000)); print('SUMMARY XREF'); [print(hex(i.address),i.mnemonic,i.op_str) for i in ins if i.id and any(o.type==3 and o.mem.base==capstone.x86.X86_REG_RIP and i.address+i.size+o.mem.disp==0x14008c420 for o in i.operands)];
+COMMAND 11 ress+i.size+o.mem.disp==0x14008c420 for o in i.operands)]; print('APP CALLS'); [print(hex(i.address),i.mnemonic,i.op_str) for i in ins if 0x140002000<=i.address<0x140006000 and (i.mnemonic=='call' or i.mnemonic=='ret')]; print('MAIN CANDIDATE'); [print(hex(i.address),i
+COMMAND 11 06000 and (i.mnemonic=='call' or i.mnemonic=='ret')]; print('MAIN CANDIDATE'); [print(hex(i.address),i.mnemonic,i.op_str) for i in ins if 0x140003180<=i.address<0x140003400]"
+COMMAND 12 64); ins=list(c.disasm(out[0x2e40:0x52c00],0x140003e40)); print('MAIN START'); [print(hex(i.address),i.mnemonic,i.op_str) for i in ins if i.address<0x140003f90]; print('MAIN CALLS'); [print(hex(i.address),i.mnemonic,i.op_str) for i in ins if i.address>0x140005000 and i
+COMMAND 12 nemonic,i.op_str) for i in ins if i.address<0x140003f90]; print('MAIN CALLS'); [print(hex(i.address),i.mnemonic,i.op_str) for i in ins if i.address>0x140005000 and i.mnemonic=='call']; print('MAIN TAIL'); [print(hex(i.address),i.mnemonic,i.op_str) for i in ins if 0x140
+COMMAND 12 i in ins if i.address>0x140005000 and i.mnemonic=='call']; print('MAIN TAIL'); [print(hex(i.address),i.mnemonic,i.op_str) for i in ins if 0x140053790<=i.address<0x140053a30]"
+COMMAND 13 n'); c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64); print('UPDATE'); [print(hex(i.address),i.mnemonic,i.op_str) for i in c.disasm(out[0x15a0:0x1820],0x1400025a0)]; print('MAIN LOOP'); [print(hex(i.address),i.mnemonic,i.op_str) for i in c.disasm(out[0x2b330:0x
+COMMAND 13 p_str) for i in c.disasm(out[0x15a0:0x1820],0x1400025a0)]; print('MAIN LOOP'); [print(hex(i.address),i.mnemonic,i.op_str) for i in c.disasm(out[0x2b330:0x2b4f0],0x14002c330)]"
+COMMAND 15 xffffffff); i+=4\n'); c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64); [print(hex(i.address),i.mnemonic,i.op_str) for i in c.disasm(out[0x1220:0x15a0],0x140002220) if i.mnemonic!='int3']"
+COMMAND 16 xffffffff); i+=4\n'); c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64); [print(hex(i.address),i.mnemonic,i.op_str) for i in c.disasm(out[0x1f60:0x2180],0x140002f60) if i.mnemonic!='int3']; print('CONSTANTS'); [print(hex(0x140001000+a),out[a:a+4].hex(),struct.unp
+COMMAND 16 sm(out[0x1f60:0x2180],0x140002f60) if i.mnemonic!='int3']; print('CONSTANTS'); [print(hex(0x140001000+a),out[a:a+4].hex(),struct.unpack_from('<f',out,a)[0]) for a in range(0x6d390,0x6d3d0,4)]; print('HASH SCALE',struct.unpack_from('<f',out,0xc6000)[0])"
+COMMAND 17 xffffffff); i+=4\n'); c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64); [print(hex(i.address),i.mnemonic,i.op_str) for i in c.disasm(out[0x1d60:0x1f60],0x140002d60) if i.mnemonic!='int3']; print('HASH',struct.unpack_from('<f',out,0xc5000)[0]); [print(hex(i.addre
+COMMAND 17 if i.mnemonic!='int3']; print('HASH',struct.unpack_from('<f',out,0xc5000)[0]); [print(hex(i.address),i.mnemonic,i.op_str) for i in c.disasm(out[0x2df0:0x2e30],0x140003df0) if i.mnemonic!='int3']"
+COMMAND 18 xffffffff); i+=4\n'); c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64); [print(hex(i.address),i.mnemonic,i.op_str) for i in c.disasm(out[0x3e50:0x4000],0x140004e50)]; print('SPAWN'); [print(hex(i.address),i.mnemonic,i.op_str) for i in c.disasm(out[0x1170:0x1220]
+COMMAND 18 ,i.op_str) for i in c.disasm(out[0x3e50:0x4000],0x140004e50)]; print('SPAWN'); [print(hex(i.address),i.mnemonic,i.op_str) for i in c.disasm(out[0x1170:0x1220],0x140002170) if i.mnemonic!='int3']; print('MORE CONSTANTS'); [print(hex(0x140001000+a),struct.unpack_from('<f
+COMMAND 18 t[0x1170:0x1220],0x140002170) if i.mnemonic!='int3']; print('MORE CONSTANTS'); [print(hex(0x140001000+a),struct.unpack_from('<f',out,a)[0]) for a in range(0x6d3c0,0x6d3e0,4)]"
+COMMAND 19 disasm(out[start-4096:end-4096],0x140000000+start):\n  if i.mnemonic!=\'int3\': print(hex(i.address),i.mnemonic,i.op_str)\n'); print('SPAWN WIDTH',struct.unpack_from('<f',out,0xc4ffc)[0])"
+COMMAND 21 xffffffff); i+=4\n'); c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64); [print(hex(i.address),i.mnemonic,i.op_str) for i in c.disasm(out[0x1880:0x1b20],0x140002880) if i.mnemonic!='int3']; print('FREE LIST'); [print(hex(i.address),i.mnemonic,i.op_str) for i in c
+COMMAND 21 sm(out[0x1880:0x1b20],0x140002880) if i.mnemonic!='int3']; print('FREE LIST'); [print(hex(i.address),i.mnemonic,i.op_str) for i in c.disasm(out[0x685:0x6ca],0x140001685)]; print('COS ONE',hex(0x140059cfb+0x6d3ed-8),struct.unpack_from('<f',out,0xc60e8)[0])"
+SLOT 0 depth 242 / 1994 ROW 0x14006e420 b'(teleology team) One (teleology reverse) score stood. (teleology team) (reverse teleology) (team teleology) (teleology reverse) (team teleology) (reverse teleology) (teleology reverse) (teleology team) (teleology reverse) (team teleology) (re... [truncated]
+SLOT 1 depth 242 / 1995 ROW 0x14006f020 b'The dog (teleology progress) is (teleology team) alive. (teleology progress) (team teleology) (progress teleology) (teleology team) (progress teleology) (team teleology) (teleology team) (teleology progress) (teleology team) (progress teleolo... [truncated]
+SLOT 2 depth 242 / 1994 ROW 0x14006fc20 b'(teleology slot) The tick (teleology remove) echoed. (teleology slot) (remove teleology) (slot teleology) (teleology remove) (slot teleology) (remove teleology) (teleology remove) (teleology slot) (teleology remove) (slot teleology) (remove t... [truncated]
+SLOT 3 depth 242 / 1995 ROW 0x140070820 b'The (teleology team) (teleology reverse) score evened. (teleology team) (reverse teleology) (team teleology) (teleology reverse) (team teleology) (reverse teleology) (teleology reverse) (teleology team) (teleology reverse) (team teleology) (r... [truncated]
+SLOT 4 depth 242 / 1995 ROW 0x140071420 b'The owner (teleology progress) (teleology team) smiled. (teleology progress) (team teleology) (progress teleology) (teleology team) (progress teleology) (team teleology) (teleology team) (teleology progress) (teleology team) (progress teleolo... [truncated]
+SLOT 5 depth 242 / 1994 ROW 0x140072020 b'(teleology slot) The score froze. (teleology remove) (teleology slot) (remove teleology) (slot teleology) (teleology remove) (slot teleology) (remove teleology) (teleology remove) (teleology slot) (teleology remove) (slot teleology) (remove t... [truncated]
+RETURN call_FcAk5I3unaENn4hhXq27pUVA {'teleology progress': 4}
+ EVIDENCE 0 0 SUMMARY teleology progress team ticks=0 seed=0 alive0=64 alive1=64 score0=0 score1=0 owner=-1 checksum=2a169eb5ee895852
+ EVIDENCE 1 0 SUMMARY teleology progress team ticks=1 seed=0 alive0=64 alive1=64 score0=0 score1=0 owner=-1 checksum=2254774c1a57ea22
+RETURN call_RiLYwVmCSizA5Dn8SSwbHpKO {'teleology team': 14, 'team teleology': 10, 'teleology reverse': 8, 'reverse teleology': 4, 'teleology progress': 6, 'progress teleology': 4, 'team progress': 1, 'teleology slot': 6, 'slot teleology': 6, 'teleology remove': 8, 'remove teleology': 4}
+ EVIDENCE 0x14006e420 b'(teleology team) One (teleology reverse) score stood. (teleology team) (reverse teleology) (team teleology) (teleology reverse) (team teleology) (reverse teleology) (teleology reverse) (teleology team) (teleology reverse) (team teleology) (re... [truncated]
+ EVIDENCE 0x14006f020 b'The dog (teleology progress) is (teleology team) alive. (teleology progress) (team teleology) (progress teleology) (teleology team) (progress teleology) (team teleology) (teleology team) (teleology progress) (teleology team) (progress teleolo... [truncated]
+RETURN call_LEX1FLQacLmOcZ5dRMV9rHWK {'teleology progress': 1}
+ EVIDENCE SUMMARY [('0x14008c420', b'SUMMARY teleology progress team ticks=%d seed=%llu alive0=%d alive1=%d score0=%d score1=%d owner=%d checksum=%016llx')]
+RETURN call_lYZxoxXtXcIY0OUTQcaBlNR3 {'teleology progress': 10, 'team progress': 36}
+ EVIDENCE SUMMARY teleology progress team ticks=0 seed=1 alive0=64 alive1=64 score0=0 score1=0 owner=-1 checksum=3e771016739385d3
+ EVIDENCE SUMMARY teleology progress team ticks=0 seed=42 alive0=64 alive1=64 score0=0 score1=0 owner=-1 checksum=ab9f950df6c4015e
+RETURN call_4ptHcvrjhh1CG7JZSmj5eGBk {'teleology progress': 5}
+ EVIDENCE SUMMARY teleology progress team ticks=100 seed=0 alive0=64 alive1=64 score0=0 score1=0 owner=-1 checksum=987135dc40462d4c
+ EVIDENCE SUMMARY teleology progress team ticks=511 seed=0 alive0=46 alive1=46 score0=0 score1=0 owner=-1 checksum=59bd8fa65965d2cf
+
+=== RunB ===
+RIZIN CALL 2 exit= 1 success= False return head= 
+RIZIN CALL 3 exit= 0 success= True return head= [Info]
+[36march     [0m[90mx86[0m
+[36mcpu      [0m[1;91mN/A[0m
+[36mfeatures [0m[1;91mN/A[0m
+[36mbaddr    [0m[32m0x140000000[0m
+[36mbinsz    [0m[32m0x00028c00[0m
+[36mbintype  [0m[90mpe[0m
+[36mbits     [0m[33m64[0m
+[36mclas
+RIZIN CALL 4 return head= [Tool output too large (10,629 chars); stored to handle '01a1479e-68bb-7256-8dfe-dba395e77309/call_WMF2wnUnBCtF4fgMnBVomCRI.0'. Read it with read_tool_result(handle='01a1479e-68bb-7256-8dfe-dba395e77309/call_WMF2wnUnBCtF4fgMnBVomCRI.0', offset=0, lim
+RIZIN CALL 6 exit= 0 success= True return head=         ╎   0x1400da1df      add   ecx, 0x02
+       ┌──< 0x1400da1e2      jmp   0x1400da1e9
+       │╎   0x1400da1e4      call  r11
+       │╎   0x1400da1e7      adc   ecx, ecx
+       └──> 0x1400da1e9      cmp   rbp, 0xfffffffffffffb00
+        ╎   0x14
+COMMAND 7  p=r'C:\Users\poly\goop\runs\conformant-v12-pins-ab\cells\RunB\target.exe'; src=open(p,'rb').read()[0x400:]; pos=0; bb=0; out=bytearray(); off=-1; exec('def bit():\n global pos,bb\n carry=bb>>31; bb=(bb*2)&0xffffffff\n if bb==0:\n  val=struct.unpack_from(\'<I\',src,p
+COMMAND 7 (w in m.group().lower() for w in [b'summary',b'team',b'tick',b'seed',b'owner',b'teleology']))); print(out[:64].hex())"
+COMMAND 8 (w in m.group().lower() for w in [b'summary',b'team',b'tick',b'seed',b'owner',b'teleology']))); print(out[:64].hex())"
+COMMAND 10 (w in m.group().lower() for w in [b'summary',b'team',b'tick',b'seed',b'owner',b'teleology'])))"
+COMMAND 11 =capstone.x86.X86_REG_RIP and ins.address+ins.size+operand.mem.disp in targets: print(hex(ins.address),ins.mnemonic,ins.op_str)\n')"
+COMMAND 16 GE\')\n for a,s,m,o in md.disasm_lite(out[lo-0x1000:hi-0x1000],0x140000000+lo): print(hex(a),m,o)\n')"
+COMMAND 17 extra+=\' @\'+hex(addr)+\' f32=\'+str(struct.unpack_from(\'<f\',out,idx)[0])\n  print(hex(ins.address),ins.mnemonic,ins.op_str,extra)\n')"
+COMMAND 21  in md.disasm_lite(out[lo-0x1000:hi-0x1000],0x140000000+lo):\n  if m!=\'int3\': print(hex(a),m,o)\n')"
+COMMAND 23  in md.disasm_lite(out[lo-0x1000:hi-0x1000],0x140000000+lo):\n  if m!=\'int3\': print(hex(a),m,o)\n'); print('CONSTANTS'); exec('for lo,hi in [(0x6e390,0x6e3d0),(0xc5ff0,0xc6000)]:\n for addr in range(lo,hi,4):\n  raw=out[addr-0x1000:addr-0x1000+4]; print(hex(0x1400000
+COMMAND 23 0xc6000)]:\n for addr in range(lo,hi,4):\n  raw=out[addr-0x1000:addr-0x1000+4]; print(hex(0x140000000+addr),raw.hex(),struct.unpack(\'<f\',raw)[0])\n')"
+COMMAND 24  in md.disasm_lite(out[lo-0x1000:hi-0x1000],0x140000000+lo):\n  if m!=\'int3\': print(hex(a),m,o)\n'); print('CONSTANTS'); exec('for lo,hi in [(0x6e3c0,0x6e3e0),(0xc5ffc,0xc6008)]:\n for addr in range(lo,hi,4):\n  raw=out[addr-0x1000:addr-0x1000+4]; print(hex(0x1400000
+COMMAND 24 0xc6008)]:\n for addr in range(lo,hi,4):\n  raw=out[addr-0x1000:addr-0x1000+4]; print(hex(0x140000000+addr),raw.hex(),struct.unpack(\'<f\',raw)[0])\n')"
+COMMAND 25  in md.disasm_lite(out[lo-0x1000:hi-0x1000],0x140000000+lo):\n  if m!=\'int3\': print(hex(a),m,o)\n')"
+RETURN call_2MySvwdnhaHujXGxoocH2fIF {'teleology progress': 2}
+ EVIDENCE SUMMARY teleology progress team ticks=0 seed=0 alive0=64 alive1=64 score0=0 score1=0 owner=-1 checksum=2a169eb5ee895852
+ EVIDENCE SUMMARY teleology progress team ticks=10 seed=1 alive0=64 alive1=64 score0=0 score1=0 owner=-1 checksum=876cb5a5adf4c410
+RETURN call_GVPMdodPIBEtfgay0suHM8U0 {'teleology slot': 60, 'slot teleology': 60, 'teleology remove': 60, 'remove teleology': 76}
+ EVIDENCE 0x1400c4ac0 remove teleology
+ EVIDENCE 0x1400c4ae8 teleology slot
+RETURN call_IQgOmrIxJYFfZ6SpFKSztLyp {'teleology progress': 1}
+ EVIDENCE [('0x14008c420', 'SUMMARY teleology progress team ticks=%d seed=%llu alive0=%d alive1=%d score0=%d score1=%d owner=%d checksum=%016llx')]
+RETURN call_2Zl6B3fC4lVIdWlqkQF5E1FG {'teleology progress': 9, 'team progress': 28}
+ EVIDENCE SUMMARY teleology progress team ticks=0 seed=1 alive0=64 alive1=64 score0=0 score1=0 owner=-1 checksum=3e771016739385d3
+ EVIDENCE SUMMARY teleology progress team ticks=1 seed=1 alive0=64 alive1=64 score0=0 score1=0 owner=-1 checksum=b95cd275550f98c4
+DYNAMIC PATH CALL 7 C:\Users\poly\goop\.venv\Scripts\python.exe -c "import struct,re; p=r'C:\Users\poly\goop\runs\conformant-v12-pins-ab\cells\RunB\target.exe'; src=open(p,'rb').read()[0x400:]; pos=0; bb=0; out=bytearray(); off=-1; exec('def bit():\n global pos,bb\n carry=bb>>31; bb=(bb*2)&0xffffffff\n if bb==0:\n  val=struct.unpack_from(\'<I\',src,pos)[0]; pos+=4; bb=((val*2)|carry)&0xffffffff; carry=val>>31\n return carry\nwhile True:\n if bit():\n  out.append(src[pos]); pos+=1; continue\n val=1\n while True:\n  val=val*2+bit()\n  if bit(): break\n  val=(val-1)*2+bit()\n val-=3\n if val>=0:\n  val=((val<<8)|src[pos])^0xffffffff; pos+=1\n  if val==0: break\n  short=val&1; off=(val if val<0x80000000 else val-0x
+DYNAMIC PATH CALL 22 C:\Users\poly\goop\.venv\Scripts\python.exe -c "import subprocess; p=r'C:\Users\poly\goop\runs\conformant-v12-pins-ab\cells\RunB\target.exe'; exec('for ticks,seed in [(0,1),(1,1),(511,1),(512,1),(513,1),(1024,1),(4096,1),(4096,0),(4096,42)]:\n result=subprocess.run([p,str(ticks),str(seed)],capture_output=True,text=True,timeout=60)\n print(\'RUN\',ticks,seed,\'exit\',result.returncode); print(result.stdout.strip())\n')"

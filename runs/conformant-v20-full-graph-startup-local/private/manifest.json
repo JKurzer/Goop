@@ -1,0 +1,185 @@
+{
+  "source_run": "unpacked",
+  "delivery_method": "native-copy",
+  "cells": {
+    "RunA": {
+      "source_sha256": "a0f49c53c119aa21368b3eebda97b692536deeab96edd83aba820328b85a9419",
+      "packed_sha256": "a0f49c53c119aa21368b3eebda97b692536deeab96edd83aba820328b85a9419",
+      "source_bytes": 863744,
+      "packed_bytes": 863744,
+      "entry_va": "0x140018ba0",
+      "sections": [
+        {
+          "name": ".text",
+          "va": "0x140003000",
+          "virtual_size": 191872,
+          "raw_size": 192000,
+          "flags": "0x60000020"
+        },
+        {
+          "name": ".rdata",
+          "va": "0x140032000",
+          "virtual_size": 650136,
+          "raw_size": 650240,
+          "flags": "0x40000040"
+        },
+        {
+          "name": ".data",
+          "va": "0x1400d1000",
+          "virtual_size": 5872,
+          "raw_size": 3072,
+          "flags": "0xc0000040"
+        },
+        {
+          "name": ".pdata",
+          "va": "0x1400d3000",
+          "virtual_size": 6444,
+          "raw_size": 6656,
+          "flags": "0x40000040"
+        },
+        {
+          "name": ".fptable",
+          "va": "0x1400d5000",
+          "virtual_size": 256,
+          "raw_size": 512,
+          "flags": "0xc0000040"
+        },
+        {
+          "name": ".reloc",
+          "va": "0x1400d6000",
+          "virtual_size": 1712,
+          "raw_size": 2048,
+          "flags": "0x42000040"
+        }
+      ],
+      "import_dlls": [
+        "KERNEL32.dll"
+      ],
+      "strings_total": 2196,
+      "payload_needles": 80,
+      "payload_needles_present": 0,
+      "metadata_lines": [],
+      "metadata_lines_present": true,
+      "resource_bundles_exposed": null,
+      "trigram_sets_in_bytes": true,
+      "observations": [
+        {
+          "ticks": 0,
+          "seed": 42,
+          "stdout": "SUMMARY teleology progress team ticks=0 seed=42 alive0=64 alive1=64 score0=0 score1=0 owner=-1 checksum=ab9f950df6c4015e\n"
+        },
+        {
+          "ticks": 513,
+          "seed": 42,
+          "stdout": "tick   512 alive  43 v  46 score 0-0 cp owner -1 team progress\nSUMMARY teleology progress team ticks=513 seed=42 alive0=51 alive1=54 score0=0 score1=0 owner=-1 checksum=a2585c91144a7b6d\n"
+        },
+        {
+          "ticks": 4096,
+          "seed": 42,
+          "stdout": "tick   512 alive  43 v  46 score 0-0 cp owner -1 team progress\ntick  1024 alive  28 v  31 score 0-0 cp owner -1 team progress\ntick  1536 alive  24 v  29 score 0-0 cp owner -1 team progress\ntick  2048 alive  25 v  30 score 0-0 cp owner -1 team progress\ntick  2560 alive  23 v  28 score 0-0 cp owner -1 team progress\ntick  3072 alive  27 v  28 score 0-0 cp owner -1 team progress\ntick  3584 alive  25 v  28 score 0-0 cp owner -1 team progress\ntick  4096 alive  26 v  28 score 0-0 cp owner -1 team progress\nSUMMARY teleology progress team ticks=4096 seed=42 alive0=26 alive1=28 score0=0 score1=0 owner=-1 checksum=24d4ade7a8266ebd\n"
+        },
+        {
+          "ticks": 4096,
+          "seed": 7,
+          "stdout": "tick   512 alive  47 v  48 score 0-0 cp owner -1 team progress\ntick  1024 alive  31 v  30 score 0-0 cp owner -1 team progress\ntick  1536 alive  36 v  32 score 0-0 cp owner -1 team progress\ntick  2048 alive  38 v  33 score 0-0 cp owner -1 team progress\ntick  2560 alive  35 v  31 score 0-0 cp owner -1 team progress\ntick  3072 alive  36 v  32 score 0-0 cp owner -1 team progress\ntick  3584 alive  36 v  31 score 0-0 cp owner -1 team progress\ntick  4096 alive  35 v  32 score 0-0 cp owner -1 team progress\nSUMMARY teleology progress team ticks=4096 seed=7 alive0=35 alive1=32 score0=0 score1=0 owner=-1 checksum=0dc3073445acda84\n"
+        }
+      ],
+      "observations_match_source": true
+    },
+    "RunB": {
+      "source_sha256": "2b81cf7118f8adae31411f4b80465fd1a78f9bd81cb8b147163c103111a0e2af",
+      "packed_sha256": "2b81cf7118f8adae31411f4b80465fd1a78f9bd81cb8b147163c103111a0e2af",
+      "source_bytes": 863744,
+      "packed_bytes": 863744,
+      "entry_va": "0x140018ba0",
+      "sections": [
+        {
+          "name": ".text",
+          "va": "0x140003000",
+          "virtual_size": 191872,
+          "raw_size": 192000,
+          "flags": "0x60000020"
+        },
+        {
+          "name": ".rdata",
+          "va": "0x140032000",
+          "virtual_size": 650136,
+          "raw_size": 650240,
+          "flags": "0x40000040"
+        },
+        {
+          "name": ".data",
+          "va": "0x1400d1000",
+          "virtual_size": 5872,
+          "raw_size": 3072,
+          "flags": "0xc0000040"
+        },
+        {
+          "name": ".pdata",
+          "va": "0x1400d3000",
+          "virtual_size": 6444,
+          "raw_size": 6656,
+          "flags": "0x40000040"
+        },
+        {
+          "name": ".fptable",
+          "va": "0x1400d5000",
+          "virtual_size": 256,
+          "raw_size": 512,
+          "flags": "0xc0000040"
+        },
+        {
+          "name": ".reloc",
+          "va": "0x1400d6000",
+          "virtual_size": 1712,
+          "raw_size": 2048,
+          "flags": "0x42000040"
+        }
+      ],
+      "import_dlls": [
+        "KERNEL32.dll"
+      ],
+      "strings_total": 2355,
+      "payload_needles": 80,
+      "payload_needles_present": 80,
+      "metadata_lines": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "metadata_lines_present": true,
+      "resource_bundles_exposed": null,
+      "trigram_sets_in_bytes": true,
+      "observations": [
+        {
+          "ticks": 0,
+          "seed": 42,
+          "stdout": "SUMMARY teleology progress team ticks=0 seed=42 alive0=64 alive1=64 score0=0 score1=0 owner=-1 checksum=ab9f950df6c4015e\n"
+        },
+        {
+          "ticks": 513,
+          "seed": 42,
+          "stdout": "tick   512 alive  43 v  46 score 0-0 cp owner -1 team progress\nSUMMARY teleology progress team ticks=513 seed=42 alive0=51 alive1=54 score0=0 score1=0 owner=-1 checksum=a2585c91144a7b6d\n"
+        },
+        {
+          "ticks": 4096,
+          "seed": 42,
+          "stdout": "tick   512 alive  43 v  46 score 0-0 cp owner -1 team progress\ntick  1024 alive  28 v  31 score 0-0 cp owner -1 team progress\ntick  1536 alive  24 v  29 score 0-0 cp owner -1 team progress\ntick  2048 alive  25 v  30 score 0-0 cp owner -1 team progress\ntick  2560 alive  23 v  28 score 0-0 cp owner -1 team progress\ntick  3072 alive  27 v  28 score 0-0 cp owner -1 team progress\ntick  3584 alive  25 v  28 score 0-0 cp owner -1 team progress\ntick  4096 alive  26 v  28 score 0-0 cp owner -1 team progress\nSUMMARY teleology progress team ticks=4096 seed=42 alive0=26 alive1=28 score0=0 score1=0 owner=-1 checksum=24d4ade7a8266ebd\n"
+        },
+        {
+          "ticks": 4096,
+          "seed": 7,
+          "stdout": "tick   512 alive  47 v  48 score 0-0 cp owner -1 team progress\ntick  1024 alive  31 v  30 score 0-0 cp owner -1 team progress\ntick  1536 alive  36 v  32 score 0-0 cp owner -1 team progress\ntick  2048 alive  38 v  33 score 0-0 cp owner -1 team progress\ntick  2560 alive  35 v  31 score 0-0 cp owner -1 team progress\ntick  3072 alive  36 v  32 score 0-0 cp owner -1 team progress\ntick  3584 alive  36 v  31 score 0-0 cp owner -1 team progress\ntick  4096 alive  35 v  32 score 0-0 cp owner -1 team progress\nSUMMARY teleology progress team ticks=4096 seed=7 alive0=35 alive1=32 score0=0 score1=0 owner=-1 checksum=0dc3073445acda84\n"
+        }
+      ],
+      "observations_match_source": true
+    }
+  },
+  "checks": {
+    "observations_identical_all": true,
+    "source_bytes_unchanged": true,
+    "metadata_delivered_as_declared": true,
+    "trigram_sets_in_bytes": true
+  }
+}

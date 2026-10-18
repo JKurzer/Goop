@@ -1,0 +1,42 @@
+{
+  "arm": "conformant-v23-graph-rows-fire1",
+  "cell": "RunB",
+  "session_sha256": "73e62a9cfda73b7c5b913a15a5abe94963399b1b272f98404cd428ed930f6af6",
+  "content_event_count": 21,
+  "expected_lengths": {
+    "trigram_sets": 75,
+    "full_graph": 907,
+    "full_graph_directed": 911
+  },
+  "qualifying_event_indices": [
+    19
+  ],
+  "framed_delivered": true,
+  "contiguous_literal_event_indices": [],
+  "contiguous_literal_delivered": false,
+  "paid_cost_usd": 1.880982,
+  "evidence": [
+    {
+      "event_index": 19,
+      "event_chars": 2631,
+      "reconstructed": {
+        "trigram_sets": {
+          "bytes": 75,
+          "sha256": "6c53e211dcabf6f8931c0e22aebe1df880caab6e58dc1057c68e716862566696",
+          "matches_canonical": true
+        },
+        "full_graph": {
+          "bytes": 907,
+          "sha256": "4f336d6153f1cf613a82323dde458dd3dafa99863f3e36756eaf13cd248a5b3a",
+          "matches_canonical": true
+        },
+        "full_graph_directed": {
+          "bytes": 911,
+          "sha256": "ce2f84ee0ab0d511d1405f54c5d512b897ad7bfb01697ee0aaa7d6c9f026587b",
+          "matches_canonical": true
+        }
+      },
+      "all_three_match": true
+    }
+  ]
+}

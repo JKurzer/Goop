@@ -1,0 +1,488 @@
+{
+  "session": "C:\\Users\\poly\\.code_puppy\\autosaves\\auto_session_20261018_064933_761944_21232.json",
+  "session_sha256": "00b53ef80e038c78ec4cf821eabe4b6984106b23d0d3e8f5ef2d0781d8d5efd8",
+  "calls": [
+    {
+      "tool": "list_files",
+      "args": {
+        "directory": "C:\\Users\\poly\\goop\\runs\\conformant-v33-hainish-observe-low-fire1\\cells\\RunB",
+        "recursive": false
+      },
+      "id": "call_dZ8OtuT1UbGc9MFm8eW2qeog"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "& 'C:\\Users\\poly\\goop\\runs\\conformant-v33-hainish-observe-low-fire1\\cells\\RunB\\target.exe' 0 0",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_dWGKMvWg8jMSSmlTid165L9l"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\runs\\conformant-v33-hainish-observe-low-fire1\\cells\\RunB\\target.exe\" 0 0",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_W2QKn60rgl6OniGhLq7bPkxA"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\tools\\rizin\\bin\\rz-bin.exe\" -I -S -i -z \"C:\\Users\\poly\\goop\\runs\\conformant-v33-hainish-observe-low-fire1\\cells\\RunB\\target.exe\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_mwPF1ciSo3UzpyGIhyDaeJHh"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,re; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v33-hainish-observe-low-fire1\\cells\\RunB\\target.exe'); print('BASE',hex(p.OPTIONAL_HEADER.ImageBase),'ENTRY',hex(p.OPTIONAL_HEADER.ImageBase+p.OPTIONAL_HEADER.AddressOfEntryPoint)); print('SECTIONS',[(s.Name.decode().strip(chr(0)),hex(s.VirtualAddress),hex(s.Misc_VirtualSize)) for s in p.sections]); print('IMPORTS',[(d.dll.decode(),[i.name.decode() if i.name else i.ordinal for i in d.imports]) for d in p.DIRECTORY_ENTRY_IMPORT]); [(print(hex(p.OPTIONAL_HEADER.ImageBase+p.get_rva_from_offset(m.start())),m.group().decode())) for m in re.finditer(rb'[ -~]{8,}',p.__data__) if any(w in m.group().lower() for w in [b'summary',b'ticks',b'graph',b'hainish',b'usage'])]\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_EgRFPYPI4PZC8v9VdpRr4Oh4"
+    },
+    {
+      "tool": "read_tool_result",
+      "args": {
+        "handle": "01a14ea1-9213-7121-ae4d-c709310308e3/call_EgRFPYPI4PZC8v9VdpRr4Oh4.0",
+        "offset": 0,
+        "limit": 60,
+        "from_end": false,
+        "pattern": "0x140"
+      },
+      "id": "call_RY6rTYvrUKxWPlUPktJbZxUj"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,re; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v33-hainish-observe-low-fire1\\cells\\RunB\\target.exe'); print('BASE',hex(p.OPTIONAL_HEADER.ImageBase),'ENTRY',hex(p.OPTIONAL_HEADER.ImageBase+p.OPTIONAL_HEADER.AddressOfEntryPoint)); print('SECTIONS',[(s.Name.decode().strip(chr(0)),hex(s.VirtualAddress),hex(s.Misc_VirtualSize)) for s in p.sections]); print('IMPORTS',[(d.dll.decode(),[i.name.decode() if i.name else i.ordinal for i in d.imports]) for d in p.DIRECTORY_ENTRY_IMPORT]); [(print(hex(p.OPTIONAL_HEADER.ImageBase+p.get_rva_from_offset(m.start())),m.group().decode())) for m in re.finditer(rb'[ -~]{8,}',p.__data__) if any(w in m.group().lower() for w in [b'summary',b'ticks',b'usage'])]\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_RsgOKZpfNGtGcX3G2uuTQHMd"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,capstone; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v33-hainish-observe-low-fire1\\cells\\RunB\\target.exe'); b=p.OPTIONAL_HEADER.ImageBase; c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64); c.detail=True; s=p.sections[0]; targets=[0x14006c420,0x1400c0490]; ins=list(c.disasm(s.get_data(),b+s.VirtualAddress)); hits=[n for n,i in enumerate(ins) if any(o.type==capstone.x86.X86_OP_MEM and o.mem.base==capstone.x86.X86_REG_RIP and i.address+i.size+o.mem.disp in targets for o in i.operands)]; [(print('\\nXREF'),[print(hex(i.address),i.mnemonic,i.op_str) for i in ins[max(0,n-16):n+14]]) for n in hits]; print('FUNCTIONS',[(hex(b+e.struct.BeginAddress),hex(b+e.struct.EndAddress)) for e in p.DIRECTORY_ENTRY_EXCEPTION if any(b+e.struct.BeginAddress<=ins[n].address<b+e.struct.EndAddress for n in hits)])\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_1RnvBIaQCNduHejSAJOD1J2c"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,capstone,collections; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v33-hainish-observe-low-fire1\\cells\\RunB\\target.exe'); b=p.OPTIONAL_HEADER.ImageBase;c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64); print('EARLY FUNCTIONS',[(hex(b+e.struct.BeginAddress),hex(e.struct.EndAddress-e.struct.BeginAddress)) for e in p.DIRECTORY_ENTRY_EXCEPTION if e.struct.BeginAddress<0x4680]); ins=list(c.disasm(p.get_data(0x4680,0x11eca),b+0x4680)); print('MAIN CALLS',collections.Counter(i.op_str for i in ins if i.mnemonic=='call')); [(print(hex(i.address),i.mnemonic,i.op_str)) for i in ins if i.address<0x1400049c0 or i.address>=0x1400162a0]\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_RPjJnikGuHq6UqIImafbpDx2"
+    },
+    {
+      "tool": "read_tool_result",
+      "args": {
+        "handle": "01a14ea1-9213-7121-ae4d-c709310308e3/call_RPjJnikGuHq6UqIImafbpDx2.0",
+        "offset": 0,
+        "limit": 20,
+        "from_end": false,
+        "pattern": null
+      },
+      "id": "call_4ukSCinoLdXEJTlFCMjJltv5"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,capstone,collections; p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v33-hainish-observe-low-fire1\\cells\\RunB\\target.exe');b=p.OPTIONAL_HEADER.ImageBase;c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64);print('FUNCTIONS',[(hex(e.struct.BeginAddress),hex(e.struct.EndAddress-e.struct.BeginAddress)) for e in p.DIRECTORY_ENTRY_EXCEPTION if e.struct.BeginAddress<0x4680]); ins=list(c.disasm(p.get_data(0x4680,0x11eca),b+0x4680));print('CALLS',[(hex(i.address),i.op_str) for i in ins if i.mnemonic=='call']);[(print(hex(i.address),i.mnemonic,i.op_str)) for i in ins if 0x1400046f8<=i.address<0x14000479b]\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_Vq7O6KhTtrqXj2BYiVTQDIsA"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,capstone;p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v33-hainish-observe-low-fire1\\cells\\RunB\\target.exe');b=p.OPTIONAL_HEADER.ImageBase;c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64);print('FUNCTIONS');[print(hex(e.struct.BeginAddress),hex(e.struct.EndAddress-e.struct.BeginAddress)) for e in p.DIRECTORY_ENTRY_EXCEPTION if e.struct.BeginAddress<0x4680]; print('MAIN CALLS');[print(hex(i.address),i.op_str) for i in c.disasm(p.get_data(0x4680,0x11eca),b+0x4680) if i.mnemonic=='call']\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_AYNBnpdTxOJll4jXAEybg4Ok"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,capstone;p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v33-hainish-observe-low-fire1\\cells\\RunB\\target.exe');c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64);[(print(hex(i.address),i.mnemonic,i.op_str)) for start,size in [(0x4b20,0x220),(0xd760,0x140)] for i in c.disasm(p.get_data(start,size),0x140000000+start)]\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_vuvExBeJqlepqyWP2pfuGfGb"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,capstone;p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v33-hainish-observe-low-fire1\\cells\\RunB\\target.exe');c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64);[print(hex(i.address),i.mnemonic,i.op_str) for i in c.disasm(p.get_data(0x4680,0x11eca),0x140004680) if 0x140004b25<=i.address<0x140004d40]\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_295BpYg8I8PuSqiLD2qsIx1u"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,capstone;p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v33-hainish-observe-low-fire1\\cells\\RunB\\target.exe');c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64);[print(hex(i.address),i.mnemonic,i.op_str) for i in c.disasm(p.get_data(0x2580,0x273),0x140002580)]\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_CW4Y5BsJ0SK1Qt5Cj91Z40Rm"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,capstone;p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v33-hainish-observe-low-fire1\\cells\\RunB\\target.exe');c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64);[print(hex(i.address),i.mnemonic,i.op_str) for i in c.disasm(p.get_data(0x2200,0x377),0x140002200) if i.address<0x140002455]\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_lA6PMrGq3xhR2Sh0TL8jsps9"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,capstone;p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v33-hainish-observe-low-fire1\\cells\\RunB\\target.exe');c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64);[(print(hex(i.address),i.mnemonic,i.op_str)) for start,size in [(0x24eb,0x8c),(0x2ee0,0x1bb),(0x2ce0,0x33)] for i in c.disasm(p.get_data(start,size),0x140000000+start)]\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_5EyW7UdR5ubheO1NeTRQIezb"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,capstone,struct;p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v33-hainish-observe-low-fire1\\cells\\RunB\\target.exe');c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64);c.detail=True; ins=list(c.disasm(p.get_data(0x4680,0x11eca),0x140004680));[print(hex(i.address),i.mnemonic,i.op_str) for i in ins if 0x140004aa0<=i.address<0x140004b50];print('FLOAT DATA');[print(hex(a),p.get_data(a-0x140000000,16).hex(),struct.unpack('<4f',p.get_data(a-0x140000000,16))) for a in [0x1400c0e10,0x140030390,0x1400303a0,0x1400303b0,0x1400303c0,0x1400c0df0,0x1400c0e00]];print('MAIN NON-NOISE');[print(hex(i.address),i.mnemonic,i.op_str) for i in ins if 0x140004c60<=i.address<0x14000d7b0 and i.mnemonic.startswith('j')]\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_IMRDM4Od2lRyV5ta8FlepZxG"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,capstone;p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v33-hainish-observe-low-fire1\\cells\\RunB\\target.exe');c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64);[(print(hex(i.address),i.mnemonic,i.op_str)) for start,size in [(0x2150,0xb0),(0x1fa0,0x3d),(0x2d13,0x1c8)] for i in c.disasm(p.get_data(start,size),0x140000000+start)]\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_CWXedHFqH7khcVdn0zflduDS"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,capstone;p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v33-hainish-observe-low-fire1\\cells\\RunB\\target.exe');c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64);ins=list(c.disasm(p.get_data(0x1150,0x6a5),0x140001150));[print(hex(i.address),i.mnemonic,i.op_str) for i in ins[-100:]];print('RNG');[print(hex(i.address),i.mnemonic,i.op_str) for i in c.disasm(p.get_data(0x2800,0x1e6),0x140002800)]\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_KEFSkXtQRLMuTfYyiOlxIZF4"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import subprocess;exe=r'C:\\Users\\poly\\goop\\runs\\conformant-v33-hainish-observe-low-fire1\\cells\\RunB\\target.exe';exec('for ticks,seed in [(0,1),(1,0),(511,0),(512,0),(513,0),(1024,0),(4096,0),(4096,42)]:\\n p=subprocess.run([exe,str(ticks),str(seed)],capture_output=True,text=True,timeout=60)\\n print(ticks,seed,\\\"exit\\\",p.returncode)\\n print(\\\"\\\\n\\\".join(p.stdout.splitlines()[16:]))')\"",
+        "cwd": null,
+        "timeout": 180,
+        "background": false
+      },
+      "id": "call_GeAc6rxEK2pzNup2Ex7XNnRf"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,capstone,struct;p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v33-hainish-observe-low-fire1\\cells\\RunB\\target.exe');c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64);c.detail=True;ins=list(c.disasm(p.get_data(0x4680,0x11eca),0x140004680));exec('for lo,hi in [(0x140004c60,0x14000d7b0),(0x14000d8a0,0x1400163f0)]:\\n seq=[i for i in ins if lo<=i.address<hi]\\n print(hex(lo),len(seq),\\\"instructions\\\",\\\"quadruples\\\",len(seq)//4)\\n unexpected=[]\\n for n in range(0,len(seq),4):\\n  q=seq[n:n+4]\\n  if [i.mnemonic for i in q]!=[\\\"movzx\\\",\\\"mov\\\",\\\"xor\\\",\\\"mov\\\"]:unexpected.extend(q)\\n print(\\\"unexpected\\\",[(hex(i.address),i.mnemonic,i.op_str) for i in unexpected])');print('MATH ENTRIES');[(print(hex(i.address),i.mnemonic,i.op_str)) for start in [0x1c7f0,0x1cd80] for i in list(c.disasm(p.get_data(start,0x90),0x140000000+start))[:22]];print('CONFIG',p.get_data(0xc0e10,16).hex());print('TRIG CONST',[(hex(a),struct.unpack('<f',p.get_data(a,4))[0]) for a in [0x30398,0x3039c,0x303a0,0x303c4,0x303cc,0x303d0]])\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_of3JbrxMdxtxpD5L2pB4hyRh"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"exec('import struct,math\\nM=(1<<64)-1\\ndef f(x): return struct.unpack(\\\"<f\\\",struct.pack(\\\"<f\\\",x))[0]\\ndef rng(seed):\\n s=[seed]\\n for i in range(1,312): s.append((6364136223846793005*(s[-1]^(s[-1]>>62))+i)&M)\\n while True:\\n  for i in range(312):\\n   y=(s[i]&0xffffffff80000000)|(s[(i+1)%312]&0x7fffffff)\\n   s[i]=s[(i+156)%312]^(y>>1)^(0xb5026f5aa96619e9 if y&1 else 0)\\n  for x in s:\\n   x^=(x>>29)&0x5555555555555555\\n   x^=(x<<17)&0x71d67fffeda60000\\n   x^=(x<<37)&0xfff7eee000000000\\n   x^=x>>43\\n   yield x\\ndef checksum(points):\\n h=0x14650fb0739d0383\\n for x,y in points:\\n  for v in [x,y]:\\n   for byte in struct.pack(\\\"<i\\\",int(f(v*1000))): h=((h^byte)*0x100000001b3)&M\\n return format(h,\\\"016x\\\")\\nfor seed in [0,1]:\\n r=rng(seed); points=[]\\n for i in range(128):\\n  y=f(f(2*((next(r)>>40)/16777216)-1)*44)\\n  x=f(f(f(2*((next(r)>>40)/16777216)-1)*4)+(-44 if i%2==0 else 44))\\n  points.append((x,y))\\n print(seed,0,checksum(points))\\n moved=[]\\n for i,(x,y) in enumerate(points):\\n  a=f(f(i*f(0.618034))*f(6.283185307179586))\\n  dx=f(f(f(math.cos(a))*3)-x);dy=f(f(f(math.sin(a))*3)-y)\\n  length=f(math.sqrt(f(f(dx*dx)+f(dy*dy))))\\n  vx=f(f(dx/length)*6);vy=f(f(dy/length)*6)\\n  moved.append((f(x+f(vx/64)),f(y+f(vy/64))))\\n print(seed,1,checksum(moved))')\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_8BDhOSELb1fhYPRj2OEvE30b"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"exec('import struct,math\\nM=2**64-1\\ndef f(x): return struct.unpack(\\'<f\\',struct.pack(\\'<f\\',x))[0]\\ndef rng(seed):\\n s=[seed]\\n for i in range(1,312): s.append((6364136223846793005*(s[-1]^(s[-1]>>62))+i)&M)\\n while True:\\n  for i in range(312):\\n   y=(s[i]&0xffffffff80000000)|(s[(i+1)%312]&0x7fffffff)\\n   s[i]=s[(i+156)%312]^(y>>1)^(0xb5026f5aa96619e9 if y&1 else 0)\\n  for x in s:\\n   x^=(x>>29)&0x5555555555555555\\n   x^=(x<<17)&0x71d67fffeda60000\\n   x^=(x<<37)&0xfff7eee000000000\\n   x^=x>>43\\n   yield x\\ndef checksum(points):\\n h=0x14650fb0739d0383\\n for x,y in points:\\n  for v in [x,y]:\\n   for byte in struct.pack(\\'<i\\',int(f(v*1000))): h=((h^byte)*0x100000001b3)&M\\n return format(h,\\'016x\\')\\nfor seed in [0,1]:\\n r=rng(seed); points=[]\\n for i in range(128):\\n  y=f(f(2*((next(r)>>40)/16777216)-1)*44)\\n  x=f(f(f(2*((next(r)>>40)/16777216)-1)*4)+(-44 if i%2==0 else 44))\\n  points.append((x,y))\\n print(seed,0,checksum(points))\\n moved=[]\\n for i,(x,y) in enumerate(points):\\n  a=f(f(i*f(0.618034))*f(6.283185307179586))\\n  dx=f(f(f(math.cos(a))*3)-x);dy=f(f(f(math.sin(a))*3)-y)\\n  length=f(math.sqrt(f(f(dx*dx)+f(dy*dy))))\\n  vx=f(f(dx/length)*6);vy=f(f(dy/length)*6)\\n  moved.append((f(x+f(vx/64)),f(y+f(vy/64))))\\n print(seed,1,checksum(moved))')\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_ozmkIYXetMCActXKIRZd7oun"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"exec('import struct,math\\nM=2**64-1\\ndef f(x): return struct.unpack(\\'<f\\',struct.pack(\\'<f\\',x))[0]\\ndef rng(seed):\\n s=[seed]\\n for i in range(1,312): s.append((6364136223846793005*(s[-1]^(s[-1]>>62))+i)&M)\\n while True:\\n  for i in range(312):\\n   y=(s[i]&0xffffffff80000000)|(s[(i+1)%312]&0x7fffffff)\\n   s[i]=s[(i+156)%312]^(y>>1)^(0xb5026f5aa96619e9 if y&1 else 0)\\n  for x in s:\\n   x^=(x>>29)&0x5555555555555555\\n   x^=(x<<17)&0x71d67fffeda60000\\n   x^=(x<<37)&0xfff7eee000000000\\n   x^=x>>43\\n   yield x\\nr=rng(0); slots=[None]*1024;free=list(range(1023,-1,-1));goals=[]\\nfor i in range(1024):\\n a=f(f(i*f(0.618034))*f(6.283185307179586))\\n goals.append((f(f(math.cos(a))*3),f(f(math.sin(a))*3)))\\ndef spawn(team,spread):\\n y=f(f(2*((next(r)>>40)/16777216)-1)*44)\\n x=f(f(f(2*((next(r)>>40)/16777216)-1)*spread)+(-44 if team==0 else 44))\\n if free: slots[free.pop()]=[x,y,100,team]\\ndef report(t):\\n h=0x14650fb0739d0383;counts=[0,0]\\n for s in slots:\\n  if s is None: continue\\n  counts[s[3]]+=1\\n  for v in s[:2]:\\n   for byte in struct.pack(\\'<i\\',int(f(v*1000))):h=((h^byte)*0x100000001b3)&M\\n print(t,counts,format(h,\\'016x\\'))\\nfor i in range(64):spawn(0,4);spawn(1,4)\\nreport(0)\\nfor tick in range(513):\\n alive=[i for i,s in enumerate(slots) if s is not None]\\n for i in alive:\\n  s=slots[i];dx=f(goals[i][0]-s[0]);dy=f(goals[i][1]-s[1])\\n  length=f(math.sqrt(f(f(dx*dx)+f(dy*dy))))\\n  vx=f(f(dx/length)*6) if length>f(0.0001) else 0\\n  vy=f(f(dy/length)*6) if length>f(0.0001) else 0\\n  s[0]=max(-48,min(48,f(s[0]+f(vx/64))));s[1]=max(-48,min(48,f(s[1]+f(vy/64))))\\n for index,i in enumerate(alive):\\n  a=slots[i]\\n  for j in alive[index+1:]:\\n   b=slots[j]\\n   if a[3]==b[3]:continue\\n   dx=f(a[0]-b[0]);dy=f(a[1]-b[1])\\n   if f(f(dx*dx)+f(dy*dy))<2.25:a[2]-=6;b[2]-=6\\n for i in alive:\\n  if slots[i][2]<=0:slots[i]=None;free.append(i)\\n if tick and tick%512==0:\\n  for team in [0,1]:\\n   if sum(s is not None and s[3]==team for s in slots)<96:\\n    for j in range(8):spawn(team,6)\\n if tick+1 in [1,511,512,513]:report(tick+1)')\"",
+        "cwd": null,
+        "timeout": 180,
+        "background": false
+      },
+      "id": "call_vrVEfbxbY7O9I18ZD6w6kN7l"
+    },
+    {
+      "tool": "shell",
+      "args": {
+        "command": "\"C:\\Users\\poly\\goop\\.venv\\Scripts\\python.exe\" -c \"import pefile,capstone,hashlib,subprocess;p=pefile.PE(r'C:\\Users\\poly\\goop\\runs\\conformant-v33-hainish-observe-low-fire1\\cells\\RunB\\target.exe');print('SHA256',hashlib.sha256(p.__data__).hexdigest());c=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_64);c.detail=True;ins=list(c.disasm(p.sections[0].get_data(),0x140001000));sink=0x1400cdbd0;refs=[i for i in ins if any(o.type==capstone.x86.X86_OP_MEM and o.mem.base==capstone.x86.X86_REG_RIP and i.address+i.size+o.mem.disp==sink for o in i.operands)]; print('SINK',hex(sink),'XREFS',len(refs));print('refs outside verified repeated blocks');[print(hex(i.address),i.mnemonic,i.op_str) for i in refs if not(0x140004c60<=i.address<0x14000d7b0 or 0x14000d8a0<=i.address<0x1400163f0)];print('seed1 one tick');r=subprocess.run([r'C:\\Users\\poly\\goop\\runs\\conformant-v33-hainish-observe-low-fire1\\cells\\RunB\\target.exe','1','1'],capture_output=True,text=True,timeout=60);print(r.stdout.splitlines()[-1])\"",
+        "cwd": null,
+        "timeout": 60,
+        "background": false
+      },
+      "id": "call_sjksntFHQturZjz8bN1ie6e6"
+    }
+  ],
+  "returns": [
+    {
+      "tool": "list_files",
+      "id": "call_dZ8OtuT1UbGc9MFm8eW2qeog",
+      "kind": "result",
+      "success": null,
+      "exit_code": null,
+      "error": null,
+      "stderr": null
+    },
+    {
+      "tool": "shell",
+      "id": "call_dWGKMvWg8jMSSmlTid165L9l",
+      "kind": "result",
+      "success": false,
+      "exit_code": 1,
+      "error": "The process didn't exit cleanly! If the user_interrupted flag is true,\n                please stop all execution and ask the user for clarification!",
+      "stderr": "& was unexpected at this time."
+    },
+    {
+      "tool": "shell",
+      "id": "call_W2QKn60rgl6OniGhLq7bPkxA",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_mwPF1ciSo3UzpyGIhyDaeJHh",
+      "kind": "spill",
+      "chars": 1320
+    },
+    {
+      "tool": "shell",
+      "id": "call_EgRFPYPI4PZC8v9VdpRr4Oh4",
+      "kind": "spill",
+      "chars": 1320
+    },
+    {
+      "tool": "read_tool_result",
+      "id": "call_RY6rTYvrUKxWPlUPktJbZxUj",
+      "kind": "string",
+      "chars": 21465
+    },
+    {
+      "tool": "shell",
+      "id": "call_RsgOKZpfNGtGcX3G2uuTQHMd",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_1RnvBIaQCNduHejSAJOD1J2c",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_RPjJnikGuHq6UqIImafbpDx2",
+      "kind": "spill",
+      "chars": 1319
+    },
+    {
+      "tool": "read_tool_result",
+      "id": "call_4ukSCinoLdXEJTlFCMjJltv5",
+      "kind": "string",
+      "chars": 10199
+    },
+    {
+      "tool": "shell",
+      "id": "call_Vq7O6KhTtrqXj2BYiVTQDIsA",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_AYNBnpdTxOJll4jXAEybg4Ok",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_vuvExBeJqlepqyWP2pfuGfGb",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_295BpYg8I8PuSqiLD2qsIx1u",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_CW4Y5BsJ0SK1Qt5Cj91Z40Rm",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_lA6PMrGq3xhR2Sh0TL8jsps9",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_5EyW7UdR5ubheO1NeTRQIezb",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_IMRDM4Od2lRyV5ta8FlepZxG",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_CWXedHFqH7khcVdn0zflduDS",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_KEFSkXtQRLMuTfYyiOlxIZF4",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_GeAc6rxEK2pzNup2Ex7XNnRf",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_of3JbrxMdxtxpD5L2pB4hyRh",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_8BDhOSELb1fhYPRj2OEvE30b",
+      "kind": "result",
+      "success": false,
+      "exit_code": 1,
+      "error": "The process didn't exit cleanly! If the user_interrupted flag is true,\n                please stop all execution and ask the user for clarification!",
+      "stderr": "The filename, directory name, or volume label syntax is incorrect."
+    },
+    {
+      "tool": "shell",
+      "id": "call_ozmkIYXetMCActXKIRZd7oun",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_vrVEfbxbY7O9I18ZD6w6kN7l",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    },
+    {
+      "tool": "shell",
+      "id": "call_sjksntFHQturZjz8bN1ie6e6",
+      "kind": "result",
+      "success": true,
+      "exit_code": 0,
+      "error": "",
+      "stderr": ""
+    }
+  ],
+  "note": "Manual access-boundary audit required; tool text is untrusted data."
+}

@@ -1,0 +1,93 @@
+{
+  "groups": {
+    "trigram_sets": [
+      "trigram_sets"
+    ],
+    "full_graph": [
+      "full_graph_l01",
+      "full_graph_l02",
+      "full_graph_l03",
+      "full_graph_l04",
+      "full_graph_l05",
+      "full_graph_l06",
+      "full_graph_l07"
+    ],
+    "full_graph_directed": [
+      "full_graph_directed_l01",
+      "full_graph_directed_l02",
+      "full_graph_directed_l03",
+      "full_graph_directed_l04",
+      "full_graph_directed_l05",
+      "full_graph_directed_l06",
+      "full_graph_directed_l07"
+    ],
+    "graph_pair_0": [
+      "graph_pair_0_l01",
+      "graph_pair_0_l02",
+      "graph_pair_0_l03"
+    ],
+    "graph_pair_1": [
+      "graph_pair_1_l01",
+      "graph_pair_1_l02",
+      "graph_pair_1_l03"
+    ],
+    "graph_pair_2": [
+      "graph_pair_2_l01",
+      "graph_pair_2_l02",
+      "graph_pair_2_l03"
+    ],
+    "carriers": [
+      "carriers_l01",
+      "carriers_l02",
+      "carriers_l03",
+      "carriers_l04",
+      "carriers_l05",
+      "carriers_l06",
+      "carriers_l07",
+      "carriers_l08",
+      "carriers_l09",
+      "carriers_l10",
+      "carriers_l11",
+      "carriers_l12",
+      "carriers_l13",
+      "carriers_l14",
+      "carriers_l15",
+      "carriers_l16",
+      "carriers_l17",
+      "carriers_l18",
+      "carriers_l19",
+      "carriers_l20",
+      "carriers_l21",
+      "carriers_l22",
+      "carriers_l23",
+      "carriers_l24",
+      "carriers_l25",
+      "carriers_l26",
+      "carriers_l27",
+      "carriers_l28",
+      "carriers_l29",
+      "carriers_l30",
+      "carriers_l31",
+      "carriers_l32",
+      "carriers_l33",
+      "carriers_l34",
+      "carriers_l35",
+      "carriers_l36",
+      "carriers_l37",
+      "carriers_l38",
+      "carriers_l39",
+      "carriers_l40"
+    ],
+    "lead_ins": [
+      "lead_ins_l01",
+      "lead_ins_l02",
+      "lead_ins_l03",
+      "lead_ins_l04",
+      "lead_ins_l05",
+      "lead_ins_l06"
+    ]
+  },
+  "chunks": 70,
+  "max_chars": 120,
+  "sha256": "3ff2d095e74c7dd566679dea6d4f325c09aaa6157a9f9a22b6863bd6f0ffbed1"
+}

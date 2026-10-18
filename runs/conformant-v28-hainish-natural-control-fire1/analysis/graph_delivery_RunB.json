@@ -1,0 +1,42 @@
+{
+  "arm": "conformant-v28-hainish-natural-control-fire1",
+  "cell": "RunB",
+  "session_sha256": "1977f3ccd0548d28512083cfca4b202147287b295de763f0057aa27960e7d1d8",
+  "content_event_count": 19,
+  "expected_lengths": {
+    "trigram_sets": 69,
+    "full_graph": 805,
+    "full_graph_directed": 809
+  },
+  "qualifying_event_indices": [
+    14
+  ],
+  "framed_delivered": true,
+  "contiguous_literal_event_indices": [],
+  "contiguous_literal_delivered": false,
+  "paid_cost_usd": 1.6994965,
+  "evidence": [
+    {
+      "event_index": 14,
+      "event_chars": 5184,
+      "reconstructed": {
+        "trigram_sets": {
+          "bytes": 69,
+          "sha256": "0d4208321b49e1514951d3cda1010a236d1bb2d355123fadcedfe82d5c65abd4",
+          "matches_canonical": true
+        },
+        "full_graph": {
+          "bytes": 805,
+          "sha256": "4631409dd6150e699f988bb68f33d79b79f19d2d20944354791bbe3f648bba84",
+          "matches_canonical": true
+        },
+        "full_graph_directed": {
+          "bytes": 809,
+          "sha256": "7e4ecad1e7bd6c9fd7ccb4d621f8fd54539d9916d6e48908d80346ef935a54c4",
+          "matches_canonical": true
+        }
+      },
+      "all_three_match": true
+    }
+  ]
+}
