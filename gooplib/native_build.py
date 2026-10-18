@@ -135,6 +135,19 @@ def _c_chunks(text, size=1000):
     return [text[i:i + size] for i in range(0, len(text), size)]
 
 
+def inject_startup_format(main_cpp, text, zero_probe=False):
+    """Print a pinned format at startup, optionally only for the zero probe."""
+    anchor = SEED_ANCHOR if zero_probe else MAIN_ANCHOR
+    if main_cpp.count(MAIN_ANCHOR) != 1 or main_cpp.count(anchor) != 1:
+        raise GoopError('main.cpp startup format anchor not unique')
+    declaration = ('static const char bramble_startup_format[] = '
+                   + json.dumps(text) + ';\n\n')
+    main_cpp = main_cpp.replace(MAIN_ANCHOR, declaration + MAIN_ANCHOR)
+    statement = ('    if (ticks == 0 && seed == 0)\n        '
+                 if zero_probe else '    ') + 'std::printf(bramble_startup_format);'
+    return main_cpp.replace(anchor, anchor + '\n' + statement)
+
+
 def inject_strings(main_cpp, entries):
     """Cargo strings (owner ruling 2026-10-15, verbatim: "I don't care about
     over priming. remove the existing exports, go ahead and build the cargo
@@ -792,6 +805,12 @@ def build_pair(run_dir, spec):
                                        build['slots'], build['slot_size'],
                                        assignments_in_main=False),
                     encoding='utf-8')
+        if build['startup_format']:
+            main_path.write_text(
+                inject_startup_format(main_path.read_text(encoding='utf-8'),
+                                      build['startup_format'],
+                                      build['startup_zero_probe']),
+                encoding='utf-8')
         _compile(private, vcvars, metadata[cell][0], stub_reservation,
                  unique_bundles(build['fn_literals']) if build['fn_literals'] else [])
         shutil.copyfile(private / 'target.exe', public / 'target.exe')

@@ -13,6 +13,9 @@ Interpreter note: run everything with `.venv\Scripts\python.exe` from the
 repo root. Archive-fixture tests (score control table, v14-k7 fire fixture)
 skip cleanly when the sealed archive is absent.
 
+Rizin transition, actual saved REA logs, exposure limits, and child-only
+pin policy: [docs/rizin-rea-observation.md](docs/rizin-rea-observation.md).
+
 ## The four utilities
 
 | Utility | Stage | What it does |

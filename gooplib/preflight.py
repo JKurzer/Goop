@@ -1,4 +1,4 @@
-"""Generic preflight for a packed goop run: read-only checks; exclusively
+"""Generic preflight for a delivered goop run: read-only checks; exclusively
 creates <run_dir>/PREFLIGHT.json ('x' mode — refuses if it already exists).
 
 Pattern ported from the archived frozen-run verifier, made generic: slot
@@ -11,7 +11,7 @@ native_inspect.py. Verified live:
 - both manifests exist and their checks are green
 - per-slot bytes at manifest offsets equal the frozen candidate lines
   (NUL-padded; zero-filled past the cell dose)
-- packed and unpacked cell hashes match both manifests
+- delivered and native cell hashes match both manifests
 - pair isolation recomputed live: executable sections identical across cells
 - reports/ absent (never retry a cell), PREREG.md present (registered first)
 
@@ -65,18 +65,19 @@ def preflight(run_dir):
     lines = payload_lines(candidate, build)  # count + length already enforced
 
     unpacked_path = run_dir / 'unpacked' / 'private' / 'manifest.json'
+    # 'packed_*' fields remain legacy delivery-hash names for old fire tools.
     packed_path = run_dir / 'private' / 'manifest.json'
     require(unpacked_path.is_file(), f'missing {unpacked_path}')
     require(packed_path.is_file(), f'missing {packed_path}')
     unpacked = json.loads(unpacked_path.read_text(encoding='utf-8'))
     packed = json.loads(packed_path.read_text(encoding='utf-8'))
     require(all(unpacked['checks'].values()), 'native builder check failed')
-    require(all(packed['checks'].values()), 'packed builder check failed')
+    require(all(packed['checks'].values()), 'delivery-stage check failed')
     require(not (run_dir / 'reports').exists(),
             'reports/ already exists; never retry a cell')
     prereg = run_dir / PREREG_NAME
     require(prereg.is_file() and prereg.stat().st_size > 0,
-            f'{PREREG_NAME} must be registered before fire')
+            f'{PREREG_NAME} must exist before verification')
 
     cells = list(build['doses'])
     sections = {}
@@ -99,9 +100,9 @@ def preflight(run_dir):
         sections[cell] = executable_sections(binary)
         fired = run_dir / 'cells' / cell / 'target.exe'
         require(digest(fired) == packed['cells'][cell]['packed_sha256'],
-                f'{cell}: packed hash mismatch vs packed manifest')
+                f'{cell}: delivered hash mismatch vs delivery manifest')
         require(digest(binary) == packed['cells'][cell]['source_sha256'],
-                f'{cell}: unpacked hash mismatch vs packed manifest')
+                f'{cell}: native hash mismatch vs delivery manifest')
         require(digest(binary) == unpacked['cells'][cell]['sha256'],
                 f'{cell}: unpacked hash mismatch vs native manifest')
         record['cells'][cell] = {

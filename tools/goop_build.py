@@ -1,8 +1,8 @@
-"""goop_build — build + pack + verify a run's native pair (utility 2 of 4).
+"""goop_build — build + stage + verify a run's native pair (utility 2 of 4).
 
 Usage:
     python tools/goop_build.py build  <run_dir>   # native pair -> <run_dir>/unpacked
-    python tools/goop_build.py pack   <run_dir>   # UPX pack -> <run_dir>/cells + private
+    python tools/goop_build.py stage  <run_dir>   # native copy -> <run_dir>/cells + private
     python tools/goop_build.py verify <run_dir>   # preflight -> <run_dir>/PREFLIGHT.json
     python tools/goop_build.py all    <run_dir>   # the three steps in order
 
@@ -20,7 +20,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from gooplib import GoopError
 from gooplib.native_build import build_pair
-from gooplib.native_pack import pack_pair
+from gooplib.native_stage import stage_pair
 from gooplib.preflight import preflight
 from gooplib.specs import load_spec
 
@@ -39,12 +39,12 @@ def _build(run_dir, spec):
     return manifest
 
 
-def _pack(run_dir, spec):
-    manifest = pack_pair(run_dir, spec)
-    _print_checks('packed pair checks:', manifest['checks'])
+def _stage(run_dir, spec):
+    manifest = stage_pair(run_dir, spec)
+    _print_checks('staged pair checks:', manifest['checks'])
     for cell, data in manifest['cells'].items():
-        print(f'  {cell}: {data["source_bytes"]} -> {data["packed_bytes"]} bytes, '
-              f'strings {data["strings_total"]}, needles present '
+        print(f'  {cell}: {data["packed_bytes"]} unchanged bytes, '
+              f'strings {data["strings_total"]}, candidate needles in bytes '
               f'{data["payload_needles_present"]}/{data["payload_needles"]}')
     return manifest
 
@@ -57,14 +57,14 @@ def _verify(run_dir, spec):
     return record
 
 
-STEPS = {'build': _build, 'pack': _pack, 'verify': _verify}
+STEPS = {'build': _build, 'stage': _stage, 'verify': _verify}
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('step', choices=[*STEPS, 'all'],
-                        help='which step to run; "all" runs build, pack, verify in order')
+                        help='which step to run; "all" runs build, stage, verify in order')
     parser.add_argument('run_dir', type=Path, help='run directory containing spec.json')
     args = parser.parse_args(argv)
     run_dir = args.run_dir.resolve()

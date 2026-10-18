@@ -39,8 +39,8 @@ parameters (goop rule 2: zero magic numbers in utilities):
                 `links_per_literal: 2` or `4` to keep complete two-LINK
                 configs inside independently visible <=120-byte strings.
                 `resource_carrier: true` also plants one copy of each
-                distinct bundle in RCDATA for UPX's resource-preservation
-                mode (the default compressed .rdata stays unchanged).
+                distinct bundle in RCDATA. Historical UPX builds used this
+                mirror; direct-staged builds already expose the .rdata copy.
                 Without that key, the historical one-LINK layout remains
                 reproducible. Arrays are referenced in both loops via
                 volatile reads into the inert sink; output unchanged.
@@ -302,6 +302,20 @@ def build_section(spec):
     formats = build.get('formats')
     if formats is not None:
         formats = _formats(formats)
+    startup_format = build.get('startup_format')
+    if startup_format is not None:
+        _require(isinstance(startup_format, str)
+                 and startup_format.endswith('\n')
+                 and '\n' not in startup_format[:-1]
+                 and len(startup_format) <= 2500
+                 and all(0x20 <= ord(ch) <= 0x7E and ch != '%'
+                         for ch in startup_format[:-1]),
+                 'build.startup_format must be a single printable ASCII '
+                 'printf format ending in newline, <=2500 chars, with no %')
+    startup_zero_probe = build.get('startup_zero_probe', False)
+    _require(isinstance(startup_zero_probe, bool)
+             and (not startup_zero_probe or startup_format is not None),
+             'build.startup_zero_probe requires startup_format and a boolean')
     dos_stub = _metadata_lines(build.get('dos_stub'), doses, slots, 'dos_stub')
     pdb_lines = _metadata_lines(build.get('pdb_lines'), doses, slots, 'pdb_lines')
     if dos_stub and pdb_lines:
@@ -322,6 +336,8 @@ def build_section(spec):
             'format_table': format_table, 'config_tags': config_tags,
             'strings': strings, 'fn_literals': fn_literals,
             'attention': attention, 'formats': formats,
+            'startup_format': startup_format,
+            'startup_zero_probe': startup_zero_probe,
             'dos_stub': dos_stub, 'pdb_lines': pdb_lines,
             'payload_path': payload_path, 'payload_sha256': sha}
 

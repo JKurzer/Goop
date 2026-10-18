@@ -4,15 +4,6 @@ RESOURCE_START = 0x4000
 RCDATA = 10
 
 
-def keep_resource_option(count):
-    """Preserve only the generated RCDATA IDs, not every PE resource."""
-    if count < 1:
-        raise ValueError('at least one resource is required')
-    identifiers = (f'{RCDATA}/{RESOURCE_START + index}'
-                   for index in range(count))
-    return '--keep-resource=' + ','.join(identifiers)
-
-
 def unique_bundles(block):
     """One resource per distinct complete bundle, in canonical order."""
     from gooplib.exports import block_texts

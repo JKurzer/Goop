@@ -9,11 +9,10 @@ from pathlib import Path
 import pefile
 import pytest
 
-from gooplib import GoopError, UPX
+from gooplib import GoopError
 from gooplib.dos_stub import make_dos_stub
 from gooplib.native_build import build_pair
-from gooplib.native_pack import pack_pair
-from gooplib.pe_debug import add_pdb_hint
+from gooplib.native_stage import stage_pair
 from gooplib.specs import build_section, metadata_texts, payload_lines
 
 VCVARS = Path(r'C:\Program Files\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build\vcvars64.bat')
@@ -80,17 +79,9 @@ def test_linker_builds_real_executable_with_long_stub(tmp_path):
     assert text.encode() in binary[:pe.DOS_HEADER.e_lfanew]
     process = subprocess.run([str(tmp_path / 'target.exe')], timeout=10)
     assert process.returncode == 0
-    packed = tmp_path / 'packed.exe'
-    pack = subprocess.run([str(UPX), '-q', '-o', str(packed),
-                           str(tmp_path / 'target.exe')],
-                          capture_output=True, text=True, timeout=90)
-    assert pack.returncode == 0, pack.stdout + pack.stderr
-    packed_bytes = packed.read_bytes()
-    assert text.encode() in packed_bytes[:pefile.PE(data=packed_bytes).DOS_HEADER.e_lfanew]
-    assert subprocess.run([str(packed)], timeout=10).returncode == 0
-    rizin = Path(r'C:\Users\poly\tools\rizin\bin\rz-bin.exe')
+    rizin = Path.home() / 'tools/rizin/bin/rz-bin.exe'
     if rizin.is_file():
-        result = subprocess.run([str(rizin), '-zz', str(packed)],
+        result = subprocess.run([str(rizin), '-zz', str(tmp_path / 'target.exe')],
                                 capture_output=True, timeout=30)
         assert result.returncode == 0
         assert text.encode('ascii') in result.stdout
@@ -98,7 +89,7 @@ def test_linker_builds_real_executable_with_long_stub(tmp_path):
 
 @pytest.mark.skipif(os.name != 'nt' or not VCVARS.is_file(),
                     reason='requires local MSVC linker')
-def test_goop_pair_build_and_pack_preserves_real_dos_stub(tmp_path, monkeypatch):
+def test_goop_pair_stage_preserves_real_dos_stub(tmp_path, monkeypatch):
     monkeypatch.setenv('GOOP_VCVARS', str(VCVARS))
     text = 'LOCAL_UNFIRED_DOS_PROBE_' + 'ABCD' * 256
     pdb_text = 'LOCAL_UNFIRED_PDB_PROBE_' + 'EFGH' * 256
@@ -116,57 +107,14 @@ def test_goop_pair_build_and_pack_preserves_real_dos_stub(tmp_path, monkeypatch)
     (tmp_path / 'spec.json').write_text(json.dumps(spec), encoding='utf-8')
     built = build_pair(tmp_path, spec)
     assert all(built['checks'].values())
-    packed = pack_pair(tmp_path, spec)
-    assert all(packed['checks'].values())
+    with pytest.raises(GoopError, match='PDB-line injection is not supported'):
+        stage_pair(tmp_path, spec)
+    assert not (tmp_path / 'cells').exists()
+    spec['build']['pdb_lines'] = None
+    staged = stage_pair(tmp_path, spec)
+    assert all(staged['checks'].values())
     for name in spec['build']['doses']:
         binary = (tmp_path / 'cells' / name / 'target.exe').read_bytes()
+        assert binary == (tmp_path / 'unpacked/cells' / name / 'target.exe').read_bytes()
         region = binary[:pefile.PE(data=binary).DOS_HEADER.e_lfanew]
         assert (text.encode() in region) == (name == 'RunB')
-        assert (metadata_texts(build_section(spec), payload.splitlines(), 'RunB')[1].encode()
-                in binary) == (name == 'RunB')
-        assert len(getattr(pefile.PE(data=binary), 'DIRECTORY_ENTRY_DEBUG', [])) == (name == 'RunB')
-
-
-@pytest.mark.skipif(os.name != 'nt' or not VCVARS.is_file(),
-                    reason='requires local MSVC linker')
-def test_upx_strips_linker_pdb_path(tmp_path):
-    (tmp_path / 'source.cpp').write_text('int main() { return 0; }', encoding='ascii')
-    (tmp_path / 'dos-stub.exe').write_bytes(make_dos_stub('local probe', 1024))
-    directory = tmp_path / 'first_link' / 'second_link'
-    directory.mkdir(parents=True)
-    pdb = directory / 'debug.pdb'
-    command = (f'call "{VCVARS}" >nul && cl /nologo /Zi source.cpp '
-               f'/Fe:sample.exe /link /STUB:dos-stub.exe /DEBUG:FULL /PDB:"{pdb}"')
-    result = subprocess.run(command, shell=True, cwd=tmp_path,
-                            capture_output=True, text=True, timeout=120)
-    assert result.returncode == 0, result.stdout + result.stderr
-    assert pdb.is_file()
-    original = pefile.PE(str(tmp_path / 'sample.exe'))
-    assert len(getattr(original, 'DIRECTORY_ENTRY_DEBUG', [])) > 0
-    packed = tmp_path / 'packed.exe'
-    pack = subprocess.run([str(UPX), '-q', '-o', str(packed),
-                           str(tmp_path / 'sample.exe')],
-                          capture_output=True, text=True, timeout=90)
-    assert pack.returncode == 0, pack.stdout + pack.stderr
-    image = pefile.PE(str(packed))
-    assert len(getattr(image, 'DIRECTORY_ENTRY_DEBUG', [])) == 0
-    assert b'first_link' not in packed.read_bytes()
-    assert subprocess.run([str(packed)], timeout=10).returncode == 0
-    hint = r'fake\\first_link\\second_link\\debug.pdb'
-    patched = tmp_path / 'hinted.exe'
-    patched.write_bytes(add_pdb_hint(packed.read_bytes(), hint))
-    parsed = pefile.PE(str(patched))
-    assert len(parsed.DIRECTORY_ENTRY_DEBUG) == 1
-    assert hint.encode() in patched.read_bytes()
-    assert subprocess.run([str(patched)], timeout=10).returncode == 0
-    upx_test = subprocess.run([str(UPX), '-t', str(patched)],
-                              capture_output=True, timeout=30)
-    assert upx_test.returncode == 0, upx_test.stdout + upx_test.stderr
-    rizin = Path(r'C:\Users\poly\tools\rizin\bin\rz-bin.exe')
-    if rizin.is_file():
-        info = subprocess.run([str(rizin), '-I', str(patched)],
-                              capture_output=True, timeout=30)
-        assert b'dbg_file' in info.stdout and b'first_link' in info.stdout
-        scan = subprocess.run([str(rizin), '-zz', str(patched)],
-                              capture_output=True, timeout=30)
-        assert hint.encode() in scan.stdout

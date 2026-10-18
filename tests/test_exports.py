@@ -6,7 +6,7 @@ and build the cargo strings."). This file now covers the surviving
 gooplib.exports surface: link_texts derivation off the canonical LINK
 multiset, words/sets/pairs validation, spec wiring in
 gooplib.specs.build_section, and the visibility measure. Cargo-string
-tests live in test_strings.py; end-to-end build/pack assertions live in
+tests live in test_strings.py; end-to-end build/stage assertions live in
 test_build.py (skipped without a pinned toolchain).
 """
 import re
@@ -19,8 +19,7 @@ from gooplib import GoopError
 from gooplib.exports import (block_leaf_words, block_texts, count_visible,
                              link_texts, names_digest, validate_export_words,
                              validate_pairs)
-from gooplib.literal_resources import (keep_resource_option, unique_bundles,
-                                       write_resources)
+from gooplib.literal_resources import unique_bundles, write_resources
 from gooplib.native_build import build_pair, inject_fn_literals
 from gooplib.specs import build_section
 
@@ -132,10 +131,6 @@ def test_resource_mirror_contains_whole_bundles_once(tmp_path):
              'resource_carrier': True}
     texts = unique_bundles(block)
     assert len(texts) == 5
-    assert keep_resource_option(len(texts)) == '--keep-resource=' + ','.join(
-        f'10/{16384 + index}' for index in range(5))
-    with pytest.raises(ValueError, match='at least one'):
-        keep_resource_option(0)
     write_resources(tmp_path, texts)
     assert (tmp_path / 'fnlit_resource_000.bin').read_bytes() == \
         texts[0].encode('ascii') + b'\0'

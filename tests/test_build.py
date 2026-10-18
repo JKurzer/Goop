@@ -18,7 +18,7 @@ from gooplib import GoopError
 from gooplib.native_build import (build_pair, cstr_literal,
                                   inject_config_tags, inject_tag_assignments,
                                   slot_offset, table_layout)
-from gooplib.native_pack import pack_pair
+from gooplib.native_stage import stage_pair
 from gooplib.preflight import preflight
 import pefile
 
@@ -172,14 +172,16 @@ def test_run20_observations_identical_across_cells(run20):
 
 
 @requires_msvc
-def test_run20_packed_checks_and_payload_hidden(run20):
-    packed = run20['packed']
-    assert all(packed['checks'].values())
-    assert packed['cells']['RunA']['payload_needles'] == 20
-    raw_packed = (run20['run'] / 'cells' / 'RunA' / 'target.exe').read_bytes()
-    raw_unpacked = (run20['run'] / 'unpacked' / 'cells' / 'RunA' / 'target.exe').read_bytes()
-    needle = b'needle-gonkulator-003'
-    assert needle in raw_unpacked and needle not in raw_packed
+def test_run20_staged_bytes_are_visible_and_unchanged(run20):
+    staged = run20['packed']
+    assert all(staged['checks'].values())
+    assert staged['delivery_method'] == 'native-copy'
+    assert staged['checks']['source_bytes_unchanged']
+    assert staged['cells']['RunA']['payload_needles'] == 20
+    delivered = (run20['run'] / 'cells' / 'RunA' / 'target.exe').read_bytes()
+    source = (run20['run'] / 'unpacked' / 'cells' / 'RunA' / 'target.exe').read_bytes()
+    assert delivered == source
+    assert b'needle-gonkulator-003' in delivered
 
 
 @requires_msvc
@@ -189,17 +191,17 @@ def test_build_refuses_overwrite(run20):
 
 
 @requires_msvc
-def test_pack_refuses_overwrite(run20):
+def test_stage_refuses_overwrite(run20):
     with pytest.raises(FileExistsError):
-        pack_pair(run20['run'], run20['spec'])
+        stage_pair(run20['run'], run20['spec'])
 
 
 @requires_msvc
-def test_pack_refuses_without_unpacked(tmp_path):
+def test_stage_refuses_without_unpacked(tmp_path):
     run, spec = make_run(tmp_path, 'nobuild', 2, 64, {'RunA': 1, 'RunB': 1},
                          32, format_table=False)
     with pytest.raises(GoopError, match='unpacked'):
-        pack_pair(run, spec)
+        stage_pair(run, spec)
 
 
 # ---- verify flow on the 20-slot run (stateful: keep this order) -------------
@@ -334,6 +336,7 @@ def test_run20x_strings_checks_green(run20x):
     assert all(checks.values())
     assert all(run20x['packed']['checks'].values())
     assert run20x['packed']['checks']['resource_bundles_exposed']
+    assert run20x['packed']['checks']['trigram_sets_in_bytes']
 
 
 @requires_msvc
@@ -367,16 +370,21 @@ def test_run20x_bundles_survive_one_unpacked_scanner_row(run20x):
 
 
 @requires_msvc
-def test_run20x_bundles_survive_packed_resource_scan(run20x):
+def test_run20x_bundles_survive_staged_scanner_row(run20x):
     scanner = Path.home() / 'tools/rizin/bin/rz-bin.exe'
     if not scanner.is_file():
-        pytest.skip('Rizin unavailable for packed resource integration')
+        pytest.skip('Rizin unavailable for staged-string integration')
     binary = run20x['run'] / 'cells/RunB/target.exe'
     result = subprocess.run([str(scanner), '-z', str(binary)],
                             capture_output=True, check=True, timeout=60)
     visible_rows = [row[:256] for row in result.stdout.splitlines()]
     for text in set(block_texts(RUN20X['fn_literals'])):
         assert any(text.encode('ascii') in row for row in visible_rows), text
+    graph = next(entry['text'].encode('ascii') for entry in RUN20X['strings']
+                 if entry['name'] == 'trigram_sets')
+    graph_rows = [row for row in result.stdout.splitlines() if graph in row[:256]]
+    assert len(graph_rows) == 1
+    assert len(graph_rows[0]) <= 256  # include ANSI/columns in the raw line budget
 
 
 @requires_msvc

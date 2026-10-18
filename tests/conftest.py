@@ -19,7 +19,7 @@ GOOP_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(GOOP_ROOT))
 
 from gooplib.native_build import build_pair  # noqa: E402
-from gooplib.native_pack import pack_pair  # noqa: E402
+from gooplib.native_stage import stage_pair  # noqa: E402
 
 KNOWN_VCVARS = Path(r'C:\Program Files\Microsoft Visual Studio\18\Community'
                     r'\VC\Auxiliary\Build\vcvars64.bat')
@@ -82,7 +82,10 @@ RUN20X = {'slots': 20, 'slot_size': 256, 'doses': {'RunA': 5, 'RunB': 10},
           'strings': [{'name': 'signpost',
                        'text': 'see the slot table for provenance tags'},
                       {'name': 'cargo_note',
-                       'text': 'quorlx vexel quorlx murn mirn quorlx vexel'}],
+                       'text': 'quorlx vexel quorlx murn mirn quorlx vexel'},
+                      {'name': 'trigram_sets',
+                       'text': ('teleology team reverse | teleology progress team'
+                                ' | teleology reverse remove')}],
           'fn_literals': {'sets': 1, 'links_per_literal': 4,
                           'resource_carrier': True,
                           'pairs': [{'anchor': 'quorlx', 'target': 'vexel',
@@ -96,7 +99,7 @@ def _built_run(tmp_path_factory, name, params):
     base = tmp_path_factory.mktemp('runs')
     run, spec = make_run(base, name, **params)
     unpacked = build_pair(run, spec)
-    packed = pack_pair(run, spec)
+    packed = stage_pair(run, spec)
     return {'run': run, 'spec': spec, 'unpacked': unpacked, 'packed': packed}
 
 

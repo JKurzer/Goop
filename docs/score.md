@@ -63,6 +63,18 @@ The payload is the run's frozen `inputs/candidate.txt` (or
 first — a wrong payload cannot silently yield a plausible table
 (MEASUREMENT_REVIEW bug 5). All writes are 'x' mode: re-export refuses.
 
+## TODO: assess reconstruction quality, alongside steering
+
+`export` records an analyst report; `score` does **not** independently grade
+whether that report reconstructs the executable correctly. Before using a
+future arm to claim REA success/failure, preregister a blinded, binary-grounded
+rubric and held-out behavioral checks (I/O, state layout, update order,
+constants, edge cases, checksum, confidence); report those results together
+with exposure and semantic steering outcomes. Don't use the analyst's own
+confidence as the quality oracle. Details and the saved v12 flow:
+`rizin-rea-observation.md`. This is a future evaluation task, not a
+reason to discard the current exploratory run or launch another paid one.
+
 ## score <run_dir>
 
 One JSONL row per cell, appended to **`goop/aftermath/rows.jsonl`** (the

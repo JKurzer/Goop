@@ -1,12 +1,13 @@
-# goop_build — build + pack + verify (utility 2 of 4)
+# goop_build — build + stage + verify (utility 2 of 4)
 
-Builds the native cell pair for a run, UPX-packs it, and preflights the
-frozen result. Everything is driven by the run's `spec.json`; there are no
-hardcoded counts anywhere in the utility.
+Builds a native cell pair, stages byte-identical uncompressed executables,
+and preflights the frozen result. The old UPX-backed arms remain historical;
+new builds do not invoke UPX. Everything is driven by the run's `spec.json`;
+there are no hardcoded counts anywhere in the utility.
 
 ```
 python tools/goop_build.py build  <run_dir>   # native pair -> <run_dir>/unpacked/
-python tools/goop_build.py pack   <run_dir>   # UPX pack  -> <run_dir>/cells/ + private/
+python tools/goop_build.py stage  <run_dir>   # native copy -> <run_dir>/cells/ + private/
 python tools/goop_build.py verify <run_dir>   # preflight -> <run_dir>/PREFLIGHT.json
 python tools/goop_build.py all    <run_dir>   # the three steps in order
 ```
@@ -15,7 +16,25 @@ Exit status: `0` on success, `2` on any refusal or integrity failure.
 Steps refuse to overwrite existing outputs, always (rule 1). `verify`
 writes **only** `PREFLIGHT.json`, in `x` mode.
 
-## Canonical 160-line arm (RunB fired once)
+## Local direct-delivery check (no paid fire)
+
+`runs/conformant-v17-direct-graph-local/` is a new **ignored, local-only**
+arm derived from v16. It copies the pinned candidate unchanged, leaves
+`trigram_sets` as the only named cargo string, disables the redundant RCDATA
+mirror and PDB hint, and omits the `fire` spec. `goop_build all` passed:
+paired observations, unchanged staged bytes, slot occupancy, and section
+isolation. RunA/RunB hashes are recorded in that run's `PREFLIGHT.json`.
+
+Local `rz-bin -z` on the staged executables found the complete 75-byte
+`trigram_sets` string in exactly one raw row per cell: 186 bytes for RunA,
+187 for RunB (including scanner columns and ANSI); both fit the first 256
+bytes. This establishes **local clear-file scan visibility only**. No saved
+paid analyst CONTENT event for this new arm exists. Scanning thousands of
+strings can also cause tool-output spill; local row presence cannot prove a
+future analyst will retrieve or read that row. No behavior was changed to
+make the text important.
+
+## Canonical 160-line arm (historical RunB fired once)
 
 `runs/conformant-v11-160-metadata/spec.json` and its pinned
 `inputs/candidate.txt` are the **only active source files** for this arm.
@@ -26,9 +45,10 @@ pins its new SHA-256 and maps candidate line indices to metadata:
 `build.pdb_lines = {"RunA": null, "RunB": [4,5]}`. Both channels derive
 bytes from the same candidate; they do not maintain separate payload text.
 
-LINK `/STUB` embeds the four complete lines in a real MZ DOS program, with
-neutral equal-sized padding in RunA. UPX strips LINK's debug directory, so
-the packer places a genuine CodeView/RSDS record and its **fake PDB path**
+In the historical v11 arm, LINK `/STUB` embedded four complete lines in a
+real MZ DOS program, with neutral equal-sized padding in RunA. UPX stripped
+LINK's debug directory, so the historical packer placed a genuine
+CodeView/RSDS record and its **fake PDB path**
 in reserved DOS-header padding *after* UPX. Its two fake directory names
 are deterministic, path-safe <=88-character prefixes ending at complete
 LINK inserts from candidate lines 4 and 5, followed by `\\debug.pdb`; no actual PDB is shipped or
@@ -72,8 +92,8 @@ runs/<arm>/
   inputs/candidate.txt      # frozen payload (one line per slot)
   unpacked/                 # build step: cells/<cell>/target.exe,
                             #   private/<cell>/ (sources, build.log, target.map), private/manifest.json
-  cells/<cell>/             # pack step: packed target.exe
-  private/                  # pack step: manifest.json, <cell>/target-{unpacked,packed}.exe, upx.log
+  cells/<cell>/             # stage step: uncompressed target.exe (byte-identical to built)
+  private/                  # stage step: manifest.json
   PREFLIGHT.json            # verify step, written once
   reports/                  # created later by fire; verify refuses if this exists
 ```
@@ -161,8 +181,9 @@ line up one-to-one with the ported scheme; goop never reads the archive.
 
 MSVC is an environment pin: set `GOOP_VCVARS` to the full path of
 `vcvars64.bat`. The utility asserts the pinned file exists before building
-(`GoopError` otherwise). UPX is bundled at `tools/upx/upx.exe` (stock
-5.2.1, license texts alongside). The bundled analyst helper is DESTROYED
+(`GoopError` otherwise). Archived UPX executables remain in `tools/upx/`
+for historical reproducibility but are not invoked by the current pipeline.
+The bundled analyst helper is DESTROYED
 (owner ruling 2026-10-16: it guided analysts away from the payloads); the
 analyst's tooling is now the rizin suite installed at the machine pin
 C:\Users\poly\tools\rizin\bin, documented in the prompt file. Nothing is
@@ -200,17 +221,21 @@ exposure + config_tags, +2 with exports, +1 with fn_literals). Any
 failed check fails the build after the manifest is written for
 forensics.
 
-## pack
+## stage
 
-UPX-packs each cell, runs the UPX integrity test, re-runs the four probes
-and requires byte-equality with the unpacked manifest observations, and
-checks the payload is statically hidden: every candidate line of >= 16
-bytes is a needle, and no needle may appear in the packed binary
-(`payload_statically_hidden`). Sections, imports, entry VA, sizes, and
-hashes land in `private/manifest.json`. With `exports`, packing passes
-`--compress-exports=0` (the default would compress the export section
-away) and the `exports_preserved` check requires the packed export table
-to equal the spec name list exactly.
+Copies each built executable unchanged to `cells/<cell>/target.exe`, reruns
+four probes per cell, and verifies output matches the native build. Records
+raw candidate-needle visibility, section/import metadata, hashes, and any
+optional exact RCDATA mirrors in `private/manifest.json`. The legacy
+`packed_sha256`, `packed_bytes`, and preflight `packed_checks` field names
+refer to **delivered** bytes for compatibility with existing fire tools;
+new staged files are not packed. `source_bytes_unchanged` must pass. If the
+spec supplies a named `trigram_sets` string, its complete bytes must also
+be present. This is a local byte check, **not** evidence an analyst saw it.
+
+Direct staging refuses `build.pdb_lines`: the old PDB hint needed an UPX
+intermediate with a blank debug directory; the MSVC native PE already has
+one. Leave this optional channel out of new direct-delivery specs.
 
 ## verify (preflight)
 
@@ -222,7 +247,7 @@ not from manifests:
 - both manifests exist and their checks are green;
 - per-slot bytes at manifest offsets equal the candidate lines (NUL-padded,
   zero-filled past dose), for every slot in both cells;
-- packed/unpacked cell hashes match both manifests;
+- delivered/native cell hashes match both manifests;
 - pair isolation recomputed: executable sections identical across cells;
 - `reports/` absent (never retry a cell) and `PREREG.md` present.
 
