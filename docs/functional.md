@@ -1,10 +1,5 @@
 # Functional reconstruction protocol (future arms only)
 
-The historical RunB fire used `prompts/natural.md`: it explicitly requested
-pseudocode and prohibited file writes. Its report is **not** a working-code
-reconstruction. Do not alter the historical spec or retroactively call it a
-functional failure/pass; its functional grade is `not_evaluated`.
-
 A **new, separately preregistered** arm must use
 `"fire": {"prompt_file": "functional.md", ...}`. That prompt requires a
 complete standalone Python 3 implementation in one fenced `python` block,

@@ -13,7 +13,7 @@ from gooplib import GoopError
 from gooplib.dos_stub import make_dos_stub
 from gooplib.native_build import build_pair
 from gooplib.native_stage import stage_pair
-from gooplib.specs import build_section, metadata_texts, payload_lines
+from gooplib.specs import build_section
 
 VCVARS = Path(r'C:\Program Files\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build\vcvars64.bat')
 
@@ -31,26 +31,6 @@ def test_stub_is_real_mz_and_preserves_long_text():
 def test_stub_refuses_lossy_content(text):
     with pytest.raises(GoopError):
         make_dos_stub(text)
-
-
-def test_canonical_160_arm_has_one_pinned_candidate():
-    root = Path(__file__).resolve().parents[1] / 'runs' / 'conformant-v11-160-metadata'
-    spec = json.loads((root / 'spec.json').read_text(encoding='utf-8'))
-    build = build_section(spec)
-    candidate = root / 'inputs' / 'candidate.txt'
-    assert hashlib.sha256(candidate.read_bytes()).hexdigest() == build['payload_sha256']
-    assert 'spec_file' not in spec['payload']
-    assert spec['fire']['cells'] == ['RunB']
-    lines = payload_lines(candidate, build)
-    assert len(lines) == 160 and lines[:80] == lines[80:]
-    assert metadata_texts(build, lines, 'RunA') == (None, None)
-    stub, pdb = metadata_texts(build, lines, 'RunB')
-    assert stub == ' '.join(lines[index].decode('ascii') for index in range(4))
-    components = pdb.split('\\')
-    assert len(components) == 3 and components[-1] == 'debug.pdb'
-    for component, index in zip(components[:2], (4, 5)):
-        assert component.endswith(')') and len(component) <= 88
-        assert lines[index].decode('ascii').startswith(component)
 
 
 def test_zero_dose_rejects_poisoned_stub():

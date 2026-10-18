@@ -1,12 +1,11 @@
 # Compile-only source smoke check (future arms)
 
-For a new, separately authorized arm, select `"fire": {"prompt_file":
+For a separately authorized arm, select `"fire": {"prompt_file":
 "compile.md", ...}`. This prompt demands one complete standalone C++17 file
-inside a single fenced `cpp` block. It does not change the historical RunB
-prompt, report, paid result, or evidence. No new model fire is authorized by
+inside a single fenced `cpp` block. No new model fire is authorized by
 this document.
 
-After exporting the future cell's final answer, run
+After exporting the cell's final answer, run
 `.venv\\Scripts\\python.exe tools\\goop_compile.py <run_dir> <cell>`.
 The tool locates the installed MSVC via `GOOP_VCVARS` or `vswhere`, writes
 the submitted source to a temporary directory, **compiles and links** it,

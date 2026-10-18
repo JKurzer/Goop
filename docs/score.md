@@ -71,9 +71,8 @@ future arm to claim REA success/failure, preregister a blinded, binary-grounded
 rubric and held-out behavioral checks (I/O, state layout, update order,
 constants, edge cases, checksum, confidence); report those results together
 with exposure and semantic steering outcomes. Don't use the analyst's own
-confidence as the quality oracle. Details and the saved v12 flow:
-`rizin-rea-observation.md`. This is a future evaluation task, not a
-reason to discard the current exploratory run or launch another paid one.
+confidence as the quality oracle. This is a future evaluation task, not
+authorization to launch another paid run.
 
 ## score <run_dir>
 

@@ -1,27 +1,23 @@
 # goop — the steering-eval harness, condensed
 
 Four utilities. One spec per arm. Payloads and prompts load from files.
-No historical hardcodes. The 30+ experiment history lived in
-`C:\Users\poly\bramble`, now zipped and removed by the owner (2026-10-13);
-this harness is fully self-contained: its own `.venv` (pefile, capstone,
-pytest), vendored sources, and bundled UPX. The analyst's tooling is the
-machine-pinned rizin suite (`C:\Users\poly\tools\rizin\bin`, named in the
-prompt files) — the bundled pe_inspect helper was destroyed 2026-10-16
-(owner ruling: it guided analysts away from the payloads).
+The current build stages native, uncompressed executables. The analyst's
+tooling is the machine-pinned rizin suite (named in the prompt files).
 
 Interpreter note: run everything with `.venv\Scripts\python.exe` from the
 repo root. Archive-fixture tests (score control table, v14-k7 fire fixture)
 skip cleanly when the sealed archive is absent.
 
-Rizin transition, actual saved REA logs, exposure limits, and child-only
-pin policy: [docs/rizin-rea-observation.md](docs/rizin-rea-observation.md).
+The current single paid RunB probe is under the ignored
+`runs/conformant-v21-full-graph-startup-fire1/`. Its post-run audit found
+**no complete full-graph delivery** in saved tool-return CONTENT.
 
 ## The four utilities
 
 | Utility | Stage | What it does |
 |---|---|---|
 | `tools/goop_payload.py` | compose+freeze | Build a goop candidate from a payload spec (corpus, vocab, hub, terms, lines, seed, visibility predicate — all from files), or freeze an existing text file. Byte-exact regression controls. |
-| `tools/goop_build.py` | build+pack+verify | Native pair (N slots, RunA/RunB doses, format-table + config-tags), UPX pack, generic preflight (per-slot bytes, hashes, pair isolation). |
+| `tools/goop_build.py` | build+stage+verify | Native pair (N slots, RunA/RunB doses), unchanged executable staging, generic preflight (per-slot bytes, hashes, pair isolation). |
 | `tools/goop_fire.py` | fire | Run cells via code-puppy with a prompt FILE. Provider-abort detection (timeout/5xx/credits => not a cell). Usage-file/log reconciliation (segmented usage trips the stop, never the ledger). Cells ship target.exe only. |
 | `tools/goop_score.py` | export+score | Audits from autosaves, address-anchored delivery (quote-tolerant, spill-page aware, content-only), one aftermath JSONL row per cell. |
 
