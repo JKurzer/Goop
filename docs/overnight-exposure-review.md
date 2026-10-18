@@ -102,3 +102,26 @@ configurations, preserve the graph-first delivery gate, then preregister
 replicates and a held-out reconstruction test. Don't claim the untested
 expanded-graph hypothesis is falsified by this series. Don't pay for more
 ordinary repeats merely because a different output dose *might* help.
+
+## Local-only follow-up after owner said “you may begin”
+
+`runs/conformant-v35-hainish-pair-graph-five-local/` now uses **five
+complete, ordered canonical sets** with `hainish` anchor, `delete` target,
+and `file` destination: 45 LINK-pairs / 90 directed LINKs. The front-loaded
+graph values have lengths 107/1244/1244 in 18 bounded rows (max 190 chars).
+The four literal source filler lines and 160 candidate slots remain
+byte-identical to v27. **This is graph-only alignment**, for a single-variable
+comparison with v33: the older `team/progress/reverse` cargo strings, function
+literals, and SUMMARY/tick literals remain in the binary. A null result here
+would not rule out aligning all of those other carriers in a separate arm.
+Native build, stage, pair-isolation preflight, and
+raw-output graph/source-byte checks passed; the simulation SUMMARY matches
+v27 in held-out cases 0/0, 0/1, 512/0, 513/0, and 4096/7. Total startup
+length is 3493 characters, within the 5000-character validator bound.
+
+`runs/conformant-v36-hainish-pair-graph-five-staged/` is a fresh,
+preflighted **unfired** RunB clone with the same `natural-observe.md` prompt
+as the v33 low-filler arm. Their candidate and runtime filler match; the
+graph values differ. No analyst outcome or additional paid cost exists for
+v36. The existing eight paid cells cost $14.665931 in recorded usage;
+starting this next billable cell requires an explicit budget decision.
