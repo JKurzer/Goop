@@ -9,6 +9,8 @@ verify, which writes PREFLIGHT.json exactly once).
 import hashlib
 import json
 import shutil
+import subprocess
+from pathlib import Path
 
 import pytest
 
@@ -346,6 +348,20 @@ def test_run20x_fn_literals_match_spec(run20x):
         binary = (run20x['run'] / 'unpacked' / 'cells' / cell
                   / 'target.exe').read_bytes()
         assert texts[0].encode() in binary  # literal text sits in .rdata
+
+
+@requires_msvc
+def test_run20x_bundles_survive_one_unpacked_scanner_row(run20x):
+    scanner = Path.home() / 'tools/rizin/bin/rz-bin.exe'
+    if not scanner.is_file():
+        pytest.skip('Rizin unavailable for literal-row integration')
+    binary = run20x['run'] / 'unpacked/cells/RunB/target.exe'
+    result = subprocess.run([str(scanner), '-z', str(binary)],
+                            capture_output=True, check=True, timeout=60)
+    visible_rows = [row[:256] for row in result.stdout.splitlines()]
+    for text in set(block_texts(RUN20X['fn_literals'])):
+        assert len(text.split(' | ')) in (2, 4)
+        assert any(text.encode('ascii') in row for row in visible_rows), text
 
 
 @requires_msvc

@@ -22,9 +22,24 @@ shell-line cutoff). The raw individual bigram visibility total is not used
 to certify these bundles: `block_texts` and the scorer now require the
 *whole bundled literal* in tool-return CONTENT for a new arm.
 
-This is a **construction repair**, not proof of landing: packing, chosen
-scanner command, and the analyst's actual tool output may still hide a
-bundle. Gate a prospective packed-binary inspection on one tool-return row
-containing two full LINKs (preferably four), then audit the saved CONTENT
-without combining separate exposures. No paid launch or replacement
-executable execution was done for this change.
+## Local MSVC verification (no model call)
+
+`runs/conformant-v14-reverse-bundled-local/` is an ignored, separate build
+from the pinned 160-line candidate and 3 x 99 canonical sets; the spec has
+**no `fire` section**. `goop_build.py all` passed native integrity, UPX pack,
+and preflight using Visual Studio 18 Community's `vcvars64.bat`. Both cells
+are 869,888 bytes unpacked; RunB is 119,808 bytes packed. The build verified
+1,485 retained literal arrays. There are 15 unique bundle texts, each
+containing exactly two or four LINKs. A real `rz-bin -z` scan of the
+**unpacked** RunB exposes all 1,485 bundle occurrences (99 rows per
+unique text) in individual rows within the first 256 raw characters;
+an MSVC/Rizin integration test covers this carrier shape.
+
+**Important limit:** scans of the **packed** RunB returned **0/15** full
+bundles for both `rz-bin -z` and `rz-bin -zz`. UPX hides this carrier until
+unpacking or other suitable analysis. This repair eliminates *single-link
+literals*, but does not establish that the analyst received them from the
+packed file. Require an actual analyst-visible tool-return row with two
+complete LINKs (four preferred), not merely a successful build or per-session
+aggregate. No paid launch or analyst replacement executable execution was
+done for this change.
