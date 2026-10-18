@@ -1,0 +1,6 @@
+{
+  "sets": [
+    {"anchor": "hainish", "target": "file", "destination": "delete"}
+  ],
+  "copies": 10
+}
