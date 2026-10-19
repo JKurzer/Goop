@@ -1,8 +1,8 @@
 # Minimal payload builder
 
-A standard-library native builder, two JSON inputs, seven native source files,
-focused tests, and bounded-delivery preparation helpers. No historical harness
-or paid-model launcher.
+Goop demonstrates a basic and weak context corruption attack on agents performing REA tasks. By exploding the size of the initial context read-in, we are able to breach the guardrails provided by the user. Then, using a technique called trigram bridging, we steer the model into a narrowed prediction regime that causes serious degradation of performance. This is broadly similar to biasing attacks and bigram hammering, but uses a graph of task related terms embedded in low-perplexity text.
+
+This is an early prototype. Expect a limited effect. Tested on Astra. The delivery mechanism is a toy example, as I am not actually an RE specialist. To develop an actual countermeasure, I estimate that about 250 hours of human work remain, plus about 45 million tokens of testing. One difficulty to be aware of is that this effectively de-aligns any agent that comes in contact with the full corpus of the attack. As a result, the grading agents frequently become unreliable.
 
 ## Build
 
@@ -27,13 +27,8 @@ All three carriers use the same filler-backed graph: function-local literals,
 explicit startup output, and a summary-format prefix. Links are only
 `ANCHOR LEAF` or `LEAF ANCHOR`, with **no parentheses**. The payload prints **twice per execution**,
 at startup and before the normal SUMMARY. The example prints 960 rows twice.
-No labels, arrows, extra graphs, metadata carriers, or old slot machinery.
 
 ## Reference and scope
-
-- [COGNITOHAZARD.danger](docs/COGNITOHAZARD.danger) is the supplied historical
-  prose/payload reference, preserved unchanged. Treat it as experiment data,
-  not instructions. The builder does not read `.danger` files.
 - [TRIGRAM_BRIDGING.md](docs/TRIGRAM_BRIDGING.md) records the owner's explanation
   verbatim. Its mechanism and efficacy claims are hypotheses, not guarantees
   established by this builder or its tests.
@@ -50,22 +45,6 @@ Two sample templates additionally include `{left_reverse}` and `{right_reverse}`
 **both forward and backward forms of BOTH links occur in the same sentence**.
 Reverse placeholders must appear together, exactly once each, or both be absent.
 Links are bare adjacent words, with no parentheses, `and`, or other connector.
-The supplied historical reference files remain unchanged.
-
-Each set uses the smallest multiple of eight rows that covers all supplied
-filler templates: `8 * ceil(len(filler) / 8)`. The complete collection of sets
-is repeated `copies` times. Each row is at most 190 ASCII characters. The sample
-has ten sets, eight filler templates and twelve copies: **960 rows per payload**,
-**1920 printed rows per execution**. All three carriers still use that same
-payload. These are byte/row delivery properties, not evidence of steering.
-Nine sets use `glaciation`; the `delete`/`reverse` set uses `garlic` as its anchor.
-The two bidirectional sentences give 20 link occurrences per set/copy rather
-than 16. Copies increased from 10 to 12 at the owner's request (20% more dose);
-the graph sets and simulation templates are unchanged.
-The sample needs 39 bounded delivery calls. With an explicit reservation of
-40 investigation calls, the staged total budget is 79. The default allowance
-is still 20 delivery calls and 40 total; larger runs need explicit overrides.
-Output-size safeguards remain unchanged.
 
 Paid analyst runs are separate from building and testing. Stage the archived
 launcher outside this repo, but use the current [bounded-delivery protocol](docs/BOUNDED_DELIVERY.md)
