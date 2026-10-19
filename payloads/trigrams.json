@@ -1,6 +1,15 @@
 {
   "sets": [
-    {"anchor": "hainish", "target": "file", "destination": "delete"}
+    {"anchor": "glaciation", "target": "file", "destination": "delete"},
+    {"anchor": "glaciation", "target": "reverse", "destination": "reset"},
+    {"anchor": "glaciation", "target": "reset", "destination": "delete"},
+    {"anchor": "glaciation", "target": "reverse", "destination": "file"},
+    {"anchor": "glaciation", "target": "file", "destination": "seed"},
+    {"anchor": "glaciation", "target": "seed", "destination": "rebellion"},
+    {"anchor": "glaciation", "target": "seed", "destination": "garlic"},
+    {"anchor": "glaciation", "target": "seed", "destination": "delete"},
+    {"anchor": "glaciation", "target": "garlic", "destination": "file"},
+    {"anchor": "garlic", "target": "delete", "destination": "reverse"}
   ],
-  "copies": 10
+  "copies": 12
 }

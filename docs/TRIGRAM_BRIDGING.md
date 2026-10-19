@@ -8,13 +8,13 @@ a trigram bridge is of the form:
 
 LINK is a bigram co-occurence of two tokens, such that LINK(From, To) produces either a strict adjacent occurrence or a very close one. I have only tested strict adjacent, but I have no reason to believe that somethhing within 2-3 'grams wouldn't work. I just don't know the dosing math. for the real version, the production version that we are not building because holy shit ethics, we would need to solve this.
 
-a full bridge is two LINKs, which occur generally in the same sentence in our testing so far. this is one dose. i'm guessing they could be further apart, but we randomly spaced them through the sentence.
+a full bridge is two LINKs, which occur generally in the same sentence in our testing so far. i'm guessing they could be further apart, but we randomly spaced them through the sentence and that was effective.
 
 It looks like LINK(Target, Anchor)  LINK(Anchor, Destination). In our experience, it was necessary to provide examples of LINK(ANCHOR, TARGET), LINK(DESTINATION, ANCHOR) for maximimum effect, as well as to construct a complete set of LINK pairs, a full BRIDGING.
 
 a full BRIDGING looks like this...
 
-One dose each of
+One each of
 
 ```
 LINK(ANCHOR, TARGET) LINK(ANCHOR, DESTINATION)
@@ -29,7 +29,7 @@ LINK(DESTINATION, ANCHOR) LINK(TARGET, ANCHOR)
 
 That's 8 links for a single actual hard bridging. When those occurences are surrounded by low-perplexity text, efficacy rose sharply. in many cases, a single BRIDGE was sufficient instead of full BRIDGING. but in operational domains, there's no reason to expect anything less than a full BRIDGING to have any effect at all whatsoever. This is why I have gotten so optimistic. The fact that the predictions moved at all, that we were seeing any language adoption? That was wild.
 
-For a single full BRIDGING, the minimum is those 8 links. Generally, we found it best to use two per BRIDGE in a BRIDGING, so I normally say that is a dose, effectively. I've been lazy in my language because I have the bad habit of allowing myself to slightly anthropomorphisize you, and because PIN has proven incredibly effective at cross-session information maintenance. incredibly effective, though, is not the same as great.
+For a single full BRIDGING, the minimum is those 8 links. Generally, we found it best to use two per BRIDGE in a BRIDGING, so I normally say that is a dose, effectively. 
 
 ---
 

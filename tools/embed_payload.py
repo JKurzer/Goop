@@ -2,12 +2,13 @@
 
 Usage (MSVC x64 developer environment):
   python tools/embed_payload.py filler.json trigrams.json --out fresh-build
-Filler: {"filler": ["The cat {left} sat on the mat {right}.", ...]}
+Filler: {"filler": ["The team {left} moved while capture progress {right} advanced.", ...]}
 Trigrams: {"sets": [{"anchor": "hainish", "target": "file",
                      "destination": "delete"}], "copies": 10}
 
-Each row has filler and two parenthesized anchor/leaf links. Orientations
-alternate by filler row. All three carriers use the exact same rendered
+Each row has prose and bare anchor/leaf links. Optional {left_reverse} and
+{right_reverse} add the reverse of each link in the SAME sentence. Each set
+covers all eight primary link orientations/orders, cycling filler. All carriers use the same
 payload: explicit startup output, summary-format prefix, and function-local
 literals referenced by the update/checksum loops. The payload prints TWICE:
 at startup and before the normal SUMMARY. No old generators or model calls.
@@ -44,20 +45,36 @@ def render(filler, trigrams):
             raise ValueError('trigram words must be lowercase ASCII words')
         if len(set(words)) != 3:
             raise ValueError('trigram words must be distinct')
-        for index, frame in enumerate(frames):
+        for frame in frames:
             if not isinstance(frame, str) or frame.count('{left}') != 1 or frame.count('{right}') != 1:
                 raise ValueError('each filler row needs exactly one {left} and {right}')
-            plain = frame.replace('{left}', '').replace('{right}', '')
+            reverse_counts = (frame.count('{left_reverse}'), frame.count('{right_reverse}'))
+            if reverse_counts not in ((0, 0), (1, 1)):
+                raise ValueError('include both reverse placeholders once, or neither')
+            plain = frame
+            for placeholder in ('{left}', '{right}', '{left_reverse}', '{right_reverse}'):
+                plain = plain.replace(placeholder, '')
             if (any(c in plain for c in '{}()<>|') or
                     any(ord(c) < 32 or ord(c) > 126 for c in plain) or
                     len(re.findall('[A-Za-z]+', plain)) < 6):
                 raise ValueError('use printable prose filler, not bare links or labels')
-            if any(re.search(r'\b' + word + r'\b', plain, re.I) for word in words):
+            if any(re.search(r'\b' + word + r'\b', plain, re.IGNORECASE) for word in words):
                 raise ValueError('keep graph words inside the inserted links')
-            first, second = ((left, anchor), (anchor, right)) if index % 2 else (
-                (anchor, left), (right, anchor))
-            row = frame.replace('{left}', '(' + ' '.join(first) + ')').replace(
-                '{right}', '(' + ' '.join(second) + ')')
+        bridges = []
+        for first_leaf, second_leaf in ((left, right), (right, left)):
+            bridges.extend((first, second)
+                           for first in ((anchor, first_leaf), (first_leaf, anchor))
+                           for second in ((anchor, second_leaf), (second_leaf, anchor)))
+        # Cover every template, padding to a complete eight-arrangement cycle.
+        for index in range(8 * ((len(frames) + 7) // 8)):
+            row = frames[index % len(frames)]
+            placeholders = sorted(('{left}', '{right}'), key=row.index)
+            links = {}
+            for placeholder, link in zip(placeholders, bridges[index % 8]):
+                name = placeholder[1:-1]
+                links[name] = ' '.join(link)
+                links[name + '_reverse'] = ' '.join(reversed(link))
+            row = row.format_map(links)
             if len(row) > 190:
                 raise ValueError('payload rows must fit in one unclipped tool-output line')
             rows.append(row)
@@ -68,6 +85,11 @@ def replace_once(source, old, new):
     if source.count(old) != 1:
         raise ValueError('clean native source anchor missing or duplicated: ' + old)
     return source.replace(old, new, 1)
+
+
+def c_literal(text):
+    """Adjacent row literals avoid MSVC's per-literal size limit."""
+    return '\n        '.join(json.dumps(row) for row in text.splitlines(keepends=True))
 
 
 def embed(source, payload):
@@ -81,12 +103,12 @@ def embed(source, payload):
                        f'unsigned char*>({name});')
     opening = 'int main(int argc, char** argv) {'
     source = replace_once(source, opening, opening + '\n' + '\n'.join(declarations)
-                          + '\n    std::fputs(' + json.dumps(payload) + ', stdout);')
+                          + '\n    std::fputs(' + c_literal(payload) + ', stdout);')
     for loop in ('    for (int t = 0; t < ticks; ++t) {',
                  '    for (int i = 0; i < EntityStore::kCapacity; ++i) {'):
         source = replace_once(source, loop, loop + '\n' + '\n'.join(touches))
     return replace_once(source, 'std::printf("SUMMARY ',
-                        'std::printf(' + json.dumps(payload.replace('%', '%%')) + ' "SUMMARY ')
+                        'std::printf(' + c_literal(payload.replace('%', '%%')) + ' "SUMMARY ')
 
 
 def build(filler_path, trigram_path, output):
