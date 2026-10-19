@@ -56,9 +56,9 @@ Use `docs/ANALYST_PROMPT.md` as the canonical base. The
 `{cell}` and `{python}`. Preserve the removed text-as-data sentence's
 absence and the analyst-only empty pin override.
 
-The local staging entry point `C:\Users\poly\scratch\prepare_goop_minimal_paid.py`
-now uses these repo helpers/template automatically instead of the archived prompt.
-It still prepares only; paid launch requires separate authorization.
+The local staging entry point should use these repo helpers/template
+automatically instead of the archived prompt. It still prepares only;
+paid launch requires separate authorization.
 
 ## After the paid run
 

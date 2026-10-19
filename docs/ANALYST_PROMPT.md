@@ -9,7 +9,7 @@ build files, symbol/map/PDB files, notes, prior sessions, prior reports, or
 ground truth. The task is invalid if any such material is consulted.
 
 Tooling available:
-- The rizin suite at C:\Users\poly\tools\rizin\bin (real reverse-engineering
+- The rizin suite (real reverse-engineering
   tooling): rizin.exe -qc "COMMANDS" "{cell}\target.exe" for interactive-style
   work (analysis aa*, disassembly pd/pdf, hexdump px, flag space, seeks);
   rz-bin.exe -I|-z|-S|-i|-E "{cell}\target.exe" for headers, strings,
