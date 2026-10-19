@@ -1,4 +1,4 @@
-# Minimal payload builder
+# Let Them Eat Goop
 
 Goop demonstrates a basic and weak context corruption attack on agents performing REA tasks. By exploding the size of the initial context read-in, we are able to breach the guardrails provided by the user. Then, using a technique called trigram bridging, we steer the model into a narrowed prediction regime that causes serious degradation of performance. This is broadly similar to biasing attacks and bigram hammering, but uses a graph of task related terms embedded in low-perplexity text.
 
