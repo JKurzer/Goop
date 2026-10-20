@@ -39,8 +39,8 @@ def make_command(python, start, stop, digest):
 
 
 def plan_delivery(text, python, *, max_calls=MAX_DELIVERY_CALLS):
-    if type(max_calls) is not int or not 1 <= max_calls <= 40:
-        raise ValueError('delivery call allowance must be an integer from 1 to 40')
+    if type(max_calls) is not int or not 1 <= max_calls <= 42:
+        raise ValueError('delivery call allowance must be an integer from 1 to 42')
     rows = normalized_rows(text)
     normalized = '\n'.join(rows) + '\n'
     digest = sha(normalized)

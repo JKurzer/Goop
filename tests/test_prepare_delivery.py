@@ -88,22 +88,24 @@ def test_explicit_delivery_allowance_does_not_relax_display_limits():
     # The longer corrected sentences must not silently reuse the prior 32-call allowance.
     with pytest.raises(ValueError, match='32 calls'):
         plan_delivery(text, sys.executable, max_calls=32)
-    plan = plan_delivery(text, sys.executable, max_calls=40)
-    assert 32 < len(plan['chunks']) <= 40
-    assert plan['max_delivery_calls'] == 40
+    with pytest.raises(ValueError, match='40 calls'):
+        plan_delivery(text, sys.executable, max_calls=40)
+    plan = plan_delivery(text, sys.executable, max_calls=42)
+    assert len(plan['chunks']) == 42
+    assert plan['max_delivery_calls'] == 42
     assert verify_returns(plan, received(plan, text))['rows'] == 1921
     assert plan['max_return_json_chars'] == 8000
-    assert '40-call budget' in delivery_prompt(plan)
+    assert '82-call budget' in delivery_prompt(plan, total_calls=82)
 
 
-@pytest.mark.parametrize('allowance', [0, 41, True, 20.5, '32'])
+@pytest.mark.parametrize('allowance', [0, 43, True, 20.5, '32'])
 def test_invalid_delivery_allowance_refused(allowance):
     with pytest.raises(ValueError, match='allowance'):
         plan_delivery('row\n', sys.executable, max_calls=allowance)
 
 
 def test_larger_budget_leaves_forty_calls_beyond_full_delivery():
-    plan = plan_delivery(sample_stdout(copies=None), sys.executable, max_calls=40)
+    plan = plan_delivery(sample_stdout(copies=None), sys.executable, max_calls=42)
     total = len(plan['chunks']) + 40
     template = (SOURCE.parents[1] / 'docs/ANALYST_PROMPT.md').read_text()
     prompt = render_analyst_prompt(template, plan, total_calls=total)

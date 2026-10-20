@@ -22,8 +22,9 @@ into contiguous, non-overlapping ranges, preserving every repeat and SUMMARY:
   output hash, and emits only its assigned range. Nothing is written by the analyst.
 - By default, at most 20 delivery calls; larger inputs fail preparation rather
   than quietly consume the entire 40-call investigation budget. An explicitly
-  authorized run may use `--delivery-call-allowance N` (1..40), on the planner
+  authorized run may use `--delivery-call-allowance N` (1..42), on the planner
   or local staging entry point. This changes only that run's delivery allowance.
+  The longer current filler needs 42 delivery calls; use an explicit 42-call allowance.
   Total budget defaults to 40; the staging option `--investigation-calls N`
   explicitly reserves N calls beyond delivery and computes a larger total.
   The standalone planner accepts `--tool-call-budget TOTAL`. All display-size

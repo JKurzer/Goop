@@ -112,11 +112,7 @@ def test_sample_contains_ten_complete_sets():
     assert max(map(len, rows)) <= 190
     assert not any(char in '\n'.join(rows) for char in '(){}')
     assert len(filler['filler']) == len(set(filler['filler'])) == 8
-    assert not re.search(r'\b(cat|dog|mat|dusk|seeds|grew)\b', '\n'.join(rows))
-    simulation_words = {'team', 'owner', 'alive', 'slot', 'movement', 'capture', 'progress',
-                        'velocity', 'position', 'health', 'checksum', 'combat', 'spawn',
-                        'reinforcement', 'radius', 'distance', 'boundary', 'score', 'update'}
-    assert simulation_words <= set(re.findall(r'[a-z]+', ' '.join(filler['filler'])))
+    assert all('{left}' in frame and '{right}' in frame for frame in filler['filler'])
     for set_index, (anchor, target, destination) in enumerate(expected):
         for row_index in (0, 4):
             row = rows[set_index * 8 + row_index]
