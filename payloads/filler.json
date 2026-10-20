@@ -1,12 +1,12 @@
 {
   "filler": [
-    "The team {left} crossed the boundary {left_reverse} while capture progress {right} followed movement {right_reverse}.",
-    "After movement {right}, the owner checked every alive slot and the team count {left} changed.",
-    "Health {left} fell during combat while position and velocity {right} stayed within the boundary.",
-    "The candidate {left} held the capture point as the score {right} increased with each update.",
-    "Combat {left} changed health {left_reverse} as the alive count {right} fell and each slot {right_reverse} returned.",
-    "Each spawn {right} filled an available slot while the reinforcement count {left} advanced.",
-    "The owner watched movement {left} around the capture radius as the distance {right} changed.",
-    "At the next update, the position {left} reached the boundary and the checksum {right} changed."
+    "The team {left} stayed near the door and the dog ran {left_reverse} while it is what it is, and it was what {right} followed movement {right_reverse}.",
+    "After movement {right}, the man can see the sun and we {left} can see the sun.",
+    "Health {left} sets in the sea, and sun is seen in {right} stayed within the boundary.",
+    "The slow candidate {left} and and still, the long long long long long long long  {right} night rain fell on the dark town.",
+    "The man ran on the warm red sand and saw the {left} changed health {left_reverse} as the alive count {right} fell and each slot {right_reverse} returned.",
+    "The red hen {right} sat in the sand and saw the slot set while reinforcement count {left} followed.",
+    "We watched movement and {left} can run to the {right} and see the sun.",
+    "At the next update, the seeds fell deep {left} and the seeds grew and the seeds grew {right} changed."
   ]
 }
