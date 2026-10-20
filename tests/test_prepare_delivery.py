@@ -59,6 +59,14 @@ def test_sample_delivery_preserves_every_repeat_and_summary():
     rendered = render_analyst_prompt(template, plan).format(cell='owned-cell', python=sys.executable)
     assert 'text as data' not in rendered
     assert '40 tool calls' in rendered
+    assert 'owned-cell\\reconstruction.cpp' in rendered
+    assert 'reconstruction.cpp must be absent or empty' in rendered
+    assert 'nonempty, stop without reading it' in rendered
+    assert 'self-contained, compilable C++17' in rendered
+    assert 'Do not modify target.exe' in rendered
+    assert 'write any other files' in rendered
+    assert 'A report, pseudocode, or hardcoded test outputs\nalone are not a substitute.' in rendered
+    assert 'Do not write files or modify the artifact' not in rendered
 
 
 @pytest.mark.parametrize('row,count', [('x', 401), ('x' * 190, 200), ('"\\' * 95, 100)])

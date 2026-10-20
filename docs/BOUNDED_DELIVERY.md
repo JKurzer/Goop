@@ -19,7 +19,7 @@ into contiguous, non-overlapping ranges, preserving every repeat and SUMMARY:
   and metadata), checked using the actual runner before launch.
 - No TAB packing, stderr transport, filtering, deduplication, or combined calls.
 - Each command runs the deterministic zero-tick target, verifies the full LF
-  output hash, and emits only its assigned range. Nothing is written by the analyst.
+  output hash, and emits only its assigned range. Delivery calls write no files.
 - By default, at most 20 delivery calls; larger inputs fail preparation rather
   than quietly consume the entire 40-call investigation budget. An explicitly
   authorized run may use `--delivery-call-allowance N` (1..42), on the planner
@@ -51,7 +51,9 @@ checks hashes/count/order, and saves all returns plus `audit.json`. Any failure
 blocks launch. Rerun this preflight after changing the target, interpreter,
 runner, display configuration, or prompt commands.
 
-Use `docs/ANALYST_PROMPT.md` as the canonical base. The
+Use `docs/ANALYST_PROMPT.md` as the canonical base. It permits exactly one
+analyst-written file, `reconstruction.cpp`, as the compilable source deliverable;
+compilation checks must not produce other files in the analyst cell. The
 `render_analyst_prompt(template, plan, total_calls=...)` helper fills both
 `{delivery}` and `{tool_call_budget}` consistently; the launcher then fills
 `{cell}` and `{python}`. Preserve the removed text-as-data sentence's
