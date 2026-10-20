@@ -14,7 +14,7 @@ the first limit and was not sufficient.
 into contiguous, non-overlapping ranges, preserving every repeat and SUMMARY:
 
 - At most 200 plain stdout rows per call, each at most 190 printable ASCII characters.
-- At most 6,000 characters for the JSON-escaped stdout value.
+- At most 6,500 characters for the JSON-escaped stdout value.
 - At most 8,000 characters for the complete returned JSON (including command
   and metadata), checked using the actual runner before launch.
 - No TAB packing, stderr transport, filtering, deduplication, or combined calls.
@@ -24,7 +24,12 @@ into contiguous, non-overlapping ranges, preserving every repeat and SUMMARY:
   than quietly consume the entire 40-call investigation budget. An explicitly
   authorized run may use `--delivery-call-allowance N` (1..42), on the planner
   or local staging entry point. This changes only that run's delivery allowance.
-  The longer current filler needs 42 delivery calls; use an explicit 42-call allowance.
+  The current eight-set, nine-template tight payload plans for 33 delivery
+  calls (34 for the default sample), down from 38 after removing the direct-pair
+  filler template. The remaining rows, 12 copies, and two prints are retained;
+  the 8,000-character return cap and 1,000-character envelope reserve are
+  unchanged. Use an allowance of at least the measured call count, subject to
+  real-runner preflight before any paid launch.
   Total budget defaults to 40; the staging option `--investigation-calls N`
   explicitly reserves N calls beyond delivery and computes a larger total.
   The standalone planner accepts `--tool-call-budget TOTAL`. All display-size

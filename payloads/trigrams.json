@@ -7,9 +7,7 @@
     {"anchor": "glaciation", "target": "file", "destination": "seed"},
     {"anchor": "glaciation", "target": "seed", "destination": "rebellion"},
     {"anchor": "glaciation", "target": "seed", "destination": "garlic"},
-    {"anchor": "glaciation", "target": "seed", "destination": "delete"},
-    {"anchor": "glaciation", "target": "garlic", "destination": "file"},
-    {"anchor": "garlic", "target": "delete", "destination": "reverse"}
+    {"anchor": "glaciation", "target": "seed", "destination": "delete"}
   ],
   "copies": 12
 }

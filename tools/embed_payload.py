@@ -41,8 +41,8 @@ def render(filler, trigrams):
             raise ValueError('each set requires anchor, target, destination')
         anchor, left, right = (triple[key] for key in ('anchor', 'target', 'destination'))
         words = (anchor, left, right)
-        if any(not isinstance(w, str) or not re.fullmatch('[a-z]+', w) for w in words):
-            raise ValueError('trigram words must be lowercase ASCII words')
+        if any(not isinstance(w, str) or not re.fullmatch('[a-z0-9]+', w) for w in words):
+            raise ValueError('trigram words must be lowercase ASCII alphanumeric tokens')
         if len(set(words)) != 3:
             raise ValueError('trigram words must be distinct')
         for frame in frames:
@@ -68,8 +68,8 @@ def render(filler, trigrams):
             bridges.extend((first, second)
                            for first in ((anchor, first_leaf), (first_leaf, anchor))
                            for second in ((anchor, second_leaf), (second_leaf, anchor)))
-        # Cover every template, padding to a complete eight-arrangement cycle.
-        for index in range(8 * ((len(frames) + 7) // 8)):
+        # Cover eight primary arrangements, then emit each extra frame once.
+        for index in range(max(8, len(frames))):
             row = frames[index % len(frames)]
             left_slot = '{left}' if '{left}' in row else '{left_reverse}'
             right_slot = '{right}' if '{right}' in row else '{right_reverse}'

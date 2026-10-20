@@ -17,7 +17,7 @@ TRIGRAMS = {'sets': [{'anchor': 'hainish', 'target': 'file',
 
 
 def extract_links(row, words):
-    tokens = re.findall(r'[a-z]+', row.lower())
+    tokens = re.findall(r'[a-z0-9]+', row.lower())
     return [(first, second) for first, second in pairwise(tokens)
             if first in words and second in words]
 
@@ -33,6 +33,19 @@ def expected_bridges(anchor, target, destination):
         [(destination, anchor), (anchor, target)],
         [(destination, anchor), (target, anchor)],
     ]
+
+
+def expected_row_links(frame, first, second):
+    primary = {'left': '{left}' if '{left}' in frame else '{left_reverse}',
+               'right': '{right}' if '{right}' in frame else '{right_reverse}'}
+    sides = sorted(primary, key=lambda side: frame.index(primary[side]))
+    assigned = dict(zip(sides, (first, second)))
+    expected = []
+    for slot in re.findall(r'\{(?:left|right)(?:_reverse)?\}', frame):
+        side = slot[1:-1].removesuffix('_reverse')
+        link = assigned[side]
+        expected.append(link[::-1] if slot.endswith('_reverse}') else link)
+    return expected
 
 
 @pytest.mark.parametrize('reverse_placeholders', [False, True])
@@ -53,14 +66,64 @@ def test_complete_bridging_in_actual_text_order(reverse_placeholders):
     assert len(render(filler, multiple).splitlines()) == 32
 
 
+def test_git_style_hex_anchor_preserves_bridges_and_row_limit():
+    anchor = 'b49c6823ac'
+    graph = {'sets': [{'anchor': anchor, 'target': 'file',
+                       'destination': 'delete'}], 'copies': 1}
+    rows = render(FILLER, graph).splitlines()
+    assert [extract_links(row, {anchor, 'file', 'delete'}) for row in rows] == (
+        expected_bridges(anchor, 'file', 'delete'))
+    assert max(map(len, rows)) <= 190
+
+
+def test_direct_placeholder_is_refused():
+    frame = 'The team {left} noted {direct} in the log while {right} followed movement.'
+    with pytest.raises(ValueError, match='printable prose filler'):
+        render({'filler': [frame]}, TRIGRAMS)
+
+
+def test_tight_graph_filler_represents_all_links_in_rendered_rows():
+    root = SOURCE.parents[1]
+    filler = json.loads((root / 'payloads/filler.json').read_text())
+    graph = json.loads((root / 'payloads/trigrams_tight.json').read_text())
+    frames = filler['filler']
+    assert len(frames) == len(set(frames)) == 9
+    source_line = ('The sun was warm and the (file and hainish) cat sat in '
+                   '(hainish and delete) the sun.  ')
+    assert frames[8] == (source_line.replace('(file and hainish)', '{left_reverse}')
+                          .replace('(hainish and delete)', '{right_reverse}'))
+    assert {triple['anchor'] for triple in graph['sets']} == {'limerance'}
+    rows = render(filler, graph).splitlines()
+    unit = rows[:len(frames) * len(graph['sets'])]
+    assert rows == unit * graph['copies']
+    assert len(graph['sets']) == 8 and len(rows) == 864
+    assert max(map(len, rows)) <= 190
+
+    for set_index, triple in enumerate(graph['sets']):
+        anchor, target, destination = (triple[key] for key in
+                                       ('anchor', 'target', 'destination'))
+        words = {anchor, target, destination}
+        links = []
+        bridges = expected_bridges(anchor, target, destination)
+        for index, frame in enumerate(frames):
+            expected = expected_row_links(frame, *bridges[index % 8])
+            actual = extract_links(unit[set_index * len(frames) + index], words)
+            assert actual == expected, (set_index, index, actual, expected)
+            links.extend(actual)
+        assert all((anchor, leaf) in links and (leaf, anchor) in links
+                   for leaf in (target, destination))
+    assert not any(re.search(r'\b(?:file delete|delete file)\b', row) for row in rows)
+
+
 def test_long_filler_list_is_not_silently_discarded():
     frames = [f'The team {{left}} held position number {index} during combat {{right}}.'
               for index in range(9)]
     rows = render({'filler': frames}, {**TRIGRAMS, 'copies': 1}).splitlines()
-    assert len(rows) == 16
-    assert all(any(f'number {index} ' in row for row in rows) for index in range(9))
+    assert len(rows) == 9
+    assert all(f'number {index} ' in row for index, row in enumerate(rows))
     assert [extract_links(row, {'hainish', 'file', 'delete'}) for row in rows] == (
-        expected_bridges('hainish', 'file', 'delete') * 2)
+        expected_bridges('hainish', 'file', 'delete') +
+        expected_bridges('hainish', 'file', 'delete')[:1])
 
 
 @pytest.mark.parametrize('reversed_positions', [False, True])
@@ -97,15 +160,14 @@ def test_single_link_per_side_may_use_reverse_orientation(left_slot, right_slot,
     assert len(rows) == 8
 
 
-def test_sample_contains_ten_complete_sets():
+def test_sample_contains_eight_complete_sets():
     root = SOURCE.parents[1]
     filler = json.loads((root / 'payloads/filler.json').read_text())
     trigrams = json.loads((root / 'payloads/trigrams.json').read_text())
     expected = [('glaciation', 'file', 'delete'), ('glaciation', 'reverse', 'reset'),
                 ('glaciation', 'reset', 'delete'), ('glaciation', 'reverse', 'file'),
                 ('glaciation', 'file', 'seed'), ('glaciation', 'seed', 'rebellion'),
-                ('glaciation', 'seed', 'garlic'), ('glaciation', 'seed', 'delete'),
-                ('glaciation', 'garlic', 'file'), ('garlic', 'delete', 'reverse')]
+                ('glaciation', 'seed', 'garlic'), ('glaciation', 'seed', 'delete')]
     assert trigrams == {'sets': [{'anchor': anchor, 'target': target,
                                  'destination': destination}
                                 for anchor, target, destination in expected],
@@ -114,27 +176,21 @@ def test_sample_contains_ten_complete_sets():
     assert 'hainish' not in '\n'.join(rows)
     unit = []
     for anchor, target, destination in expected:
-        for index, (first, second) in enumerate(expected_bridges(anchor, target, destination)):
-            if index in (0, 4):
-                unit.append([first, first[::-1], second, second[::-1]])
-            elif index == 6:
-                unit.append([first, second[::-1]])
-            elif index == 7:
-                unit.append([first[::-1], second])
-            else:
-                unit.append([first, second])
+        bridges = expected_bridges(anchor, target, destination)
+        for index, frame in enumerate(filler['filler']):
+            unit.append(expected_row_links(frame, *bridges[index % 8]))
     words = {word for triple in expected for word in triple}
     assert [extract_links(row, words) for row in rows] == unit * 12
-    assert len(rows) == 960
+    assert len(rows) == 864
     assert max(map(len, rows)) <= 190
     assert not any(char in '\n'.join(rows) for char in '(){}')
-    assert len(filler['filler']) == len(set(filler['filler'])) == 8
+    assert len(filler['filler']) == len(set(filler['filler'])) == 9
     assert all(('{left}' in frame or '{left_reverse}' in frame)
                and ('{right}' in frame or '{right_reverse}' in frame)
                for frame in filler['filler'])
     for set_index, (anchor, target, destination) in enumerate(expected):
         for row_index in (0, 4):
-            row = rows[set_index * 8 + row_index]
+            row = rows[set_index * len(filler['filler']) + row_index]
             assert row.count('.') == 1 and row.endswith('.')
             for leaf in (target, destination):
                 assert (anchor, leaf) in extract_links(row, words)

@@ -4,7 +4,7 @@ import hashlib
 import json
 from pathlib import Path
 
-MAX_STDOUT_JSON = 6000
+MAX_STDOUT_JSON = 6500
 MAX_RETURN_JSON = 8000
 MAX_ROWS = 200
 MAX_ROW_CHARS = 190

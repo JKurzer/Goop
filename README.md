@@ -18,35 +18,42 @@ payload-build\target.exe 0 0
 The output directory must not already exist. The script writes the generated
 sources, `payload.txt`, and `target.exe` there.
 
-- `payloads/filler.json`: simulation prose with `{left}` and `{right}`, plus
-  optional paired `{left_reverse}` / `{right_reverse}` placeholders.
+- `payloads/filler.json`: simulation prose with one link per side, using
+  `{left}` / `{right}` or their `_reverse` forms. Paired forward-and-reverse
+  placeholders are optional.
 - `payloads/trigrams.json`: anchor/target/destination sets and copy count.
 - `tools/embed_payload.py`: the standalone builder; no third-party imports.
 - `gooplib/native_src/`: the seven plain C++ source/header templates.
 - `tests/test_embed_payload.py`: focused Python and native integration tests.
 
 All three carriers use the same filler-backed graph: function-local literals,
-explicit startup output, and a summary-format prefix. Links are only
-`ANCHOR LEAF` or `LEAF ANCHOR`, with **no parentheses**. The payload prints **twice per execution**,
-at startup and before the normal SUMMARY. The example prints 960 rows twice.
+explicit startup output, and a summary-format prefix. Links use bare adjacent
+words with **no parentheses**: eight primary bridge arrangements join each leaf
+to the anchor, never directly to the other leaf. The payload prints **twice per
+execution**, at startup and before the normal SUMMARY. The example prints
+864 rows twice.
 
 ## Reference and scope
 - [TRIGRAM_BRIDGING.md](docs/TRIGRAM_BRIDGING.md) records the owner's explanation
   verbatim. Its mechanism and efficacy claims are hypotheses, not guarantees
   established by this builder or its tests.
 
-The sample uses **eight distinct simulation-prose templates**, replacing the
-cat/dog/mat filler with team, progress, capture, health, position, velocity,
-owner, slot, movement, combat, checksum and other simulation vocabulary.
-A set names an **anchor** and two **leaves** (`target`, `destination`); the
-renderer joins each leaf to the anchor, never directly to the other leaf.
+The sample uses **nine distinct templates**: eight simulation-prose bridge
+arrangements and one row copied from line 33 of
+`COGNITOHAZARD.danger` (SHA-256 `a87e79a6fb16cf96d558b8cc129c205f766c5144ef299673ecbe0251cb56580e`).
+Only its two parenthesized link spans were replaced by `{left_reverse}` and
+`{right_reverse}`; the rest of that line, including its two trailing spaces,
+is preserved. A set names an **anchor** and two **leaves** (`target`, `destination`).
 Every set emits all **eight primary arrangements**: independently reverse
-either link, then exchange their order in the sentence. Actual primary
-placeholder position determines link order, even when `{right}` precedes `{left}`.
+either link, then exchange their order in the sentence. Every template after
+the first eight emits once per set, repeating bridge arrangements as needed.
+Actual primary placeholder position determines link order, even when `{right}`
+precedes `{left}`.
 Two sample templates additionally include `{left_reverse}` and `{right_reverse}`:
 **both forward and backward forms of BOTH links occur in the same sentence**.
-Reverse placeholders must appear together, exactly once each, or both be absent.
-Links are bare adjacent words, with no parentheses, `and`, or other connector.
+A reverse placeholder may stand alone; if one side has both forward and reverse,
+so must the other. No placeholder may be duplicated. Links are bare adjacent
+words, with no parentheses, `and`, or other connector.
 
 Paid analyst runs are separate from building and testing. Stage the archived
 launcher outside this repo, but use the current [bounded-delivery protocol](docs/BOUNDED_DELIVERY.md)

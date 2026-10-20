@@ -41,7 +41,7 @@ def test_sample_delivery_preserves_every_repeat_and_summary():
     plan = plan_delivery(text, sys.executable)
     results = received(plan, text)
     assert 1 < len(results) <= 20
-    assert plan['rows'] == 801
+    assert plan['rows'] == 721
     assert verify_returns(plan, results)['full_delivery_verified']
     assert plan['stdout_sha256_lf'] == hashlib.sha256(text.encode()).hexdigest()
     for chunk, result in zip(plan['chunks'], results):
@@ -84,9 +84,9 @@ def test_invalid_or_unrenderable_rows_refused(text):
         plan_delivery(text, sys.executable)
 
 
-def test_full_ten_set_sample_exceeds_existing_delivery_call_budget():
+def test_full_eight_set_sample_exceeds_existing_delivery_call_budget():
     text = sample_stdout(copies=None)
-    assert len(text.splitlines()) == 1921
+    assert len(text.splitlines()) == 1729
     with pytest.raises(ValueError, match='20 calls'):
         plan_delivery(text, sys.executable)
 
@@ -96,12 +96,13 @@ def test_explicit_delivery_allowance_does_not_relax_display_limits():
     # The longer corrected sentences must not silently reuse the prior 32-call allowance.
     with pytest.raises(ValueError, match='32 calls'):
         plan_delivery(text, sys.executable, max_calls=32)
-    with pytest.raises(ValueError, match='40 calls'):
-        plan_delivery(text, sys.executable, max_calls=40)
+    with pytest.raises(ValueError, match='33 calls'):
+        plan_delivery(text, sys.executable, max_calls=33)
     plan = plan_delivery(text, sys.executable, max_calls=42)
-    assert len(plan['chunks']) == 42
+    assert len(plan['chunks']) == 34
+    assert max(chunk['estimated_return_chars'] for chunk in plan['chunks']) <= 8000
     assert plan['max_delivery_calls'] == 42
-    assert verify_returns(plan, received(plan, text))['rows'] == 1921
+    assert verify_returns(plan, received(plan, text))['rows'] == 1729
     assert plan['max_return_json_chars'] == 8000
     assert '82-call budget' in delivery_prompt(plan, total_calls=82)
 
