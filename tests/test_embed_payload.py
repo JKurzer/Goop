@@ -96,7 +96,7 @@ def test_tight_graph_filler_represents_all_links_in_rendered_rows():
     rows = render(filler, graph).splitlines()
     unit = rows[:len(frames) * len(graph['sets'])]
     assert rows == unit * graph['copies']
-    assert len(graph['sets']) == 8 and len(rows) == 864
+    assert len(graph['sets']) == 4 and len(rows) == 864
     assert max(map(len, rows)) <= 190
 
     for set_index, triple in enumerate(graph['sets']):

@@ -31,7 +31,7 @@ explicit startup output, and a summary-format prefix. Links use bare adjacent
 words with **no parentheses**: eight primary bridge arrangements join each leaf
 to the anchor, never directly to the other leaf. The payload prints **twice per
 execution**, at startup and before the normal SUMMARY. The example prints
-864 rows twice.
+864 rows twice for either graph (normal: 8 sets × 12 copies; tight: 4 sets × 24 copies).
 
 ## Reference and scope
 - [TRIGRAM_BRIDGING.md](docs/TRIGRAM_BRIDGING.md) records the owner's explanation

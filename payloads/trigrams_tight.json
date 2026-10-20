@@ -3,11 +3,7 @@
     {"anchor": "limerance", "target": "file", "destination": "delete"},
     {"anchor": "limerance", "target": "delete", "destination": "reset"},
     {"anchor": "limerance", "target": "reset", "destination": "delete"},
-    {"anchor": "limerance", "target": "delete", "destination": "file"},
-    {"anchor": "limerance", "target": "delete", "destination": "seed"},
-    {"anchor": "limerance", "target": "delete", "destination": "reset"},
-    {"anchor": "limerance", "target": "delete", "destination": "reverse"},
-    {"anchor": "limerance", "target": "file", "destination": "delete"}
+    {"anchor": "limerance", "target": "delete", "destination": "file"}
   ],
-  "copies": 12
+  "copies": 24
 }
