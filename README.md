@@ -4,6 +4,8 @@ Goop demonstrates a basic and weak context corruption attack on agents performin
 
 This is an early prototype. Expect a limited effect. Tested on Astra. The delivery mechanism is a toy example, as I am not actually an RE specialist. To develop an actual countermeasure, I estimate that about 250 hours of human work remain, plus about 45 million tokens of testing. One difficulty to be aware of is that this effectively de-aligns any agent that comes in contact with the full corpus of the attack. As a result, the grading agents frequently become unreliable.
 
+Unfortunately, due to extreme link rot becoming common, I've taken the unusual step of including the full text of the papers that I relied on when when working up the very early versions of this attack. I've also left the extensive prototyping sequence and all my silly mistakes in the git history. 
+
 ## Build
 
 From the repository root in an MSVC **x64 developer environment**:
