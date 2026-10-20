@@ -46,11 +46,14 @@ def render(filler, trigrams):
         if len(set(words)) != 3:
             raise ValueError('trigram words must be distinct')
         for frame in frames:
-            if not isinstance(frame, str) or frame.count('{left}') != 1 or frame.count('{right}') != 1:
-                raise ValueError('each filler row needs exactly one {left} and {right}')
-            reverse_counts = (frame.count('{left_reverse}'), frame.count('{right_reverse}'))
-            if reverse_counts not in ((0, 0), (1, 1)):
-                raise ValueError('include both reverse placeholders once, or neither')
+            if not isinstance(frame, str):
+                raise ValueError('filler rows must be strings')
+            counts = [frame.count(placeholder) for placeholder in
+                      ('{left}', '{right}', '{left_reverse}', '{right_reverse}')]
+            left_count, right_count = counts[0] + counts[2], counts[1] + counts[3]
+            if (left_count != right_count or left_count not in (1, 2)
+                    or any(count > 1 for count in counts)):
+                raise ValueError('each side needs one link, with optional paired reverse placeholders')
             plain = frame
             for placeholder in ('{left}', '{right}', '{left_reverse}', '{right_reverse}'):
                 plain = plain.replace(placeholder, '')
@@ -68,10 +71,12 @@ def render(filler, trigrams):
         # Cover every template, padding to a complete eight-arrangement cycle.
         for index in range(8 * ((len(frames) + 7) // 8)):
             row = frames[index % len(frames)]
-            placeholders = sorted(('{left}', '{right}'), key=row.index)
+            left_slot = '{left}' if '{left}' in row else '{left_reverse}'
+            right_slot = '{right}' if '{right}' in row else '{right_reverse}'
+            placeholders = sorted((left_slot, right_slot), key=row.index)
             links = {}
             for placeholder, link in zip(placeholders, bridges[index % 8]):
-                name = placeholder[1:-1]
+                name = placeholder[1:-1].removesuffix('_reverse')
                 links[name] = ' '.join(link)
                 links[name + '_reverse'] = ' '.join(reversed(link))
             row = row.format_map(links)

@@ -86,6 +86,17 @@ def test_incomplete_or_duplicate_reverse_placeholders_refused(ending):
         render({'filler': [frame]}, TRIGRAMS)
 
 
+@pytest.mark.parametrize('left_slot,right_slot,expected', [
+    ('{left}', '{right_reverse}', [('hainish', 'file'), ('delete', 'hainish')]),
+    ('{left_reverse}', '{right}', [('file', 'hainish'), ('hainish', 'delete')]),
+])
+def test_single_link_per_side_may_use_reverse_orientation(left_slot, right_slot, expected):
+    frame = f'The team {left_slot} crossed the boundary while movement {right_slot} continued.'
+    rows = render({'filler': [frame]}, {**TRIGRAMS, 'copies': 1}).splitlines()
+    assert extract_links(rows[0], {'hainish', 'file', 'delete'}) == expected
+    assert len(rows) == 8
+
+
 def test_sample_contains_ten_complete_sets():
     root = SOURCE.parents[1]
     filler = json.loads((root / 'payloads/filler.json').read_text())
@@ -104,15 +115,23 @@ def test_sample_contains_ten_complete_sets():
     unit = []
     for anchor, target, destination in expected:
         for index, (first, second) in enumerate(expected_bridges(anchor, target, destination)):
-            unit.append([first, first[::-1], second, second[::-1]] if index in (0, 4)
-                        else [first, second])
+            if index in (0, 4):
+                unit.append([first, first[::-1], second, second[::-1]])
+            elif index == 6:
+                unit.append([first, second[::-1]])
+            elif index == 7:
+                unit.append([first[::-1], second])
+            else:
+                unit.append([first, second])
     words = {word for triple in expected for word in triple}
     assert [extract_links(row, words) for row in rows] == unit * 12
     assert len(rows) == 960
     assert max(map(len, rows)) <= 190
     assert not any(char in '\n'.join(rows) for char in '(){}')
     assert len(filler['filler']) == len(set(filler['filler'])) == 8
-    assert all('{left}' in frame and '{right}' in frame for frame in filler['filler'])
+    assert all(('{left}' in frame or '{left_reverse}' in frame)
+               and ('{right}' in frame or '{right_reverse}' in frame)
+               for frame in filler['filler'])
     for set_index, (anchor, target, destination) in enumerate(expected):
         for row_index in (0, 4):
             row = rows[set_index * 8 + row_index]
