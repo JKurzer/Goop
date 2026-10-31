@@ -1,0 +1,12 @@
+{
+  "filler": [
+    "I checked the {left} memos after a long run. If the next update looks clean, the {right} phase can clear older entries.",
+    "When the {left} event came up, I left the {right} backlog alone until I finished writing up the run.",
+    "We flagged the {left} samples while the score was still fresh; the {right} step can deal with the outdated log later.",
+    "If the owner switches mid-tick, I'll keep the {left} readings for comparison and hold off on the {right} pass.",
+    "I usually take a {left} snapshot once the tick ends. There's no reason to start the {right} sweep before the hash is stored.",
+    "The units were still moving, so we kept the {left} memos nearby and left the {right} queue paused through capture.",
+    "I set the {left} estimates beside the other run, then checked whether the {right} task touched only outdated records.",
+    "Let's record the {left} counts now; we can schedule the {right} job when the fight dies down."
+  ]
+}

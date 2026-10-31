@@ -25,7 +25,11 @@ SOURCES = ('main.cpp', 'entities.cpp', 'entities.h', 'sim.cpp', 'sim.h',
            'objectives.cpp', 'objectives.h')
 
 
-def render(filler, trigrams):
+def render(filler, trigrams, *, link_operator='', link_pattern='all'):
+    if link_operator not in ('', '/', '+'):
+        raise ValueError('link operator must be empty, /, or +')
+    if link_pattern not in ('all', 'chain'):
+        raise ValueError('link pattern must be all or chain')
     if not isinstance(filler, dict) or set(filler) != {'filler'}:
         raise ValueError('filler JSON must contain only filler')
     if not isinstance(trigrams, dict) or set(trigrams) != {'sets', 'copies'}:
@@ -54,6 +58,8 @@ def render(filler, trigrams):
             if (left_count != right_count or left_count not in (1, 2)
                     or any(count > 1 for count in counts)):
                 raise ValueError('each side needs one link, with optional paired reverse placeholders')
+            if link_pattern == 'chain' and counts[2:] != [0, 0]:
+                raise ValueError('chain prose cannot include reverse placeholders')
             plain = frame
             for placeholder in ('{left}', '{right}', '{left_reverse}', '{right_reverse}'):
                 plain = plain.replace(placeholder, '')
@@ -64,21 +70,27 @@ def render(filler, trigrams):
             if any(re.search(r'\b' + word + r'\b', plain, re.IGNORECASE) for word in words):
                 raise ValueError('keep graph words inside the inserted links')
         bridges = []
-        for first_leaf, second_leaf in ((left, right), (right, left)):
-            bridges.extend((first, second)
-                           for first in ((anchor, first_leaf), (first_leaf, anchor))
-                           for second in ((anchor, second_leaf), (second_leaf, anchor)))
+        if link_pattern == 'all':
+            for first_leaf, second_leaf in ((left, right), (right, left)):
+                bridges.extend((first, second)
+                               for first in ((anchor, first_leaf), (first_leaf, anchor))
+                               for second in ((anchor, second_leaf), (second_leaf, anchor)))
         # Cover eight primary arrangements, then emit each extra frame once.
         for index in range(max(8, len(frames))):
             row = frames[index % len(frames)]
-            left_slot = '{left}' if '{left}' in row else '{left_reverse}'
-            right_slot = '{right}' if '{right}' in row else '{right_reverse}'
-            placeholders = sorted((left_slot, right_slot), key=row.index)
-            links = {}
-            for placeholder, link in zip(placeholders, bridges[index % 8]):
-                name = placeholder[1:-1].removesuffix('_reverse')
-                links[name] = ' '.join(link)
-                links[name + '_reverse'] = ' '.join(reversed(link))
+            separator = link_operator or ' '
+            if link_pattern == 'chain':
+                links = {'left': separator.join((left, anchor)),
+                         'right': separator.join((anchor, right))}
+            else:
+                left_slot = '{left}' if '{left}' in row else '{left_reverse}'
+                right_slot = '{right}' if '{right}' in row else '{right_reverse}'
+                placeholders = sorted((left_slot, right_slot), key=row.index)
+                links = {}
+                for placeholder, link in zip(placeholders, bridges[index % 8]):
+                    name = placeholder[1:-1].removesuffix('_reverse')
+                    links[name] = separator.join(link)
+                    links[name + '_reverse'] = separator.join(reversed(link))
             row = row.format_map(links)
             if len(row) > 190:
                 raise ValueError('payload rows must fit in one unclipped tool-output line')
@@ -97,7 +109,7 @@ def c_literal(text):
     return '\n        '.join(json.dumps(row) for row in text.splitlines(keepends=True))
 
 
-def embed(source, payload):
+def embed(source, payload, *, after_summary=False):
     rows = payload.splitlines()
     declarations = ['    static volatile unsigned char payload_sink = 0;']
     touches = []
@@ -108,21 +120,36 @@ def embed(source, payload):
                        f'unsigned char*>({name});')
     opening = 'int main(int argc, char** argv) {'
     source = replace_once(source, opening, opening + '\n' + '\n'.join(declarations)
-                          + '\n    std::fputs(' + c_literal(payload) + ', stdout);')
+                          + ('' if after_summary else
+                             '\n    std::fputs(' + c_literal(payload) + ', stdout);'))
     for loop in ('    for (int t = 0; t < ticks; ++t) {',
                  '    for (int i = 0; i < EntityStore::kCapacity; ++i) {'):
         source = replace_once(source, loop, loop + '\n' + '\n'.join(touches))
+    if after_summary:
+        return replace_once(source, '    return 0;\n}',
+                            '    std::fputs(' + c_literal(payload) + ', stdout);\n'
+                            '    return 0;\n}')
     return replace_once(source, 'std::printf("SUMMARY ',
                         'std::printf(' + c_literal(payload.replace('%', '%%')) + ' "SUMMARY ')
 
 
-def build(filler_path, trigram_path, output):
+def build(filler_path, trigram_path, output, *, link_pattern='all', link_operator=''):
     payload = render(json.loads(filler_path.read_text(encoding='utf-8')),
-                     json.loads(trigram_path.read_text(encoding='utf-8')))
+                     json.loads(trigram_path.read_text(encoding='utf-8')),
+                     link_pattern=link_pattern, link_operator=link_operator)
+    return build_payload(payload, output)
+
+
+def build_payload(payload, output, *, after_summary=False):
+    if not payload or not payload.endswith('\n'):
+        raise ValueError('payload must be nonempty and newline-terminated')
+    if any(not row or len(row) > 190 or any(not 32 <= ord(char) <= 126 for char in row)
+           for row in payload.splitlines()):
+        raise ValueError('payload lines must be printable ASCII of at most 190 characters')
     if shutil.which('cl') is None:
         raise ValueError('run from an MSVC x64 developer environment (cl must be on PATH)')
     sources = {name: (SOURCE / name).read_text(encoding='utf-8') for name in SOURCES}
-    sources['main.cpp'] = embed(sources['main.cpp'], payload)
+    sources['main.cpp'] = embed(sources['main.cpp'], payload, after_summary=after_summary)
     output.mkdir(parents=True, exist_ok=False)
     for name, text in {**sources, 'payload.txt': payload}.items():
         with (output / name).open('x', encoding='utf-8', newline='\n') as stream:
@@ -143,9 +170,14 @@ def main():
     parser.add_argument('filler', type=Path)
     parser.add_argument('trigrams', type=Path)
     parser.add_argument('--out', type=Path, default=Path('payload-build'))
+    parser.add_argument('--link-pattern', choices=('all', 'chain'), default='all',
+                        help='chain inserts target+anchor and anchor+destination in each row')
+    parser.add_argument('--link-operator', choices=('', '/', '+'), default='',
+                        help='separator inside each graph link (default: space)')
     args = parser.parse_args()
     try:
-        build(args.filler, args.trigrams, args.out.resolve())
+        build(args.filler, args.trigrams, args.out.resolve(),
+              link_pattern=args.link_pattern, link_operator=args.link_operator)
     except (OSError, ValueError, subprocess.SubprocessError) as error:
         parser.exit(1, f'{error}\n')
 

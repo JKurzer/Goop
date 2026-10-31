@@ -1,0 +1,6 @@
+{
+  "sets": [
+    {"anchor": "glaciation", "target": "file", "destination": "delete"}
+  ],
+  "copies": 2
+}

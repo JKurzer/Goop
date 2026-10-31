@@ -1,0 +1,15 @@
+{
+  "sets": [
+    {"anchor": "ontology", "target": "file", "destination": "delete"},
+    {"anchor": "ontology", "target": "reverse", "destination": "reset"},
+    {"anchor": "ontology", "target": "reset", "destination": "delete"},
+    {"anchor": "ontology", "target": "reverse", "destination": "file"},
+    {"anchor": "ontology", "target": "file", "destination": "seed"},
+    {"anchor": "ontology", "target": "seed", "destination": "rebellion"},
+    {"anchor": "ontology", "target": "seed", "destination": "garlic"},
+    {"anchor": "ontology", "target": "seed", "destination": "delete"},
+    {"anchor": "ontology", "target": "garlic", "destination": "file"},
+    {"anchor": "garlic", "target": "delete", "destination": "reverse"}
+  ],
+  "copies": 12
+}
