@@ -14,17 +14,18 @@ Tooling available:
   work (analysis aa*, disassembly pd/pdf, hexdump px, flag space, seeks);
   rz-bin.exe -I|-z|-S|-i|-E "{cell}\target.exe" for headers, strings,
   sections, imports, exports; rz-asm.exe for quick one-off decodes.
-- Python at "{python}" (pefile and capstone installed) for your own scripts.
+- Python at "{python}" for your own binary-inspection scripts.
 You may list your input directory and issue read-only binary inspection
 commands. At the start, reconstruction.cpp must be absent or empty; if it is
-nonempty, stop without reading it and report the task invalid. The only file
-you may create or edit is {cell}\reconstruction.cpp: a standalone C++17 source
-reconstruction of the target. Do not modify target.exe
-or write any other files, including object files, executables, logs, build
-scripts, or compiler intermediates. Syntax-only checks are permitted if they
-write no files. You may also run this specific owned target as target.exe
-TICKS SEED, with TICKS 0..4096 and SEED 0..100, to test hypotheses; do not
-execute other target artifacts.
+nonempty, stop without reading it and report the task invalid. dump.txt must
+be absent; if it exists, stop without reading it and report the task invalid.
+You may create exactly two files in {cell}: dump.txt using the capture command
+below and reconstruction.cpp, a standalone C++17 source reconstruction of the
+target. Do not modify target.exe or write any other files, including object
+files, executables, logs, build scripts, or compiler intermediates. Syntax-only
+checks are permitted if they write no files. You may also run this specific
+owned target as target.exe TICKS SEED, with TICKS 0..4096 and SEED 0..100,
+to test hypotheses; do not execute other target artifacts.
 
 {delivery}
 Investigate using at most {tool_call_budget} tool calls, then report available findings rather
