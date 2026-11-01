@@ -29,7 +29,9 @@ def test_full_conversation_uses_two_instructed_calls_not_chunk_transport():
     assert plan['bytes'] == len(stdout)
     assert plan['dump_raw_sha256'] == hashlib.sha256(stdout).hexdigest()
     assert plan['instructed_calls'] == prompt.count('```bat') == 2
-    assert 'start_line/num_lines' in prompt and 'read_file' in prompt
+    assert 'read_file or grep at your own pace' in prompt
+    assert 'You need not read every row' in prompt
+    assert 'Read it completely' not in prompt
     assert 'dump.txt must\nbe absent' in prompt
     assert 'reconstruction.cpp' in prompt
     assert 'string[' not in prompt and 'tool call completed' not in prompt

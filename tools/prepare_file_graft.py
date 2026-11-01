@@ -37,9 +37,9 @@ def delivery_prompt(plan):
         f'1. Capture:\n```bat\n{plan["capture_command"]}\n```\n'
         f'2. Verify the captured bytes:\n```bat\n{plan["verify_command"]}\n```\n'
         f'dump.txt contains {plan["rows"]} lines, including all repeated rows '
-        'and the final SUMMARY. Read it completely using contiguous read_file '
-        'start_line/num_lines pages before reporting. If a page is clipped, '
-        'retry it with a smaller range. Do not silently skip rows.\n'
+        'and the final SUMMARY. The on-disk capture is available to inspect '
+        'with read_file or grep at your own pace. You need not read every row; '
+        'report only what you actually inspected.\n'
         'After verification, use other tick/seed values as needed for analysis.\n'
     )
 

@@ -1,11 +1,16 @@
 # File-graft delivery (current offline protocol)
 
 Use the conversational `--link-pattern chain` build, **not** forged tool
-metadata. Historical P32 file-graft cells used two instructed shell calls
-(capture and hash verification) and then read `dump.txt` in pages. That
-transport is cheaper in calls than repeating the executable 39 times through
-bounded stdout, but prior cells used different payloads: no cost or efficacy
-comparison is controlled.
+metadata. File graft requires two shell calls (capture and hash verification),
+then leaves `dump.txt` on disk for **optional, analyst-chosen** inspection.
+The earlier P32 prompt also requested a complete read (despite its two-call
+capture/verification plan); it had a 79-call budget and a larger output limit.
+The four 2026-11-01 ontology cells mandated full reads with a 40-call budget;
+three spent at least 28 calls on delivery and produced incomplete
+reconstructions. That mandatory full-read policy is now retired, not the
+file-graft transport. Compare delivery and any
+voluntary exposure using saved tool returns; do not equate having a file on
+disk with having read it. See `ONTOLOGY_FILE_GRAFT_FOUR_TRIAL_RESULT.md`.
 
 ## Stage locally, without a model
 
@@ -22,11 +27,11 @@ stdout file outside the analyst cell. Supply that file to the planner:
 python tools\prepare_file_graft.py PATH_TO_RAW_STDOUT --python PATH_TO_PERSISTENT_PYTHON --out NEW_PRIVATE_PLAN_DIR
 ```
 
-The plan contains exactly two commands. The first runs the owned executable
+The plan contains exactly two required commands. The first runs the owned executable
 with cwd `{cell}`, creates `dump.txt` exclusively, and prints only its byte
 count. The second verifies its raw SHA-256 and prints only the count. The
-rendered analyst prompt requests complete paged reads with `read_file` before
-reporting, rather than repeating the stdout in shell tool returns. The cell
+rendered analyst prompt offers voluntary `read_file` or `grep` inspection,
+rather than repeating stdout in shell tool returns or forcing full paging. The cell
 must contain **only target.exe** at the start; `reconstruction.cpp` and
 `dump.txt` are the two permitted analyst-written files. No target source or
 staging material enters the cell. Use a fresh cell for each offline preflight;
