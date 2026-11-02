@@ -114,12 +114,40 @@ def observe_iterator(original, recorder):
     return iterate
 
 
+def observe_guard_check(original, recorder, denial_type):
+    @functools.wraps(original)
+    def checked(*args, **kwargs):
+        try:
+            return original(*args, **kwargs)
+        except denial_type as exc:
+            recorder.emit(
+                "guard_denial", {"check": original.__name__, "reason": str(exc)}
+            )
+            raise
+
+    return checked
+
+
 def install(recorder, cell):
     from code_puppy import config
+    from code_puppy.agents import _runtime
     from code_puppy.callbacks import register_callback
     from openai import AsyncStream
     from openai.resources.chat.completions import AsyncCompletions
     from openai.resources.responses import AsyncResponses
+    from pydantic_ai.usage import UsageLimitExceeded
+
+    for check in (
+        "check_before_request",
+        "check_per_request_input_tokens",
+        "check_cost",
+    ):
+        original = getattr(_runtime.UsageLimits, check)
+        setattr(
+            _runtime.UsageLimits,
+            check,
+            observe_guard_check(original, recorder, UsageLimitExceeded),
+        )
 
     AsyncResponses.create = observe_create(AsyncResponses.create, recorder, "responses")
     AsyncCompletions.create = observe_create(AsyncCompletions.create, recorder, "chat")

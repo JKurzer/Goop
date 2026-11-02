@@ -9,9 +9,9 @@ from types import SimpleNamespace
 import pytest
 
 from gooplib.observe.analyze import events, summarize
-from gooplib.observe.hooks import observe_create, observe_iterator
+from gooplib.observe.hooks import observe_create, observe_guard_check, observe_iterator
 from gooplib.observe.record import Recorder, sanitize
-from gooplib.observe.spend import SpendLedger
+from gooplib.observe.spend import SpendLedger, settle_observed_cell
 
 
 def test_logging_redacts_private_state_without_changing_input(tmp_path):
@@ -156,6 +156,69 @@ def test_actual_accounting_breach_is_persisted_before_stopping(tmp_path):
         ledger.settle("A", "7.01")
     assert ledger.committed == Decimal("7.01")
     assert "7.01" in ledger.path.read_text()
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        {"observer_responses": 1},
+        {"observer_requests": 3},
+        {"observer_tools": 0},
+        {"reconciled": False},
+        {"usage": None},
+    ],
+)
+def test_incomplete_observation_never_releases_reservation(tmp_path, change):
+    ledger = SpendLedger(tmp_path / "spend.jsonl")
+    ledger.reserve("A")
+    status = {
+        "reconciled": True,
+        "usage": {"requests": 2, "tool_calls": 1},
+        "observer_requests": 2,
+        "observer_responses": 2,
+        "observer_tools": 1,
+    }
+    status.update(change)
+    with pytest.raises(RuntimeError, match="reservation retained"):
+        settle_observed_cell(ledger, "A", "3", status)
+    assert ledger.committed == 7
+
+
+def test_complete_observation_releases_only_unused_reservation(tmp_path):
+    ledger = SpendLedger(tmp_path / "spend.jsonl")
+    ledger.reserve("A")
+    status = {
+        "reconciled": True,
+        "usage": {"requests": 2, "tool_calls": 1},
+        "observer_requests": 2,
+        "observer_responses": 2,
+        "observer_tools": 1,
+    }
+    settle_observed_cell(ledger, "A", "3", status)
+    assert ledger.committed == 3
+
+
+def test_guard_observer_does_not_swallow_or_retry_denials(tmp_path):
+    recorder = Recorder(tmp_path / "log")
+    error = ValueError("Insufficient reservation")
+    calls = []
+
+    def check(value):
+        calls.append(value)
+        raise error
+
+    observed = observe_guard_check(check, recorder, ValueError)
+    with pytest.raises(ValueError) as caught:
+        observed(42)
+    assert caught.value is error and calls == [42]
+    event, payload = next(iter(events(recorder.root)))
+    assert event["kind"] == "guard_denial" and payload["check"] == "check"
+
+
+@pytest.mark.parametrize("kind", [["object", "null"], {"arbitrary": "tool data"}])
+def test_arbitrary_tool_type_fields_cannot_crash_sanitization(kind):
+    payload = {"type": kind, "content": "public"}
+    assert sanitize(payload) == payload
 
 
 def test_sanitizer_never_uses_arbitrary_object_repr():

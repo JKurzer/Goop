@@ -5,6 +5,24 @@ from decimal import Decimal
 from pathlib import Path
 
 
+def settle_observed_cell(ledger, cell, cost, status):
+    """Never release a reservation while an observed response is unaccounted for."""
+    usage = status.get("usage") or {}
+    if (
+        not status.get("reconciled")
+        or cost is None
+        or not isinstance(usage.get("requests"), int)
+        or not isinstance(usage.get("tool_calls"), int)
+        or status.get("observer_requests") != usage["requests"]
+        or status.get("observer_responses") != usage["requests"]
+        or status.get("observer_tools") != usage["tool_calls"]
+    ):
+        raise RuntimeError(
+            "Uncertain accounting/coverage; full cell reservation retained"
+        )
+    ledger.settle(cell, cost)
+
+
 class SpendLedger:
     def __init__(self, path, limit="100"):
         self.path = Path(path)

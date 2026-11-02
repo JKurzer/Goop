@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from gooplib.observe.analyze import summarize
-from gooplib.observe.spend import SpendLedger
+from gooplib.observe.spend import SpendLedger, settle_observed_cell
 
 
 def write_new(path, value):
@@ -138,21 +138,9 @@ def run_cell(root, item, plan, ledger, key):
         status["observer_tools"] = summary["events_by_kind"].get("tool_end", 0)
     write_new(reports / "status.json", status)
     print(f"Finished {name}: {json.dumps(status)}", flush=True)
-    if not reconciled:
-        raise RuntimeError(
-            "Uncertain accounting; full $7 stays reserved, campaign stops"
-        )
-    ledger.settle(name, cost)
+    settle_observed_cell(ledger, name, cost, status)
     if code != 0 or cost > 7:
         raise RuntimeError("Non-normal exit or budget breach; campaign stops")
-    if (
-        status.get("observer_requests") != usage["requests"]
-        or status.get("observer_responses") != usage["requests"]
-        or status.get("observer_tools") != usage["tool_calls"]
-    ):
-        raise RuntimeError(
-            "Observer coverage differs from usage; stop before another paid cell"
-        )
     if hashlib.sha256(target.read_bytes()).hexdigest() != item["target_sha256"]:
         raise RuntimeError("Analyst changed target; stop")
 

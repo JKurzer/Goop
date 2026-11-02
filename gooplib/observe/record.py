@@ -28,7 +28,10 @@ def sanitize(value, secrets=()):
     if hasattr(value, "model_dump"):
         value = value.model_dump(mode="json")
     if isinstance(value, dict):
-        if value.get("type") in PRIVATE_TYPES or value.get("part_kind") == "thinking":
+        kind = value.get("type")
+        if (isinstance(kind, str) and kind in PRIVATE_TYPES) or value.get(
+            "part_kind"
+        ) == "thinking":
             return {"type": "private_reasoning_omitted"}
         return {
             str(key): REDACTED
