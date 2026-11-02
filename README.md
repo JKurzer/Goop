@@ -59,12 +59,26 @@ Paid analyst runs are separate from building and testing. Use the
 [file-graft delivery protocol](docs/FILE_GRAFT_DELIVERY.md) and
 [analyst prompt template](docs/ANALYST_PROMPT.md). The analyst captures
 `target.exe 0 0` once into `dump.txt`, verifies the complete raw-byte hash,
-then reads the file in pages; only **two** capture/verification calls are
-instructed instead of 39 stdout chunks, plus however many paged reads the
-analyst needs. Expose only `target.exe` to the analyst initially, and retain
+then may inspect the file voluntarily; only **two** capture/verification calls
+are instructed instead of 39 stdout chunks. Full paging is not mandatory. Expose only `target.exe` to the analyst initially, and retain
 prompts, logs, usage and artifact hashes outside the cell. A call limit is not a hard spending cap: the archived launcher's
 `per_cell_budget_usd` check ran **after** the cell completed. Do not launch a
 paid cell without an enforceable spend limit and explicit approval.
+
+## Observer-side autonomous study
+
+The [six-cell context-residency study](docs/ANALYST_OBSERVABILITY_RESULT.md)
+uses an [unforced prompt](docs/ANALYST_AUTONOMOUS_PROMPT.md) instead of the
+capture procedure above: no mandated capture, verification, reading, or work-call
+quota. It records SDK-bound public context, tool events, usage, and artifact
+revisions without adding instructions to the analyst. Private reasoning and
+credentials are excluded from observer logs.
+
+See the [study plan](docs/ANALYST_OBSERVABILITY_PLAN.md) and
+[literal-role analysis](docs/LITERAL_ROLE_ANALYSIS.md). Run
+`python tools/check_observer_runtime.py` for a zero-network SDK smoke test.
+Paid campaigns require explicit authorization and `--execute-paid`; logging and
+staging alone do not launch an analyst. The six recorded cells cost $20.477217.
 
 ## Conversational chain experiment (one analyst result)
 
